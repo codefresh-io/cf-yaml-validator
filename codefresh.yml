@@ -1,0 +1,9 @@
+version: '1.0'
+
+steps:
+  unit-test:
+    image: codefresh/buildpacks:all-5
+    working-directory: ${{initial-clone}}
+    commands:
+      - npm install
+      - gulp
