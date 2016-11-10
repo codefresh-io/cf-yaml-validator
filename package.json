@@ -1,0 +1,24 @@
+{
+  "name": "yaml-validator",
+  "version": "0.0.1",
+  "main": "src/validator.js",
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "chai": "^3.0.0",
+    "gulp": "^3.9.0",
+    "gulp-eslint": "^3.0.0",
+    "gulp-istanbul": "^1.1.1",
+    "gulp-load-plugins": "^1.3.0",
+    "gulp-mocha": "^3.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sequence": "^0.4.6",
+    "isparta": "^4.0.0",
+    "mocha": "^3.1.2",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
+  },
+  "dependencies": {
+    "joi": "^9.2.0",
+    "lodash": "^3.6.0"
+  }
+}
