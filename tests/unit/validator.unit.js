@@ -9,7 +9,7 @@ const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
 
-const Validator = require('../../src/validator');
+const Validator = require('../../validator');
 
 function validate(model) {
     return Validator.validate(model);

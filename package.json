@@ -1,5 +1,21 @@
 {
-  "name": "yaml-validator",
+  "name": "@codefresh-io/yaml-validator",
+  "description": "An NPM module/CLI for validating the Codefresh YAML",
+  "keywords": [
+    "codefresh",
+    "yaml",
+    "validator",
+    "library",
+    "cli",
+    "ci",
+    "cd"
+  ],
+  "homepage": "https://github.com/codefresh-io/cf-yaml-validator",
+  "license": "MIT",
+  "author": "Noam Tenne <noam@codefresh.io> (https://github.com/noamt)",
+  "bin": {
+    "cyv": "./index.js"
+  },
   "version": "0.0.1",
   "main": "src/validator.js",
   "devDependencies": {
@@ -19,6 +35,7 @@
   },
   "dependencies": {
     "joi": "^9.2.0",
-    "lodash": "^3.6.0"
+    "js-yaml": "^3.7.0",
+    "yargs": "^6.3.0"
   }
 }

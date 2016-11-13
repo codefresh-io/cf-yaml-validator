@@ -142,7 +142,9 @@ class Validator {
     static _getRootSchema() {
         return Joi.object({
             version: Joi.number().positive().required(),
-            steps:   Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Validator._getStepSchema()).required()
+            steps:   Joi.object()
+                         .pattern(/^[a-zA-Z0-9_]+$/, Validator._getStepSchema())
+                         .required()
         });
     }
 
