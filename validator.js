@@ -11,7 +11,14 @@
 
 const Joi = require('joi');
 
+const GIT_CLONE   = 'git-clone';
+const BUILD       = 'build';
+const PUSH        = 'push';
+const COMPOSITION = 'composition';
+const ALL_STEPS   = [GIT_CLONE, BUILD, PUSH, COMPOSITION];
+
 class Validator {
+
     //------------------------------------------------------------------------------
     // Helpers
     //------------------------------------------------------------------------------
@@ -38,20 +45,16 @@ class Validator {
 
     static _getCommonStepSchema() {
         return {
-            'type':              Joi.string()
-                                     .valid('git-clone',
-                                         'build',
-                                         'push',
-                                         'composition'),
-            'working-directory': Joi.string().when('type', { is: 'push', then: Joi.forbidden() }),
+            'type':              Joi.string().valid(ALL_STEPS),
+            'working-directory': Joi.string().when('type', { is: PUSH, then: Joi.forbidden() }),
             'description':       Joi.string(),
             'fail-fast':         Joi.boolean(),
             'credentials':       Validator._getCredentialsSchema()
                                      .when('type',
-                                         { is: ['git-clone', 'push'], otherwise: Joi.forbidden() }),
+                                         { is: [GIT_CLONE, PUSH], otherwise: Joi.forbidden() }),
             'tag':               Joi.string()
                                      .when('type',
-                                         { is: ['build', 'push'], otherwise: Joi.forbidden() }),
+                                         { is: [BUILD, PUSH], otherwise: Joi.forbidden() }),
             'when':              Validator._getWhenSchema()
         };
     }
@@ -70,7 +73,7 @@ class Validator {
 
     static _freestyleExclusive(schema) {
         return schema.when('type', {
-            is:   ['git-clone', 'build', 'push', 'composition'],
+            is:   ALL_STEPS,
             then: Joi.forbidden()
         });
     }
@@ -83,7 +86,7 @@ class Validator {
     }
 
     static _gitCloneExclusive(schema) {
-        return Validator._stepExclusive(schema, 'git-clone');
+        return Validator._stepExclusive(schema, GIT_CLONE);
     }
 
     static _getBuildStepSchema() {
@@ -95,7 +98,7 @@ class Validator {
     }
 
     static _buildExclusive(schema) {
-        return Validator._stepExclusive(schema, 'build');
+        return Validator._stepExclusive(schema, BUILD);
     }
 
     static _getPushStepSchema() {
@@ -106,7 +109,7 @@ class Validator {
     }
 
     static _gitPushExclusive(schema) {
-        return Validator._stepExclusive(schema, 'push');
+        return Validator._stepExclusive(schema, PUSH);
     }
 
     static _getCompositionStepSchema() {
@@ -119,7 +122,7 @@ class Validator {
     }
 
     static _compositionExclusive(schema) {
-        return Validator._stepExclusive(schema, 'composition');
+        return Validator._stepExclusive(schema, COMPOSITION);
     }
 
     static _getStepSchema() {
