@@ -19,7 +19,7 @@ $ npm install @codefresh-io/yaml-validator -g
 cyv validate
 
 # Validate the specified codefresh.yml file
-cyv validate -file /path/to/codefresh.yml 
+cyv validate --file /path/to/codefresh.yml 
 ```
 
 ### NPM Module
