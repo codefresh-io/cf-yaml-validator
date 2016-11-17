@@ -11,7 +11,7 @@
 
 const Joi = require('joi');
 
-class BaseSchema10 {
+class BaseSchema {
 
     //------------------------------------------------------------------------------
     // Helpers
@@ -34,7 +34,7 @@ class BaseSchema10 {
         return {
             'description': Joi.string(),
             'fail-fast':   Joi.boolean(),
-            'when':        BaseSchema10._getWhenSchema()
+            'when':        BaseSchema._getWhenSchema()
         };
     }
 
@@ -58,4 +58,4 @@ class BaseSchema10 {
     }
 }
 // Exported objects/methods
-module.exports = BaseSchema10;
+module.exports = BaseSchema;

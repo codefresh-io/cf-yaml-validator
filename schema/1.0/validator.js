@@ -13,7 +13,7 @@ const Joi  = require('joi');
 const fs   = require('fs');
 const path = require('path');
 
-class Validator10 {
+class Validator {
 
     //------------------------------------------------------------------------------
     // Helpers
@@ -41,7 +41,7 @@ class Validator10 {
     }
 
     static _validateStepSchema(objectModel) {
-        const stepsSchemas = Validator10._resolveStepSchemas();
+        const stepsSchemas = Validator._resolveStepSchemas();
         const steps        = objectModel.steps;
         for (const stepName in steps) {
             const step = steps[stepName];
@@ -73,9 +73,9 @@ class Validator10 {
      * @throws An error containing the details of the validation failure
      */
     static validate(objectModel) {
-        Validator10._validateRootSchema(objectModel);
-        Validator10._validateStepSchema(objectModel);
+        Validator._validateRootSchema(objectModel);
+        Validator._validateStepSchema(objectModel);
     }
 }
 // Exported objects/methods
-module.exports = Validator10.validate;
+module.exports = Validator.validate;
