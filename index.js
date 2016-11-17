@@ -36,7 +36,7 @@ if (!fs.existsSync(pathToYamlFile)) {
 
 try {
     const doc = yaml.safeLoad(fs.readFileSync(pathToYamlFile, 'utf8'));
-    Validator.validate(doc);
+    Validator(doc);
     console.log('Rejoice! Your Codefresh YAML is valid!');
 } catch (e) {
     console.log(`Validation error: ${e.message}`);

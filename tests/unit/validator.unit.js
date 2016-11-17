@@ -12,7 +12,7 @@ chai.use(sinonChai);
 const Validator = require('../../validator');
 
 function validate(model) {
-    return Validator.validate(model);
+    return Validator(model);
 }
 
 function validateForError(model, expectedMessage, done) {
@@ -20,7 +20,7 @@ function validateForError(model, expectedMessage, done) {
         validate(model);
         done(new Error('Validation should have failed'));
     } catch (e) {
-        expect(e.details[0].message).to.equal(expectedMessage);
+        expect(e.message).to.match(new RegExp(`.*${expectedMessage}.*`));
         done();
     }
 }
@@ -63,14 +63,14 @@ describe('Validate Codefresh YAML', () => {
 
         describe('Common step attributes', () => {
 
-            it('Unrecognized type', (done) => {
+            it('Unrecognized type', () => {
 
-                validateForError({
+                validate({
                     version: '1.0',
                     steps:   {
                         jim: { type: 'invalid' }
                     }
-                }, '"type" must be one of [git-clone, build, push, composition]', done);
+                });
             });
 
             it('Working directory on a push step', (done) => {
@@ -79,7 +79,8 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':              'push',
+                            type:                'push',
+                            candidate:           'bob',
                             'working-directory': 'meow'
                         }
                     }
@@ -92,8 +93,9 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            type:        'build',
-                            credentials: {
+                            type:         'build',
+                            'image-name': 'jimb',
+                            credentials:  {
                                 username: 'jim',
                                 password: 'bob'
                             }
@@ -135,6 +137,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':        'build',
+                            'image-name':  'jimb',
                             'description': {}
                         }
                     }
@@ -147,8 +150,9 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':      'build',
-                            'fail-fast': {}
+                            'type':       'build',
+                            'image-name': 'jimb',
+                            'fail-fast':  {}
                         }
                     }
                 }, '"fail-fast" must be a boolean', done);
@@ -200,8 +204,9 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            type:  'build',
-                            image: 'bobson'
+                            type:         'build',
+                            'image-name': 'jimb',
+                            image:        'bobson'
                         }
                     }
                 }, '"image" is not allowed', done);
@@ -293,8 +298,9 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            type: 'build',
-                            repo: 'github.com/owner/repo'
+                            type:         'build',
+                            'image-name': 'jimb',
+                            repo:         'github.com/owner/repo'
                         }
                     }
                 }, '"repo" is not allowed', done);
@@ -320,8 +326,9 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            type:     'build',
-                            revision: 'github.com/owner/repo'
+                            type:         'build',
+                            'image-name': 'jimb',
+                            revision:     'github.com/owner/repo'
                         }
                     }
                 }, '"revision" is not allowed', done);
@@ -564,6 +571,18 @@ describe('Validate Codefresh YAML', () => {
                     composition: {
                         type:        'composition',
                         composition: {}
+                    },
+                    string_composition: {
+                        type:        'composition',
+                        composition: 'path/to/composition'
+                    },
+                    composition_launch: {
+                        type:        'composition-launch',
+                        composition: {}
+                    },
+                    string_composition_launch: {
+                        type:        'composition-launch',
+                        composition: 'path/to/composition'
                     }
                 }
             });
