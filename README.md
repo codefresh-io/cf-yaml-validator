@@ -30,7 +30,7 @@ const yaml = require('js-yaml');
 const fs   = require('fs');
 
 const doc = yaml.safeLoad(fs.readFileSync('/path/to/codefresh.yml', 'utf8'));
-Validator.validate(doc);
+Cyv(doc);
 ```
 
 ## License
