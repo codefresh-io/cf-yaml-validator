@@ -22,6 +22,7 @@ const argv = require('yargs')
             describe: 'Specify the path of the Codefresh YAML file to validate'
         }
     })
+    .version()
     .argv;
 
 let pathToYamlFile = argv.f;
