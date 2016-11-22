@@ -124,7 +124,7 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            image: 'myimage',
+                            image:               'myimage',
                             'working_directory': {}
                         }
                     }
@@ -143,6 +143,20 @@ describe('Validate Codefresh YAML', () => {
                         }
                     }
                 }, '"description" must be a string', done);
+            });
+
+            it('Non-string title', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':       'build',
+                            'image_name': 'jimb',
+                            'title':      {}
+                        }
+                    }
+                }, '"title" must be a string', done);
             });
 
             it('Non-boolean fail-fast', (done) => {
@@ -554,30 +568,30 @@ describe('Validate Codefresh YAML', () => {
             validate({
                 version: '1.0',
                 steps:   {
-                    free:        {
+                    free:                      {
                         image: 'image/id',
                     },
-                    clone:       {
+                    clone:                     {
                         type: 'git-clone',
                         repo: 'github.com/owner/repo'
                     },
-                    build:       {
+                    build:                     {
                         'type':       'build',
                         'image_name': 'teh-image'
                     },
-                    push:        {
+                    push:                      {
                         type:      'push',
                         candidate: 'teh-image'
                     },
-                    composition: {
+                    composition:               {
                         type:        'composition',
                         composition: {}
                     },
-                    string_composition: {
+                    string_composition:        {
                         type:        'composition',
                         composition: 'path/to/composition'
                     },
-                    composition_launch: {
+                    composition_launch:        {
                         type:        'composition-launch',
                         composition: {}
                     },
@@ -662,6 +676,7 @@ describe('Validate Codefresh YAML', () => {
                 steps:   {
                     free:        {
                         'description':       'desc',
+                        'title':             'Freestyle step',
                         'image':             'image/id',
                         'working_directory': 'working/dir',
                         'commands':          ['jim', 'bob'],
@@ -672,6 +687,7 @@ describe('Validate Codefresh YAML', () => {
                     clone:       {
                         'type':              'git-clone',
                         'description':       'desc',
+                        'title':             'Git clone step',
                         'working_directory': 'working/dir',
                         'repo':              'github.com/owner/repo',
                         'revision':          'abcdef12345',
@@ -682,6 +698,7 @@ describe('Validate Codefresh YAML', () => {
                     build:       {
                         'type':              'build',
                         'description':       'desc',
+                        'title':             'Build step',
                         'working_directory': 'working/dir',
                         'dockerfile':        'path/to/dockerfile',
                         'image_name':        'teh-image',
@@ -693,6 +710,7 @@ describe('Validate Codefresh YAML', () => {
                     push:        {
                         'type':        'push',
                         'description': 'desc',
+                        'title':       'Push step',
                         'candidate':   'teh-image',
                         'tag':         'develop',
                         'registry':    'dtr.host.com',
@@ -703,6 +721,7 @@ describe('Validate Codefresh YAML', () => {
                     composition: {
                         'type':                   'composition',
                         'description':            'desc',
+                        'title':                  'Composition step',
                         'working_directory':      'working/dir',
                         'composition':            {
                             version:  '2',

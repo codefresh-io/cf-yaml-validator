@@ -33,13 +33,14 @@ class BaseSchema {
     _applyCommonSchemaProperties(schemaProperties) {
         return Object.assign(schemaProperties, {
             'description': Joi.string(),
+            'title':       Joi.string(),
             'fail_fast':   Joi.boolean(),
             'when':        BaseSchema._getWhenSchema()
         });
     }
 
     _applyCommonCompatibility(schema) {
-        return schema.rename('fail-fast', 'fail_fast', {ignoreUndefined: true});
+        return schema.rename('fail-fast', 'fail_fast', { ignoreUndefined: true });
     }
 
     _applyStepCompatibility(schema) {
@@ -48,8 +49,8 @@ class BaseSchema {
 
     _createSchema(stepProperties) {
         stepProperties = this._applyCommonSchemaProperties(stepProperties);
-        let stepSchema   = Joi.object(stepProperties);
-        stepSchema = this._applyCommonCompatibility(stepSchema);
+        let stepSchema = Joi.object(stepProperties);
+        stepSchema     = this._applyCommonCompatibility(stepSchema);
         return this._applyStepCompatibility(stepSchema);
     }
 
