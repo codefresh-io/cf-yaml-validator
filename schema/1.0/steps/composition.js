@@ -29,13 +29,13 @@ class Composition extends BaseSchema {
             'composition_candidates': Joi.object(),
             'composition_variables':  Joi.array().items(Joi.string()),
         };
-        return this._createSchema(compositionProperties);
+        return this._createSchema(compositionProperties).unknown();
     }
 
     _applyStepCompatibility(schema) {
-        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true})
-            .rename('composition-candidates', 'composition_candidates', {ignoreUndefined: true})
-            .rename('composition-variables', 'composition_variables', {ignoreUndefined: true});
+        return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true })
+            .rename('composition-candidates', 'composition_candidates', { ignoreUndefined: true })
+            .rename('composition-variables', 'composition_variables', { ignoreUndefined: true });
     }
 }
 // Exported objects/methods

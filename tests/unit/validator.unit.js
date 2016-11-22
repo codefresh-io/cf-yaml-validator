@@ -186,19 +186,6 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"tag" must be a string', done);
             });
-
-            it('Tag on freestyle step', (done) => {
-
-                validateForError({
-                    version: '1.0',
-                    steps:   {
-                        jim: {
-                            'image': 'w00t',
-                            'tag':   'jim'
-                        }
-                    }
-                }, '"tag" is not allowed', done);
-            });
         });
 
         describe('Freestyle step attributes', () => {
@@ -736,6 +723,68 @@ describe('Validate Codefresh YAML', () => {
                         'composition_variables':  ['jim=bob'],
                         'fail_fast':              true,
                         'when':                   { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                    }
+                }
+            });
+            done();
+        });
+
+        it('Use internal schema properties', (done) => {
+            validate({
+                version: '1.0',
+                steps:   {
+                    free:               {
+                        'description':       'desc',
+                        'title':             'Freestyle step',
+                        'image':             'image/id',
+                        'working_directory': 'working/dir',
+                        'commands':          ['jim', 'bob'],
+                        'environment':       ['key=value', 'key1=value¡'],
+                        'fail_fast':         true,
+                        'when':              { branch: { only: ['master'] } },
+                        'create_file':       'yes'
+                    },
+                    composition:        {
+                        'type':                           'composition',
+                        'description':                    'desc',
+                        'title':                          'Composition step',
+                        'working_directory':              'working/dir',
+                        'composition':                    {
+                            version:  '2',
+                            services: { db: { image: 'postgres' } }
+                        },
+                        'composition_candidates':         {
+                            'test-service': {
+                                image:   '${{from-step}}',
+                                command: 'gulp lint'
+                            }
+                        },
+                        'composition_variables':          ['jim=bob'],
+                        'fail_fast':                      true,
+                        'when':                           { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } },
+                        'add_flow_volume_to_composition': true,
+                        'environment_name':               'moo',
+                        'entry_point':                    'jim',
+                        assets:                           'bob',
+                        'create_file':                    'yes'
+                    },
+                    composition_launch: {
+                        'type':                           'composition-launch',
+                        'description':                    'desc',
+                        'title':                          'Composition step',
+                        'working_directory':              'working/dir',
+                        'composition':                    {
+                            version:  '2',
+                            services: { db: { image: 'postgres' } }
+                        },
+                        'composition_variables':          ['jim=bob'],
+                        'fail_fast':                      true,
+                        'when':                           { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } },
+                        'add_flow_volume_to_composition': true,
+                        'environment_name':               'moo',
+                        'entry_point':                    'jim',
+                        assets:                           'bob',
+                        'create_file':                    'yes'
                     }
                 }
             });

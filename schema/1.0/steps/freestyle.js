@@ -28,11 +28,11 @@ class Freestyle extends BaseSchema {
             commands:            Joi.array().items(Joi.string()),
             environment:         Joi.array().items(Joi.string())
         };
-        return this._createSchema(freestyleProperties);
+        return this._createSchema(freestyleProperties).unknown();
     }
 
     _applyStepCompatibility(schema) {
-        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true});
+        return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true });
     }
 }
 // Exported objects/methods
