@@ -25,12 +25,12 @@ cyv validate --file /path/to/codefresh.yml
 ### NPM Module
 
 ```js
-const Cyv  = require('@codefresh-io/yaml-validator');
+const cyv  = require('@codefresh-io/yaml-validator');
 const yaml = require('js-yaml');
 const fs   = require('fs');
 
 const doc = yaml.safeLoad(fs.readFileSync('/path/to/codefresh.yml', 'utf8'));
-Cyv(doc);
+cyv(doc);
 ```
 
 ## License
