@@ -32,9 +32,9 @@ class Validator {
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
         const stepsSchemaModules = {};
         allStepSchemaFiles.forEach((schemaFile => {
-            const stepSchemaModule = require(path.join(stepsPath, schemaFile));
-            if (stepSchemaModule.getType()) {
-                stepsSchemaModules[stepSchemaModule.getType()] = stepSchemaModule.getSchema();
+            const StepSchemaModule = require(path.join(stepsPath, schemaFile));
+            if (StepSchemaModule.getType()) {
+                stepsSchemaModules[StepSchemaModule.getType()] = new StepSchemaModule().getSchema();
             }
         }));
         return stepsSchemaModules;

@@ -21,15 +21,21 @@ class Composition extends BaseSchema {
         return 'composition';
     }
 
-    static getSchema() {
-        const compositionSchema = {
+    getSchema() {
+        let compositionProperties = {
             type:                     Joi.string().valid(Composition.getType()),
-            'working-directory':      Joi.string(),
+            'working_directory':      Joi.string(),
             composition:              Joi.alternatives(Joi.object(), Joi.string()).required(),
-            'composition-candidates': Joi.object(),
-            'composition-variables':  Joi.array().items(Joi.string()),
+            'composition_candidates': Joi.object(),
+            'composition_variables':  Joi.array().items(Joi.string()),
         };
-        return Object.assign(compositionSchema, BaseSchema._commonSchema());
+        return this._createSchema(compositionProperties);
+    }
+
+    _applyStepCompatibility(schema) {
+        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true})
+            .rename('composition-candidates', 'composition_candidates', {ignoreUndefined: true})
+            .rename('composition-variables', 'composition_variables', {ignoreUndefined: true});
     }
 }
 // Exported objects/methods

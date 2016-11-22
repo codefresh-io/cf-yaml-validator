@@ -30,12 +30,27 @@ class BaseSchema {
         });
     }
 
-    static _commonSchema() {
-        return {
+    _applyCommonSchemaProperties(schemaProperties) {
+        return Object.assign(schemaProperties, {
             'description': Joi.string(),
-            'fail-fast':   Joi.boolean(),
+            'fail_fast':   Joi.boolean(),
             'when':        BaseSchema._getWhenSchema()
-        };
+        });
+    }
+
+    _applyCommonCompatibility(schema) {
+        return schema.rename('fail-fast', 'fail_fast', {ignoreUndefined: true});
+    }
+
+    _applyStepCompatibility(schema) {
+        return schema;
+    }
+
+    _createSchema(stepProperties) {
+        stepProperties = this._applyCommonSchemaProperties(stepProperties);
+        let stepSchema   = Joi.object(stepProperties);
+        stepSchema = this._applyCommonCompatibility(stepSchema);
+        return this._applyStepCompatibility(stepSchema);
     }
 
     static _getCredentialsSchema() {
@@ -53,7 +68,7 @@ class BaseSchema {
         throw new Error('Implement this');
     }
 
-    static getSchema() {
+    getSchema() {
         throw new Error('Implement this');
     }
 }

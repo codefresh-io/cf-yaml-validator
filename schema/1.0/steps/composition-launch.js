@@ -21,14 +21,19 @@ class CompositionLaunch extends BaseSchema {
         return 'composition-launch';
     }
 
-    static getSchema() {
-        const compositionLaunchSchema = {
+    getSchema() {
+        let compositionProperties = {
             type:                    Joi.string().valid(CompositionLaunch.getType()),
-            'working-directory':     Joi.string(),
+            'working_directory':     Joi.string(),
             composition:             Joi.alternatives(Joi.object(), Joi.string()).required(),
-            'composition-variables': Joi.array().items(Joi.string()),
+            'composition_variables': Joi.array().items(Joi.string()),
         };
-        return Object.assign(compositionLaunchSchema, BaseSchema._commonSchema());
+        return this._createSchema(compositionProperties);
+    }
+
+    _applyStepCompatibility(schema) {
+        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true})
+            .rename('composition-variables', 'composition_variables', {ignoreUndefined: true});
     }
 }
 // Exported objects/methods

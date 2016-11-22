@@ -21,14 +21,18 @@ class Freestyle extends BaseSchema {
         return 'freestyle';
     }
 
-    static getSchema() {
-        const compositionLaunchSchema = {
-            'working-directory': Joi.string(),
+    getSchema() {
+        let freestyleProperties = {
+            'working_directory': Joi.string(),
             image:               Joi.string().required(),
             commands:            Joi.array().items(Joi.string()),
             environment:         Joi.array().items(Joi.string())
         };
-        return Object.assign(compositionLaunchSchema, BaseSchema._commonSchema());
+        return this._createSchema(freestyleProperties);
+    }
+
+    _applyStepCompatibility(schema) {
+        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true});
     }
 }
 // Exported objects/methods

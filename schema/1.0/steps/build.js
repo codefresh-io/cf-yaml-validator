@@ -21,16 +21,22 @@ class Build extends BaseSchema {
         return 'build';
     }
 
-    static getSchema() {
-        const buildSchema = {
+    getSchema() {
+        let buildProperties = {
             type:                Joi.string().valid(Build.getType()),
-            'working-directory': Joi.string(),
+            'working_directory': Joi.string(),
             dockerfile:          Joi.string(),
-            'image-name':        Joi.string().required(),
-            'build-arguments':   Joi.array().items(Joi.string()),
+            'image_name':        Joi.string().required(),
+            'build_arguments':   Joi.array().items(Joi.string()),
             tag:                 Joi.string()
         };
-        return Object.assign(buildSchema, BaseSchema._commonSchema());
+        return this._createSchema(buildProperties);
+    }
+
+    _applyStepCompatibility(schema) {
+        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true})
+            .rename('image-name', 'image_name', {ignoreUndefined: true})
+            .rename('build-arguments', 'build_arguments', {ignoreUndefined: true});
     }
 }
 // Exported objects/methods

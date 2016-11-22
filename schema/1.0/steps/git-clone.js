@@ -21,15 +21,19 @@ class GitClone extends BaseSchema {
         return 'git-clone';
     }
 
-    static getSchema() {
-        const gitCloneSchema = {
+    getSchema() {
+        let gitCloneProperties = {
             type:                Joi.string().valid(GitClone.getType()),
-            'working-directory': Joi.string(),
+            'working_directory': Joi.string(),
             repo:                Joi.string().required(),
             revision:            Joi.string(),
             credentials:         BaseSchema._getCredentialsSchema()
         };
-        return Object.assign(gitCloneSchema, BaseSchema._commonSchema());
+        return this._createSchema(gitCloneProperties);
+    }
+
+    _applyStepCompatibility(schema) {
+        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true});
     }
 }
 // Exported objects/methods

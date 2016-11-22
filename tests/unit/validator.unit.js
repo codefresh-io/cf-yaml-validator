@@ -81,10 +81,10 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             type:                'push',
                             candidate:           'bob',
-                            'working-directory': 'meow'
+                            'working_directory': 'meow'
                         }
                     }
-                }, '"working-directory" is not allowed', done);
+                }, '"working_directory" is not allowed', done);
             });
 
             it('Credentials on a build step', (done) => {
@@ -94,7 +94,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             type:         'build',
-                            'image-name': 'jimb',
+                            'image_name': 'jimb',
                             credentials:  {
                                 username: 'jim',
                                 password: 'bob'
@@ -124,10 +124,11 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'working-directory': {}
+                            image: 'myimage',
+                            'working_directory': {}
                         }
                     }
-                }, '"working-directory" must be a string', done);
+                }, '"working_directory" must be a string', done);
             });
 
             it('Non-string description', (done) => {
@@ -137,7 +138,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':        'build',
-                            'image-name':  'jimb',
+                            'image_name':  'jimb',
                             'description': {}
                         }
                     }
@@ -151,11 +152,11 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':       'build',
-                            'image-name': 'jimb',
-                            'fail-fast':  {}
+                            'image_name': 'jimb',
+                            'fail_fast':  {}
                         }
                     }
-                }, '"fail-fast" must be a boolean', done);
+                }, '"fail_fast" must be a boolean', done);
             });
 
             it('Non-string tag', (done) => {
@@ -165,7 +166,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':       'build',
-                            'image-name': 'jim',
+                            'image_name': 'jim',
                             'tag':        []
                         }
                     }
@@ -205,7 +206,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             type:         'build',
-                            'image-name': 'jimb',
+                            'image_name': 'jimb',
                             image:        'bobson'
                         }
                     }
@@ -299,7 +300,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             type:         'build',
-                            'image-name': 'jimb',
+                            'image_name': 'jimb',
                             repo:         'github.com/owner/repo'
                         }
                     }
@@ -327,7 +328,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             type:         'build',
-                            'image-name': 'jimb',
+                            'image_name': 'jimb',
                             revision:     'github.com/owner/repo'
                         }
                     }
@@ -346,7 +347,7 @@ describe('Validate Codefresh YAML', () => {
                             type: 'build',
                         }
                     }
-                }, '"image-name" is required', done);
+                }, '"image_name" is required', done);
             });
 
             it('Non-string image name', (done) => {
@@ -356,10 +357,10 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':       'build',
-                            'image-name': []
+                            'image_name': []
                         }
                     }
-                }, '"image-name" must be a string', done);
+                }, '"image_name" must be a string', done);
             });
 
             it('Image name on non-build step', (done) => {
@@ -370,10 +371,10 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             'type':       'git-clone',
                             'repo':       'jim',
-                            'image-name': 'github.com/owner/repo'
+                            'image_name': 'github.com/owner/repo'
                         }
                     }
-                }, '"image-name" is not allowed', done);
+                }, '"image_name" is not allowed', done);
             });
 
             it('Non-string Dockerfile', (done) => {
@@ -383,7 +384,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':       'build',
-                            'image-name': 'jim',
+                            'image_name': 'jim',
                             'dockerfile': []
                         }
                     }
@@ -411,11 +412,11 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':            'build',
-                            'image-name':      'jim',
-                            'build-arguments': ''
+                            'image_name':      'jim',
+                            'build_arguments': ''
                         }
                     }
-                }, '"build-arguments" must be an array', done);
+                }, '"build_arguments" must be an array', done);
             });
 
             it('Non-string build arguments', (done) => {
@@ -425,8 +426,8 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':            'build',
-                            'image-name':      'jim',
-                            'build-arguments': [{}, 'asdasd']
+                            'image_name':      'jim',
+                            'build_arguments': [{}, 'asdasd']
                         }
                     }
                 }, '"0" must be a string', done);
@@ -467,7 +468,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':       'build',
-                            'image-name': 'jim',
+                            'image_name': 'jim',
                             'candidate':  'github.com/owner/repo'
                         }
                     }
@@ -495,7 +496,7 @@ describe('Validate Codefresh YAML', () => {
                     steps:   {
                         jim: {
                             'type':       'build',
-                            'image-name': 'jim',
+                            'image_name': 'jim',
                             'candidate':  'wowwww'
                         }
                     }
@@ -512,10 +513,10 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             'type':                  'composition',
                             'composition':           {},
-                            'composition-variables': ''
+                            'composition_variables': ''
                         }
                     }
-                }, '"composition-variables" must be an array', done);
+                }, '"composition_variables" must be an array', done);
             });
 
             it('Non-array composition variables', (done) => {
@@ -526,10 +527,10 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             'type':                  'composition',
                             'composition':           {},
-                            'composition-variables': ''
+                            'composition_variables': ''
                         }
                     }
-                }, '"composition-variables" must be an array', done);
+                }, '"composition_variables" must be an array', done);
             });
 
             it('Non-string composition variables', (done) => {
@@ -540,7 +541,7 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             'type':                  'composition',
                             'composition':           {},
-                            'composition-variables': [{}, '']
+                            'composition_variables': [{}, '']
                         }
                     }
                 }, '"0" must be a string', done);
@@ -562,7 +563,7 @@ describe('Validate Codefresh YAML', () => {
                     },
                     build:       {
                         'type':       'build',
-                        'image-name': 'teh-image'
+                        'image_name': 'teh-image'
                     },
                     push:        {
                         type:      'push',
@@ -588,7 +589,7 @@ describe('Validate Codefresh YAML', () => {
             });
             done();
         });
-        it('Full', (done) => {
+        it('Full old compatibility format', (done) => {
             validate({
                 version: '1.0',
                 steps:   {
@@ -648,6 +649,73 @@ describe('Validate Codefresh YAML', () => {
                         },
                         'composition-variables':  ['jim=bob'],
                         'fail-fast':              true,
+                        'when':                   { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                    }
+                }
+            });
+            done();
+        });
+
+        it('Full new format', (done) => {
+            validate({
+                version: '1.0',
+                steps:   {
+                    free:        {
+                        'description':       'desc',
+                        'image':             'image/id',
+                        'working_directory': 'working/dir',
+                        'commands':          ['jim', 'bob'],
+                        'environment':       ['key=value', 'key1=value¡'],
+                        'fail_fast':         true,
+                        'when':              { branch: { only: ['master'] } }
+                    },
+                    clone:       {
+                        'type':              'git-clone',
+                        'description':       'desc',
+                        'working_directory': 'working/dir',
+                        'repo':              'github.com/owner/repo',
+                        'revision':          'abcdef12345',
+                        'credentials':       { username: 'subject', password: 'credentials' },
+                        'fail_fast':         true,
+                        'when':              { branch: { ignore: ['develop'] } }
+                    },
+                    build:       {
+                        'type':              'build',
+                        'description':       'desc',
+                        'working_directory': 'working/dir',
+                        'dockerfile':        'path/to/dockerfile',
+                        'image_name':        'teh-image',
+                        'tag':               'develop',
+                        'build_arguments':   ['jim=bob'],
+                        'fail_fast':         true,
+                        'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                    },
+                    push:        {
+                        'type':        'push',
+                        'description': 'desc',
+                        'candidate':   'teh-image',
+                        'tag':         'develop',
+                        'registry':    'dtr.host.com',
+                        'credentials': { username: 'subject', password: 'credentials' },
+                        'fail_fast':   true,
+                        'when':        { branch: { only: ['/FB-/i'] } }
+                    },
+                    composition: {
+                        'type':                   'composition',
+                        'description':            'desc',
+                        'working_directory':      'working/dir',
+                        'composition':            {
+                            version:  '2',
+                            services: { db: { image: 'postgres' } }
+                        },
+                        'composition_candidates': {
+                            'test-service': {
+                                image:   '${{from-step}}',
+                                command: 'gulp lint'
+                            }
+                        },
+                        'composition_variables':  ['jim=bob'],
+                        'fail_fast':              true,
                         'when':                   { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
                     }
                 }

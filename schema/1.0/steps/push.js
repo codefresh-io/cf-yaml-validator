@@ -21,15 +21,15 @@ class Push extends BaseSchema {
         return 'push';
     }
 
-    static getSchema() {
-        const pushSchema = {
+    getSchema() {
+        let pushProperties = {
             type:        Joi.string().valid(Push.getType()),
             candidate:   Joi.string().required(),
             registry:    Joi.string(),
             credentials: BaseSchema._getCredentialsSchema(),
             tag:         Joi.string()
         };
-        return Object.assign(pushSchema, BaseSchema._commonSchema());
+        return this._createSchema(pushProperties);
     }
 }
 // Exported objects/methods
