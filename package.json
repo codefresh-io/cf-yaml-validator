@@ -1,5 +1,6 @@
 {
   "name": "@codefresh-io/yaml-validator",
+  "repository": "codefresh-io/cf-yaml-validator",
   "description": "An NPM module/CLI for validating the Codefresh YAML",
   "keywords": [
     "codefresh",
