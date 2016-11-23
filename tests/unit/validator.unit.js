@@ -512,12 +512,29 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':                  'composition',
-                            'composition':           {},
-                            'composition_variables': ''
+                            'type':                   'composition',
+                            'composition_variables':  ['meow=wuff'],
+                            'composition_candidates': {
+                                jim: 'bob'
+                            }
                         }
                     }
-                }, '"composition_variables" must be an array', done);
+                }, '"composition" is required', done);
+            });
+            it('No composition candidates', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':                  'composition',
+                            'composition':           {
+                                jim: 'bob'
+                            },
+                            'composition_variables': ['']
+                        }
+                    }
+                }, '"composition_candidates" is required', done);
             });
 
             it('Non-array composition variables', (done) => {
@@ -528,6 +545,9 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             'type':                  'composition',
                             'composition':           {},
+                            'composition_candidates': {
+                                jim: 'bob'
+                            },
                             'composition_variables': ''
                         }
                     }
@@ -542,6 +562,9 @@ describe('Validate Codefresh YAML', () => {
                         jim: {
                             'type':                  'composition',
                             'composition':           {},
+                            'composition_candidates': {
+                                jim: 'bob'
+                            },
                             'composition_variables': [{}, '']
                         }
                     }
@@ -572,11 +595,17 @@ describe('Validate Codefresh YAML', () => {
                     },
                     composition:               {
                         type:        'composition',
-                        composition: {}
+                        composition: {},
+                        'composition_candidates': {
+                            jim: 'bob'
+                        }
                     },
                     string_composition:        {
                         type:        'composition',
-                        composition: 'path/to/composition'
+                        composition: 'path/to/composition',
+                        'composition_candidates': {
+                            jim: 'bob'
+                        }
                     },
                     composition_launch:        {
                         type:        'composition-launch',
