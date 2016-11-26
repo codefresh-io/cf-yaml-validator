@@ -18,7 +18,7 @@ class CompositionLaunch extends BaseSchema {
     //------------------------------------------------------------------------------
 
     static getType() {
-        return 'composition-launch';
+        return 'launch-composition';
     }
 
     getSchema() {

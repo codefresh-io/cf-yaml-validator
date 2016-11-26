@@ -608,11 +608,11 @@ describe('Validate Codefresh YAML', () => {
                         }
                     },
                     composition_launch:        {
-                        type:        'composition-launch',
+                        type:        'launch-composition',
                         composition: {}
                     },
                     string_composition_launch: {
-                        type:        'composition-launch',
+                        type:        'launch-composition',
                         composition: 'path/to/composition'
                     }
                 }
@@ -798,7 +798,7 @@ describe('Validate Codefresh YAML', () => {
                         'create_file':                    'yes'
                     },
                     composition_launch: {
-                        'type':                           'composition-launch',
+                        'type':                           'launch-composition',
                         'description':                    'desc',
                         'title':                          'Composition step',
                         'working_directory':              'working/dir',
