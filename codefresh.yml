@@ -2,7 +2,7 @@ version: '1.0'
 
 steps:
   unit_test:
-    image: codefresh/buildpacks:all-5
+    image: codefresh/buildpacks:nodejs-5
     working_directory: ${{main_clone}}
     commands:
       - npm install
