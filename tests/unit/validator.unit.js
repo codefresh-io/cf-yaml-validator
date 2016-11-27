@@ -2,6 +2,7 @@
 
 'use strict';
 
+const yaml = require('js-yaml');
 const chai = require('chai');
 
 const expect    = chai.expect;
@@ -56,6 +57,18 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }
             }, '"whatIsThisElement" is not allowed', done);
+        });
+
+        it('Unknown version', (done) => {
+
+            validateForError({
+                version:           '0.1',
+                steps:             {
+                    jim: {
+                        image: 'bob'
+                    }
+                }
+            }, 'Unable to find a validator for schema version 0.1', done);
         });
     });
 

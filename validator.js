@@ -9,6 +9,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
+const fs   = require('fs');
 const path = require('path');
 
 class Validator {
@@ -31,7 +32,10 @@ class Validator {
             modelVersion = defaultVersion;
         }
 
-        const validatorPath      = path.join(__dirname, 'schema', modelVersion, 'validator');
+        const validatorPath = path.join(__dirname, 'schema', modelVersion, 'validator');
+        if (!fs.existsSync(`${validatorPath}.js`)) {
+            throw new Error(`Unable to find a validator for schema version ${modelVersion}`);
+        }
         const VersionedValidator = require(validatorPath);
         if (!VersionedValidator) {
             throw new Error(`Unable to find a validator for schema version ${modelVersion}`);
