@@ -2,6 +2,8 @@
 
 > An NPM module/CLI for validating the Codefresh YAML.
 
+[![npm version](https://badge.fury.io/js/%40codefresh-io%2Fyaml-validator.svg)](https://badge.fury.io/js/%40codefresh-io%2Fyaml-validator)
+
 Developed in [Codefresh](https://www.codefresh.io).
 
 ## Installation
