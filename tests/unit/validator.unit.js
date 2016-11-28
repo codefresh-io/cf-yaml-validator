@@ -724,12 +724,24 @@ describe('Validate Codefresh YAML', () => {
                         'fail_fast':         true,
                         'when':              { branch: { ignore: ['develop'] } }
                     },
-                    build:       {
+                    build_string_dockerfile:       {
                         'type':              'build',
                         'description':       'desc',
                         'title':             'Build step',
                         'working_directory': 'working/dir',
                         'dockerfile':        'path/to/dockerfile',
+                        'image_name':        'teh-image',
+                        'tag':               'develop',
+                        'build_arguments':   ['jim=bob'],
+                        'fail_fast':         true,
+                        'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                    },
+                    build_object_dockerfile:       {
+                        'type':              'build',
+                        'description':       'desc',
+                        'title':             'Build step',
+                        'working_directory': 'working/dir',
+                        'dockerfile':        {},
                         'image_name':        'teh-image',
                         'tag':               'develop',
                         'build_arguments':   ['jim=bob'],

@@ -25,7 +25,7 @@ class Build extends BaseSchema {
         let buildProperties = {
             type:                Joi.string().valid(Build.getType()),
             'working_directory': Joi.string(),
-            dockerfile:          Joi.string(),
+            dockerfile:          Joi.alternatives().try(Joi.string(), Joi.object()),
             'image_name':        Joi.string().required(),
             'build_arguments':   Joi.array().items(Joi.string()),
             tag:                 Joi.string()
