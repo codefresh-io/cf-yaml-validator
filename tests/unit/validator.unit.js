@@ -278,6 +278,20 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"0" must be a string', done);
             });
+
+
+            it('Non-string or array entrypoint', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            image:    'bob',
+                            entry_point: {}
+                        }
+                    }
+                }, '"entry_point" must be a (string|array)', done);
+            });
         });
 
         describe('Git clone step attributes', () => {
