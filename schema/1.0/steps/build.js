@@ -25,7 +25,8 @@ class Build extends BaseSchema {
         let buildProperties = {
             type:                Joi.string().valid(Build.getType()),
             'working_directory': Joi.string(),
-            dockerfile:          Joi.alternatives().try(Joi.string(), Joi.object()),
+            dockerfile:          Joi.alternatives()
+                                     .try(Joi.string(), Joi.object({ content: Joi.string() })),
             'image_name':        Joi.string().required(),
             'build_arguments':   Joi.array().items(Joi.string()),
             tag:                 Joi.string()
@@ -34,9 +35,9 @@ class Build extends BaseSchema {
     }
 
     _applyStepCompatibility(schema) {
-        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true})
-            .rename('image-name', 'image_name', {ignoreUndefined: true})
-            .rename('build-arguments', 'build_arguments', {ignoreUndefined: true});
+        return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true })
+            .rename('image-name', 'image_name', { ignoreUndefined: true })
+            .rename('build-arguments', 'build_arguments', { ignoreUndefined: true });
     }
 }
 // Exported objects/methods

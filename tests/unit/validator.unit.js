@@ -741,7 +741,7 @@ describe('Validate Codefresh YAML', () => {
                         'description':       'desc',
                         'title':             'Build step',
                         'working_directory': 'working/dir',
-                        'dockerfile':        {},
+                        'dockerfile':        {content: 'jimson'},
                         'image_name':        'teh-image',
                         'tag':               'develop',
                         'build_arguments':   ['jim=bob'],
