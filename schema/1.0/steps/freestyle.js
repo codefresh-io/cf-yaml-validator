@@ -23,10 +23,11 @@ class Freestyle extends BaseSchema {
 
     getSchema() {
         let freestyleProperties = {
-            'working_directory': Joi.string(),
-            image:               Joi.string().required(),
-            commands:            Joi.array().items(Joi.string()),
-            environment:         Joi.array().items(Joi.string())
+            working_directory: Joi.string(),
+            image:             Joi.string().required(),
+            commands:          Joi.array().items(Joi.string()),
+            environment:       Joi.array().items(Joi.string()),
+            entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
         };
         return this._createSchema(freestyleProperties).unknown();
     }
