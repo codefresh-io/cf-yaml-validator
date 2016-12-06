@@ -29,7 +29,8 @@ class Build extends BaseSchema {
                                      .try(Joi.string(), Joi.object({ content: Joi.string() })),
             'image_name':        Joi.string().required(),
             'build_arguments':   Joi.array().items(Joi.string()),
-            tag:                 Joi.string()
+            tag:                 Joi.string(),
+            context:             Joi.string()
         };
         return this._createSchema(buildProperties);
     }
