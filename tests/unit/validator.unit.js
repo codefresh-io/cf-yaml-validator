@@ -62,8 +62,8 @@ describe('Validate Codefresh YAML', () => {
         it('Unknown version', (done) => {
 
             validateForError({
-                version:           '0.1',
-                steps:             {
+                version: '0.1',
+                steps:   {
                     jim: {
                         image: 'bob'
                     }
@@ -286,7 +286,7 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            image:    'bob',
+                            image:       'bob',
                             entry_point: {}
                         }
                     }
@@ -460,6 +460,60 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"0" must be a string', done);
             });
+
+            it('Unknown metadata operation', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':       'build',
+                            'image_name': 'jim',
+                            'metadata':   {
+                                'unset': [{ qa: 'pending' }]
+                            }
+                        }
+                    }
+                }, '"unset" is not allowed', done);
+            });
+
+            it('Invalid character in metadata key', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':       'build',
+                            'image_name': 'jim',
+                            'metadata':   {
+                                'set': [{ 'qa.bob': 'pending' }]
+                            }
+                        }
+                    }
+                }, '"qa.bob" is not allowed', done);
+            });
+
+            it('Unknown metadata value object', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':       'build',
+                            'image_name': 'jim',
+                            'metadata':   {
+                                'set': [
+                                    {
+                                        'bob': {
+                                            uneval: false
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }, '"eval" is required', done);
+            });
         });
 
         describe('Push step attributes', () => {
@@ -570,12 +624,12 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':                  'composition',
-                            'composition':           {},
+                            'type':                   'composition',
+                            'composition':            {},
                             'composition_candidates': {
                                 jim: 'bob'
                             },
-                            'composition_variables': ''
+                            'composition_variables':  ''
                         }
                     }
                 }, '"composition_variables" must be an array', done);
@@ -587,12 +641,12 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':                  'composition',
-                            'composition':           {},
+                            'type':                   'composition',
+                            'composition':            {},
                             'composition_candidates': {
                                 jim: 'bob'
                             },
-                            'composition_variables': [{}, '']
+                            'composition_variables':  [{}, '']
                         }
                     }
                 }, '"0" must be a string', done);
@@ -621,15 +675,15 @@ describe('Validate Codefresh YAML', () => {
                         candidate: 'teh-image'
                     },
                     composition:               {
-                        type:        'composition',
-                        composition: {},
+                        type:                     'composition',
+                        composition:              {},
                         'composition_candidates': {
                             jim: 'bob'
                         }
                     },
                     string_composition:        {
-                        type:        'composition',
-                        composition: 'path/to/composition',
+                        type:                     'composition',
+                        composition:              'path/to/composition',
                         'composition_candidates': {
                             jim: 'bob'
                         }
@@ -717,7 +771,7 @@ describe('Validate Codefresh YAML', () => {
             validate({
                 version: '1.0',
                 steps:   {
-                    free:        {
+                    free:                    {
                         'description':       'desc',
                         'title':             'Freestyle step',
                         'image':             'image/id',
@@ -727,7 +781,7 @@ describe('Validate Codefresh YAML', () => {
                         'fail_fast':         true,
                         'when':              { branch: { only: ['master'] } }
                     },
-                    clone:       {
+                    clone:                   {
                         'type':              'git-clone',
                         'description':       'desc',
                         'title':             'Git clone step',
@@ -738,7 +792,7 @@ describe('Validate Codefresh YAML', () => {
                         'fail_fast':         true,
                         'when':              { branch: { ignore: ['develop'] } }
                     },
-                    build_string_dockerfile:       {
+                    build_string_dockerfile: {
                         'type':              'build',
                         'description':       'desc',
                         'title':             'Build step',
@@ -750,19 +804,27 @@ describe('Validate Codefresh YAML', () => {
                         'fail_fast':         true,
                         'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
                     },
-                    build_object_dockerfile:       {
+                    build_object_dockerfile: {
                         'type':              'build',
                         'description':       'desc',
                         'title':             'Build step',
                         'working_directory': 'working/dir',
-                        'dockerfile':        {content: 'jimson'},
+                        'dockerfile':        { content: 'jimson' },
                         'image_name':        'teh-image',
                         'tag':               'develop',
                         'build_arguments':   ['jim=bob'],
                         'fail_fast':         true,
-                        'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                        'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } },
+                        'metadata':          {
+                            'set': [
+                                { 'qa': 'pending' },
+                                { 'healthy': true },
+                                { 'quality': 67 },
+                                { 'is_tested': { eval: '${{unit_test_step.status}} === success' } }
+                            ]
+                        }
                     },
-                    push:        {
+                    push:                    {
                         'type':        'push',
                         'description': 'desc',
                         'title':       'Push step',
@@ -773,7 +835,7 @@ describe('Validate Codefresh YAML', () => {
                         'fail_fast':   true,
                         'when':        { branch: { only: ['/FB-/i'] } }
                     },
-                    composition: {
+                    composition:             {
                         'type':                   'composition',
                         'description':            'desc',
                         'title':                  'Composition step',

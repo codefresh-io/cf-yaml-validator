@@ -24,12 +24,25 @@ class Build extends BaseSchema {
     getSchema() {
         let buildProperties = {
             type:                Joi.string().valid(Build.getType()),
-            'working_directory': Joi.string(),
+            working_directory: Joi.string(),
             dockerfile:          Joi.alternatives()
                                      .try(Joi.string(), Joi.object({ content: Joi.string() })),
-            'image_name':        Joi.string().required(),
-            'build_arguments':   Joi.array().items(Joi.string()),
-            tag:                 Joi.string()
+            image_name:        Joi.string().required(),
+            build_arguments:   Joi.array().items(Joi.string()),
+            tag:                 Joi.string(),
+            metadata: Joi.object({
+                set: Joi.array().items(
+                    Joi.object().pattern(/^[A-Za-z09_]+$/, Joi.alternatives().try(
+                        [
+                            Joi.string(),
+                            Joi.boolean(),
+                            Joi.number(),
+                            Joi.object({ eval: Joi.string().required() })
+                        ]
+                    )).required()
+                )
+            })
+
         };
         return this._createSchema(buildProperties);
     }
