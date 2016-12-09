@@ -584,6 +584,25 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"candidate" is not allowed', done);
             });
+
+            it('ECR registry puss step', () => {
+
+                validate({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':       'push',
+                            'provider': 'ecr',
+                            'candidate':  'wowwww',
+                            'registry': 'reg',
+                            'tag': 'tg',
+                            'accessKeyId': 'kid',
+                            'secretAccessKey': 'sac',
+                            'region': 'rg'
+                        }
+                    }
+                });
+            });
         });
 
         describe('Composition step attributes', () => {
