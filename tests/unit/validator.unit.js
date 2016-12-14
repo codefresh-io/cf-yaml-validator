@@ -512,7 +512,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"eval" is required', done);
+                }, '"evaluate" is required', done);
             });
         });
 
@@ -591,14 +591,14 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':       'push',
-                            'provider': 'ecr',
-                            'candidate':  'wowwww',
-                            'registry': 'reg',
-                            'tag': 'tg',
-                            'accessKeyId': 'kid',
+                            'type':            'push',
+                            'provider':        'ecr',
+                            'candidate':       'wowwww',
+                            'registry':        'reg',
+                            'tag':             'tg',
+                            'accessKeyId':     'kid',
                             'secretAccessKey': 'sac',
-                            'region': 'rg'
+                            'region':          'rg'
                         }
                     }
                 });
@@ -839,7 +839,8 @@ describe('Validate Codefresh YAML', () => {
                                 { 'qa': 'pending' },
                                 { 'healthy': true },
                                 { 'quality': 67 },
-                                { 'is_tested': { eval: '${{unit_test_step.status}} === success' } }
+                                { 'is_tested': { evaluate: '${{unit_test_step.status}} === success' } },
+                                'dangling'
                             ]
                         }
                     },
