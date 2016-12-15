@@ -34,7 +34,6 @@ class Push extends BaseSchema {
             region:          Joi.string()
 
         };
-        this._applyMetadataAnnotationSchemaProperties(pushProperties);
         return this._createSchema(pushProperties);
     }
 }

@@ -29,7 +29,6 @@ class Composition extends BaseSchema {
             'composition_candidates': Joi.object().required(),
             'composition_variables':  Joi.array().items(Joi.string()),
         };
-        this._applyMetadataAnnotationSchemaProperties(compositionProperties);
         return this._createSchema(compositionProperties).unknown();
     }
 

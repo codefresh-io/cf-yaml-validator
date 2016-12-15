@@ -28,7 +28,6 @@ class CompositionLaunch extends BaseSchema {
             composition:             Joi.alternatives(Joi.object(), Joi.string()).required(),
             'composition_variables': Joi.array().items(Joi.string()),
         };
-        this._applyMetadataAnnotationSchemaProperties(compositionProperties);
         return this._createSchema(compositionProperties).unknown();
     }
 
