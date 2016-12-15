@@ -29,6 +29,7 @@ class GitClone extends BaseSchema {
             revision:            Joi.string(),
             credentials:         BaseSchema._getCredentialsSchema()
         };
+        this._applyMetadataAnnotationSchemaProperties(gitCloneProperties);
         return this._createSchema(gitCloneProperties);
     }
 

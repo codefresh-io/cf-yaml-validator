@@ -199,6 +199,142 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"tag" must be a string', done);
             });
+
+            it('Unknown post-step metadata operation', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        push: {
+                            'type':      'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    put: [
+                                        {
+                                            '${{build_prj.image}}': [
+                                                { 'qa': 'pending' }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, '"put" is not allowed', done);
+            });
+
+            it('Unknown post-step metadata entry', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        push: {
+                            'type':      'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    set: {
+                                        '${{build_prj.image}}': [
+                                            { 'qa': 'pending' }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }, '"set" must be an array', done);
+            });
+
+            it('Unspecified image to annotate', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        push: {
+                            'type':      'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    set: [
+                                        { 'qa': 'pending' }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, '"qa" must be an array', done);
+            });
+
+            it('Invalid post-step metadata annotation key', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        push: {
+                            'type':      'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    set: [
+                                        {
+                                            '${{build_prj.image}}': [
+                                                'an invalid key'
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, '"an invalid key" fails to match', done);
+            });
+
+            it('Invalid post-step metadata annotation value', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        push: {
+                            'type':      'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    set: [
+                                        {
+                                            '${{build_prj.image}}': [
+                                                { 'key1': [] }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, '"key1" must be a', done);
+            });
+
+            it('Invalid post-step metadata annotation evaluation expression', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        push: {
+                            'type':      'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    set: [
+                                        {
+                                            '${{build_prj.image}}': [
+                                                {
+                                                    'jimbob': {
+                                                        eval: 'jimbob == jimbob'
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, '"evaluate" is required', done);
+            });
         });
 
         describe('Freestyle step attributes', () => {
@@ -798,7 +934,22 @@ describe('Validate Codefresh YAML', () => {
                         'commands':          ['jim', 'bob'],
                         'environment':       ['key=value', 'key1=value¡'],
                         'fail_fast':         true,
-                        'when':              { branch: { only: ['master'] } }
+                        'when':              { branch: { only: ['master'] } },
+                        'on_success':        {
+                            metadata: {
+                                set: [
+                                    {
+                                        '${{build_prj.image}}': [
+                                            { 'qa': 'pending' },
+                                            { 'healthy': true },
+                                            { 'quality': 67 },
+                                            { 'is_tested': { evaluate: '${{unit_test_step.status}} === success' } },
+                                            'dangling'
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     },
                     clone:                   {
                         'type':              'git-clone',
@@ -809,7 +960,22 @@ describe('Validate Codefresh YAML', () => {
                         'revision':          'abcdef12345',
                         'credentials':       { username: 'subject', password: 'credentials' },
                         'fail_fast':         true,
-                        'when':              { branch: { ignore: ['develop'] } }
+                        'when':              { branch: { ignore: ['develop'] } },
+                        'on_fail':           {
+                            metadata: {
+                                set: [
+                                    {
+                                        '${{build_prj.image}}': [
+                                            { 'qa': 'pending' },
+                                            { 'healthy': true },
+                                            { 'quality': 67 },
+                                            { 'is_tested': { evaluate: '${{unit_test_step.status}} === success' } },
+                                            'dangling'
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     },
                     build_string_dockerfile: {
                         'type':              'build',
@@ -853,9 +1019,25 @@ describe('Validate Codefresh YAML', () => {
                         'registry':    'dtr.host.com',
                         'credentials': { username: 'subject', password: 'credentials' },
                         'fail_fast':   true,
-                        'when':        { branch: { only: ['/FB-/i'] } }
+                        'when':        { branch: { only: ['/FB-/i'] } },
+                        'on_finish':   {
+                            metadata: {
+                                set: [
+                                    {
+                                        '${{build_prj.image}}': [
+                                            { 'qa': 'pending' },
+                                            { 'healthy': true },
+                                            { 'quality': 67 },
+                                            { 'is_tested': { evaluate: '${{unit_test_step.status}} === success' } },
+                                            'dangling'
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     },
-                    composition:             {
+
+                    composition: {
                         'type':                   'composition',
                         'description':            'desc',
                         'title':                  'Composition step',
@@ -872,7 +1054,22 @@ describe('Validate Codefresh YAML', () => {
                         },
                         'composition_variables':  ['jim=bob'],
                         'fail_fast':              true,
-                        'when':                   { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                        'when':                   { condition: { any: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } },
+                        'on_success':             {
+                            metadata: {
+                                set: [
+                                    {
+                                        '${{build_prj.image}}': [
+                                            { 'qa': 'pending' },
+                                            { 'healthy': true },
+                                            { 'quality': 67 },
+                                            { 'is_tested': { evaluate: '${{unit_test_step.status}} === success' } },
+                                            'dangling'
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
                     }
                 }
             });

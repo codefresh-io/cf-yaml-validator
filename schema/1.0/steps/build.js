@@ -31,16 +31,7 @@ class Build extends BaseSchema {
             build_arguments:   Joi.array().items(Joi.string()),
             tag:               Joi.string(),
             metadata:          Joi.object({
-                set: Joi.array().items(
-                    Joi.alternatives().try(
-                        Joi.object().pattern(/^[A-Za-z09_]+$/, Joi.alternatives().try(
-                            [
-                                Joi.string(),
-                                Joi.boolean(),
-                                Joi.number(),
-                                Joi.object({ evaluate: Joi.string().required() })
-                            ]
-                        )), Joi.string()))
+                set: Build._getMetadataAnnotationSetSchema()
             })
 
         };

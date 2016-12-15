@@ -61,6 +61,36 @@ class BaseSchema {
         });
     }
 
+    static _getMetadataAnnotationSetSchema() {
+        return Joi.array().items(
+            Joi.alternatives().try(
+                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
+                    [
+                        Joi.string(),
+                        Joi.boolean(),
+                        Joi.number(),
+                        Joi.object({ evaluate: Joi.string().required() })
+                    ]
+                )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
+            )
+        );
+    }
+
+    _applyMetadataAnnotationSchemaProperties(schemaProperties) {
+        const metadataAnnotationSchema = Joi.object({
+            metadata: Joi.object({
+                set: Joi.array().items(
+                    Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
+                )
+            })
+        });
+        return Object.assign(schemaProperties, {
+            'on_success': metadataAnnotationSchema,
+            'on_fail':    metadataAnnotationSchema,
+            'on_finish':  metadataAnnotationSchema,
+        });
+    }
+
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------

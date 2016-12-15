@@ -29,6 +29,7 @@ class Freestyle extends BaseSchema {
             environment:       Joi.array().items(Joi.string()),
             entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
         };
+        this._applyMetadataAnnotationSchemaProperties(freestyleProperties);
         return this._createSchema(freestyleProperties).unknown();
     }
 
