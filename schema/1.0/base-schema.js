@@ -49,6 +49,7 @@ class BaseSchema {
 
     _createSchema(stepProperties) {
         stepProperties = this._applyCommonSchemaProperties(stepProperties);
+        stepProperties = this._applyMetadataAnnotationSchemaProperties(stepProperties);
         let stepSchema = Joi.object(stepProperties);
         stepSchema     = this._applyCommonCompatibility(stepSchema);
         return this._applyStepCompatibility(stepSchema);
