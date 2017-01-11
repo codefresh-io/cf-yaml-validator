@@ -172,6 +172,20 @@ describe('Validate Codefresh YAML', () => {
                 }, '"title" must be a string', done);
             });
 
+            it('Non-string VM', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps:   {
+                        jim: {
+                            'type':       'build',
+                            'image_name': 'jimb',
+                            'vm':      {}
+                        }
+                    }
+                }, '"vm" must be a string', done);
+            });
+
             it('Non-boolean fail-fast', (done) => {
 
                 validateForError({
@@ -949,7 +963,8 @@ describe('Validate Codefresh YAML', () => {
                                     }
                                 ]
                             }
-                        }
+                        },
+                        'vm': 'google'
                     },
                     clone:                   {
                         'type':              'git-clone',
@@ -975,7 +990,8 @@ describe('Validate Codefresh YAML', () => {
                                     }
                                 ]
                             }
-                        }
+                        },
+                        'vm': 'amazon'
                     },
                     build_string_dockerfile: {
                         'type':              'build',
@@ -987,7 +1003,8 @@ describe('Validate Codefresh YAML', () => {
                         'tag':               'develop',
                         'build_arguments':   ['jim=bob'],
                         'fail_fast':         true,
-                        'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } }
+                        'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } },
+                        'vm': 'google'
                     },
                     build_object_dockerfile: {
                         'type':              'build',
@@ -1008,7 +1025,8 @@ describe('Validate Codefresh YAML', () => {
                                 { 'is_tested': { evaluate: '${{unit_test_step.status}} === success' } },
                                 'dangling'
                             ]
-                        }
+                        },
+                        'vm': 'amazon'
                     },
                     push:                    {
                         'type':        'push',
@@ -1034,7 +1052,8 @@ describe('Validate Codefresh YAML', () => {
                                     }
                                 ]
                             }
-                        }
+                        },
+                        'vm': 'google'
                     },
 
                     composition: {
@@ -1069,7 +1088,8 @@ describe('Validate Codefresh YAML', () => {
                                     }
                                 ]
                             }
-                        }
+                        },
+                        'vm': 'amazon'
                     }
                 }
             });

@@ -35,6 +35,7 @@ class BaseSchema {
             'description': Joi.string(),
             'title':       Joi.string(),
             'fail_fast':   Joi.boolean(),
+            'vm':          Joi.string(),
             'when':        BaseSchema._getWhenSchema()
         });
     }
