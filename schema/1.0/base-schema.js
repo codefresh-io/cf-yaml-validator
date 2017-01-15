@@ -35,7 +35,11 @@ class BaseSchema {
             'description': Joi.string(),
             'title':       Joi.string(),
             'fail_fast':   Joi.boolean(),
-            'vm':          Joi.string(),
+            'docker_machine':          Joi.object({
+                create: Joi.object({
+                    provider: Joi.string()
+                })
+            }),
             'when':        BaseSchema._getWhenSchema()
         });
     }

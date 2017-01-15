@@ -172,18 +172,18 @@ describe('Validate Codefresh YAML', () => {
                 }, '"title" must be a string', done);
             });
 
-            it('Non-string VM', (done) => {
+            it('Non object docker_machine', (done) => {
 
                 validateForError({
                     version: '1.0',
                     steps:   {
                         jim: {
-                            'type':       'build',
-                            'image_name': 'jimb',
-                            'vm':      {}
+                            'type':           'build',
+                            'image_name':     'jimb',
+                            'docker_machine': 'google'
                         }
                     }
-                }, '"vm" must be a string', done);
+                }, '"docker_machine" must be an object', done);
             });
 
             it('Non-boolean fail-fast', (done) => {
@@ -964,7 +964,11 @@ describe('Validate Codefresh YAML', () => {
                                 ]
                             }
                         },
-                        'vm': 'google'
+                        'docker_machine': {
+                            create: {
+                                provider: 'google'
+                            }
+                        }
                     },
                     clone:                   {
                         'type':              'git-clone',
@@ -991,7 +995,11 @@ describe('Validate Codefresh YAML', () => {
                                 ]
                             }
                         },
-                        'vm': 'amazon'
+                        'docker_machine': {
+                            create: {
+                                provider: 'amazon'
+                            }
+                        }
                     },
                     build_string_dockerfile: {
                         'type':              'build',
@@ -1004,7 +1012,11 @@ describe('Validate Codefresh YAML', () => {
                         'build_arguments':   ['jim=bob'],
                         'fail_fast':         true,
                         'when':              { condition: { all: { noDetectedSkipCI: 'includes(\'${{CF_COMMIT_MESSAGE}}\', \'[skip ci]\') == false' } } },
-                        'vm': 'google'
+                        'docker_machine': {
+                            create: {
+                                provider: 'google'
+                            }
+                        }
                     },
                     build_object_dockerfile: {
                         'type':              'build',
@@ -1026,7 +1038,11 @@ describe('Validate Codefresh YAML', () => {
                                 'dangling'
                             ]
                         },
-                        'vm': 'amazon'
+                        'docker_machine': {
+                            create: {
+                                provider: 'amazon'
+                            }
+                        }
                     },
                     push:                    {
                         'type':        'push',
@@ -1053,7 +1069,11 @@ describe('Validate Codefresh YAML', () => {
                                 ]
                             }
                         },
-                        'vm': 'google'
+                        'docker_machine': {
+                            create: {
+                                provider: 'google'
+                            }
+                        }
                     },
 
                     composition: {
@@ -1089,7 +1109,11 @@ describe('Validate Codefresh YAML', () => {
                                 ]
                             }
                         },
-                        'vm': 'amazon'
+                        'docker_machine': {
+                            create: {
+                                provider: 'amazon'
+                            }
+                        }
                     }
                 }
             });
