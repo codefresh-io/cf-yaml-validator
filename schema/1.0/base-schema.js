@@ -32,15 +32,24 @@ class BaseSchema {
 
     _applyCommonSchemaProperties(schemaProperties) {
         return Object.assign(schemaProperties, {
-            'description': Joi.string(),
-            'title':       Joi.string(),
-            'fail_fast':   Joi.boolean(),
-            'docker_machine':          Joi.object({
-                create: Joi.object({
-                    provider: Joi.string()
-                })
-            }),
-            'when':        BaseSchema._getWhenSchema()
+            'description':    Joi.string(),
+            'title':          Joi.string(),
+            'fail_fast':      Joi.boolean(),
+            'docker_machine': Joi.alternatives().try(
+                [
+                    Joi.object({
+                        create: Joi.object({
+                            provider: Joi.string()
+                        })
+                    }),
+                    Joi.object({
+                        use: Joi.object({
+                            node: Joi.string()
+                        })
+                    })
+                ]
+            ),
+            'when':           BaseSchema._getWhenSchema()
         });
     }
 

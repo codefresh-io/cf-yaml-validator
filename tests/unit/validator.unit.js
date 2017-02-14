@@ -996,8 +996,8 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                         'docker_machine': {
-                            create: {
-                                provider: 'amazon'
+                            use: {
+                                node: 'my-node-id-1'
                             }
                         }
                     },
@@ -1039,8 +1039,8 @@ describe('Validate Codefresh YAML', () => {
                             ]
                         },
                         'docker_machine': {
-                            create: {
-                                provider: 'amazon'
+                            use: {
+                                node: 'my-node-id-1'
                             }
                         }
                     },
