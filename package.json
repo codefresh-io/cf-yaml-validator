@@ -17,13 +17,14 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.0.8",
+  "version": "0.0.9",
   "main": "./validator.js",
   "scripts": {
     "prepublish": "browserify validator.js -o bundle.js"
   },
   "devDependencies": {
     "babel": "^6.5.2",
+    "browserify": "^13.1.1",
     "chai": "^3.0.0",
     "gulp": "^3.9.0",
     "gulp-eslint": "^3.0.0",
@@ -35,12 +36,11 @@
     "isparta": "^4.0.0",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
-    "sinon-chai": "^2.8.0",
-    "browserify": "^13.1.1"
+    "sinon-chai": "^2.8.0"
   },
   "dependencies": {
     "joi": "^9.2.0",
-    "js-yaml": "^3.7.0",
+    "js-yaml": "^3.8.2",
     "yargs": "^6.3.0"
   },
   "files": [
