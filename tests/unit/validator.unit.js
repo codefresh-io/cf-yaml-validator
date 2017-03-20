@@ -1111,7 +1111,8 @@ describe('Validate Codefresh YAML', () => {
                                     ports: [1234, 5678],
                                     environment: [{
                                         someValue: "123"
-                                    }]
+                                    }
+                                    ]
                                 },
                             }
                         }
@@ -1136,7 +1137,8 @@ describe('Validate Codefresh YAML', () => {
                                     ports: [1234, 5678],
                                     environment: [{
                                         someValue: [123]
-                                    }]
+                                    }
+                                    ]
                                 },
                             }
                         }
@@ -1448,6 +1450,128 @@ describe('Validate Codefresh YAML', () => {
 
 
         });
+
+        describe('simple_travis step attributes', () => {
+
+            it('No services', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'simple_travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                        }
+                    }
+                }, '"services" is required', done);
+            });
+
+            it('No test', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'simple_travis',
+                            'services': [
+                                'redis'
+                            ]
+                        }
+                    }
+                }, '"test" is required', done);
+            });
+
+            it('Bad services', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'simple_travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': 'asd'
+
+                        }
+                    }
+                }, '"services" must be an array', done);
+            });
+
+            it('Bad services #2', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'simple_travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': [123, 456, 0.9, true]
+                        }
+                    }
+                }, '"0" must be a string', done);
+            });
+
+            it('Unknown services', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'simple_travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command',
+                                working_directory: "/asdasd/asd"
+                            },
+                            'services': ['sqlserver', 'sqlite3']
+                        }
+                    }
+                }, '"0" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
+            });
+
+            it('Known services', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'simple_travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command',
+                                working_directory: "/asdasd/asd"
+                            },
+                            'services': [
+                                'mysql',
+                                'postgresql',
+                                'mariadb',
+                                'mongodb',
+                                'couchdb',
+                                'rabbitmq',
+                                // 'riak',
+                                'memcached',
+                                'cassandra',
+                                'neo4j',
+                                'elasticsearch',
+                                'rethinkdb',
+                            ]
+                        }
+                    }
+                });
+                done();
+
+            });
+
+        });
+
     });
 
     describe('Complete descriptor', () => {
