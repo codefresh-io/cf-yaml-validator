@@ -5,7 +5,7 @@
 
 const chai = require('chai');
 
-const expect    = chai.expect;
+const expect = chai.expect;
 const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
@@ -878,6 +878,478 @@ describe('Validate Codefresh YAML', () => {
                 }, '"0" must be a string', done);
             });
         });
+
+        describe('travis step attributes', () => {
+
+            it('No services', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                        }
+                    }
+                }, '"services" is required', done);
+            });
+
+            it('No test', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                },
+                            }
+                        }
+                    }
+                }, '"test" is required', done);
+            });
+
+            it('Bad service', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: 'hi there',
+                            }
+                        }
+                    }
+                }, '"redis" must be an object', done);
+            });
+
+            it('Service with no image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    ports: [3306]
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is required', done);
+            });
+
+            it('Service with bad ports #1', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: '3306'
+                                },
+                            }
+                        }
+                    }
+                }, '"ports" must be an array', done);
+            });
+
+            it('Service with bad ports #2', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: 3306
+                                },
+                            }
+                        }
+                    }
+                }, '"ports" must be an array', done);
+            });
+
+            it('Service with bad environment #1', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: 'hi'
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an object', done);
+            });
+
+            it('Service with bad environment #2', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: 1234
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an object', done);
+            });
+
+            it('Service with bad environment #3', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [
+                                        'hi there'
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an object', done);
+            });
+
+            it('Service with bad environment #4', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [
+                                        {
+                                            hi: 'there'
+                                        }
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an object', done);
+            });
+
+            it('Service with bad environment #5', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: 123
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"someValue" must be a string', done);
+            });
+
+            it('Service with bad environment #6', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: [123]
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"someValue" must be a string', done);
+            });
+
+            it('Service with empty environment', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: {}
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Service with empty ports', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [],
+                                    environment: {
+                                        somekey: 'someval'
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Service with empty image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: '',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: [123]
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is not allowed to be empty', done);
+            });
+
+            it('Test with empty image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: '',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: "123"
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        someValue2: "123"
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is not allowed to be empty', done);
+            });
+
+            it('Test with no image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: "123"
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        someValue2: "123"
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is required', done);
+            });
+
+
+            it('Test with empty command', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: ''
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: "123"
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        someValue2: "123"
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"command" is not allowed to be empty', done);
+            });
+
+            it('Test with no command', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        someValue: "123"
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        someValue2: "123"
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"command" is required', done);
+            });
+        });
     });
 
     describe('Complete descriptor', () => {
@@ -945,7 +1417,10 @@ describe('Validate Codefresh YAML', () => {
                         'working-directory': 'working/dir',
                         'repo': 'github.com/owner/repo',
                         'revision': 'abcdef12345',
-                        'credentials': { username: 'subject', password: 'credentials' },
+                        'credentials': {
+                            username: 'subject',
+                            password: 'credentials'
+                        },
                         'fail-fast': true,
                         'when': { branch: { ignore: ['develop'] } }
                     },
@@ -966,7 +1441,10 @@ describe('Validate Codefresh YAML', () => {
                         'candidate': 'teh-image',
                         'tag': 'develop',
                         'registry': 'dtr.host.com',
-                        'credentials': { username: 'subject', password: 'credentials' },
+                        'credentials': {
+                            username: 'subject',
+                            password: 'credentials'
+                        },
                         'fail-fast': true,
                         'when': { branch: { only: ['/FB-/i'] } }
                     },
@@ -1034,7 +1512,10 @@ describe('Validate Codefresh YAML', () => {
                         'working_directory': 'working/dir',
                         'repo': 'github.com/owner/repo',
                         'revision': 'abcdef12345',
-                        'credentials': { username: 'subject', password: 'credentials' },
+                        'credentials': {
+                            username: 'subject',
+                            password: 'credentials'
+                        },
                         'fail_fast': true,
                         'when': { branch: { ignore: ['develop'] } },
                         'on_fail': {
@@ -1108,7 +1589,10 @@ describe('Validate Codefresh YAML', () => {
                         'candidate': 'teh-image',
                         'tag': 'develop',
                         'registry': 'dtr.host.com',
-                        'credentials': { username: 'subject', password: 'credentials' },
+                        'credentials': {
+                            username: 'subject',
+                            password: 'credentials'
+                        },
                         'fail_fast': true,
                         'when': { branch: { only: ['/FB-/i'] } },
                         'on_finish': {
