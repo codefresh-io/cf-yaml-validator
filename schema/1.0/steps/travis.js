@@ -29,7 +29,9 @@ class Travis extends BaseSchema {
             ports: Joi.array(
                 Joi.number()
             ),
-            environment: Joi.object({}).pattern(/[_a-zA-Z][_a-zA-Z0-9]{0,30}/, Joi.string())
+            environment: Joi.array().items(
+                Joi.object({}).pattern(/[_a-zA-Z][_a-zA-Z0-9]{0,30}/, Joi.string())
+            )
         });
 
         let compositionProperties = {

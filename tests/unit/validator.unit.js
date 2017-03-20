@@ -5,7 +5,7 @@
 
 const chai = require('chai');
 
-const expect = chai.expect;
+const expect    = chai.expect;
 const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
@@ -1018,7 +1018,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an object', done);
+                }, '"environment" must be an array', done);
             });
 
             it('Service with bad environment #2', (done) => {
@@ -1041,7 +1041,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an object', done);
+                }, '"environment" must be an array', done);
             });
 
             it('Service with bad environment #3', (done) => {
@@ -1066,7 +1066,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an object', done);
+                }, '"0" must be an object', done);
             });
 
             it('Service with bad environment #4', (done) => {
@@ -1084,16 +1084,15 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
-                                    environment: [
-                                        {
-                                            hi: 'there'
-                                        }
-                                    ]
+                                    environment: {
+                                        hi: 'there',
+                                        bye: "oh where",
+                                    }
                                 },
                             }
                         }
                     }
-                }, '"environment" must be an object', done);
+                }, '"environment" must be an array', done);
             });
 
             it('Service with bad environment #5', (done) => {
@@ -1111,9 +1110,9 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
-                                    environment: {
+                                    environment: [{
                                         someValue: 123
-                                    }
+                                    }]
                                 },
                             }
                         }
@@ -1136,9 +1135,9 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
-                                    environment: {
+                                    environment: [{
                                         someValue: [123]
-                                    }
+                                    }]
                                 },
                             }
                         }
@@ -1161,7 +1160,7 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
-                                    environment: {}
+                                    environment: []
                                 },
                             }
                         }
@@ -1186,9 +1185,10 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'redis',
                                     ports: [],
-                                    environment: {
+                                    environment: [{
                                         somekey: 'someval'
                                     }
+                                    ]
                                 },
                             }
                         }
@@ -1213,9 +1213,10 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: '',
                                     ports: [1234, 5678],
-                                    environment: {
-                                        someValue: [123]
+                                    environment: [{
+                                        someValue: "123"
                                     }
+                                    ]
                                 },
                             }
                         }
@@ -1238,16 +1239,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: {
+                                    environment: [{
                                         someValue: "123"
                                     }
+                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: {
+                                    environment: [{
                                         someValue2: "123"
                                     }
+                                    ]
                                 },
                             }
                         }
@@ -1269,16 +1272,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: {
+                                    environment: [{
                                         someValue: "123"
                                     }
+                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: {
+                                    environment: [{
                                         someValue2: "123"
                                     }
+                                    ]
                                 },
                             }
                         }
@@ -1302,16 +1307,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: {
+                                    environment: [{
                                         someValue: "123"
                                     }
+                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: {
+                                    environment: [{
                                         someValue2: "123"
                                     }
+                                    ]
                                 },
                             }
                         }
@@ -1333,16 +1340,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: {
+                                    environment: [{
                                         someValue: "123"
                                     }
+                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: {
+                                    environment: [{
                                         someValue2: "123"
                                     }
+                                    ]
                                 },
                             }
                         }
