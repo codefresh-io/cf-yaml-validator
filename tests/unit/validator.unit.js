@@ -1066,7 +1066,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be an object', done);
+                }, 'value "hi there" fails to match the required pattern', done);
             });
 
             it('Service with bad environment #4', (done) => {
@@ -1085,8 +1085,7 @@ describe('Validate Codefresh YAML', () => {
                                     image: 'redis',
                                     ports: [1234, 5678],
                                     environment: {
-                                        hi: 'there',
-                                        bye: "oh where",
+                                        hi: 123,
                                     }
                                 },
                             }
@@ -1111,13 +1110,13 @@ describe('Validate Codefresh YAML', () => {
                                     image: 'redis',
                                     ports: [1234, 5678],
                                     environment: [{
-                                        someValue: 123
+                                        someValue: "123"
                                     }]
                                 },
                             }
                         }
                     }
-                }, '"someValue" must be a string', done);
+                }, '"0" must be a string', done);
             });
 
             it('Service with bad environment #6', (done) => {
@@ -1142,7 +1141,63 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"someValue" must be a string', done);
+                }, '"0" must be a string', done);
+            });
+
+            it('Service with environment as array of strings', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [
+                                        "TEST=hello",
+                                        "GOODBYE=you"
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Service with environment as object', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
             });
 
             it('Service with empty environment', (done) => {
@@ -1185,10 +1240,10 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'redis',
                                     ports: [],
-                                    environment: [{
-                                        somekey: 'someval'
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                             }
                         }
@@ -1213,10 +1268,10 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: '',
                                     ports: [1234, 5678],
-                                    environment: [{
-                                        someValue: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                             }
                         }
@@ -1239,18 +1294,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: [{
-                                        someValue: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: [{
-                                        someValue2: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                             }
                         }
@@ -1272,18 +1327,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: [{
-                                        someValue: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: [{
-                                        someValue2: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                             }
                         }
@@ -1307,18 +1362,18 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: [{
-                                        someValue: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: [{
-                                        someValue2: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                             }
                         }
@@ -1340,24 +1395,58 @@ describe('Validate Codefresh YAML', () => {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
-                                    environment: [{
-                                        someValue: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                                 mysql: {
                                     image: 'mysql',
                                     ports: [5678],
-                                    environment: [{
-                                        someValue2: "123"
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
                                     }
-                                    ]
                                 },
                             }
                         }
                     }
                 }, '"command" is required', done);
             });
+
+            it('Test with working_directory', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'travis',
+                            'test': {
+                                image: 'bob',
+                                command: 'command',
+                                working_directory: '/var/whatever'
+                            },
+                            'services': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [
+                                        6379
+                                    ],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+
+
         });
     });
 

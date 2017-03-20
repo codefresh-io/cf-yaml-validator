@@ -24,24 +24,35 @@ class Travis extends BaseSchema {
 
     getSchema() {
 
+        const environmentAsObject = Joi.object({})
+            .pattern(/[_a-zA-Z][_a-zA-Z0-9]{1,30}/, Joi.string());
+        const environmentAsArray = Joi.array().items(
+            Joi.string().regex(/^[_a-zA-Z][_a-zA-Z0-9]{1,256}\=.*/)
+        );
+
         const serviceObject = Joi.object({
             image: Joi.string().required(),
             ports: Joi.array(
                 Joi.number()
             ),
-            environment: Joi.array().items(
-                Joi.object({}).pattern(/[_a-zA-Z][_a-zA-Z0-9]{0,30}/, Joi.string())
-            )
+            environment: Joi.alternatives(
+                environmentAsArray,
+                environmentAsObject
+            ),
         });
+
+        const testObject = Joi.object({
+            image: Joi.string().required(),
+            command: Joi.string().required(),
+            working_directory: Joi.string(),
+        }).required();
+
+        const servicesObject = Joi.object({}).pattern(/.*/, serviceObject).required();
 
         let compositionProperties = {
             type: Joi.string().valid(Travis.getType()),
-            services:
-                Joi.object({}).pattern(/.*/, serviceObject).required(),
-            test: Joi.object({
-                image: Joi.string().required(),
-                command: Joi.string().required(),
-            }).required(),
+            services: servicesObject,
+            test: testObject,
         };
         return this._createSchema(compositionProperties).unknown();
     }
