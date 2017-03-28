@@ -1572,6 +1572,785 @@ describe('Validate Codefresh YAML', () => {
 
         });
 
+        describe('integration-test step attributes', () => {
+
+            it('No containers', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                        }
+                    }
+                });
+                done();
+            });
+
+            it('No test', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                },
+                            }
+                        }
+                    }
+                }, '"test" is required', done);
+            });
+
+            it('Bad container', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: 'hi there',
+                            }
+                        }
+                    }
+                }, '"redis" must be an object', done);
+            });
+
+            it('Container with no image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    ports: [3306]
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is required', done);
+            });
+
+            it('Container with bad ports #1', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: '3306'
+                                },
+                            }
+                        }
+                    }
+                }, '"ports" must be an array', done);
+            });
+
+            it('Container with bad ports #2', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: 3306
+                                },
+                            }
+                        }
+                    }
+                }, '"ports" must be an array', done);
+            });
+
+            it('Container with bad environment #1', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: 'hi'
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an array', done);
+            });
+
+            it('Container with bad environment #2', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: 1234
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an array', done);
+            });
+
+            it('Container with bad environment #3', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [
+                                        'hi there'
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                }, 'value "hi there" fails to match the required pattern', done);
+            });
+
+            it('Container with bad environment #4', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        hi: 123,
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"environment" must be an array', done);
+            });
+
+            it('Container with bad environment #5', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [{
+                                        someValue: "123"
+                                    }
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                }, '"0" must be a string', done);
+            });
+
+            it('Container with bad environment #6', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [{
+                                        someValue: [123]
+                                    }
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                }, '"0" must be a string', done);
+            });
+
+            it('Container with environment as array of strings', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: [
+                                        "TEST=hello",
+                                        "GOODBYE=you"
+                                    ]
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Container with environment as object', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Container with empty environment', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [1234, 5678],
+                                    environment: []
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Container with empty ports', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Container with empty image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: '',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is not allowed to be empty', done);
+            });
+
+            it('Test with empty image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: '',
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is not allowed to be empty', done);
+            });
+
+            it('Test with no image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                commands:
+                                  ['command']
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"image" is required', done);
+            });
+
+            it('Test with empty commands array', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands: [ ]
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"commands" does not contain 1 required value', done);
+            });
+
+            it('Test with empty commands', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands: [ '   ', '' ]
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, 'is not allowed to be empty', done);
+            });
+
+            it('Test with no command', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'test',
+                                    ports: [1234, 5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                                mysql: {
+                                    image: 'mysql',
+                                    ports: [5678],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }, '"commands" is required', done);
+            });
+
+            it('Test with working_directory', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command'],
+                                working_directory: '/var/whatever'
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [
+                                        6379
+                                    ],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            }
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('Test with services, containers and lotsa stuff', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command'],
+                                working_directory: '/var/whatever'
+                            },
+                            'containers': {
+                                redis: {
+                                    image: 'redis',
+                                    ports: [
+                                        6379
+                                    ],
+                                    environment: {
+                                        TEST: 'hello',
+                                        GOODBYE: 'you',
+                                    }
+                                },
+                            },
+                            'services': ['mysql', 'neo4j', 'redis', 'cassandra']
+                        }
+                    }
+                });
+                done();
+
+            });
+
+            it('No services nor containers', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                        }
+                    }
+                });
+                done();
+            });
+
+            it('No test', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'services': [
+                                'redis'
+                            ]
+                        }
+                    }
+                }, '"test" is required', done);
+            });
+
+            it('Bad services', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'services': 'asd'
+
+                        }
+                    }
+                }, '"services" must be an array', done);
+            });
+
+            it('Bad services #2', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command']
+                            },
+                            'services': [123, 456, 0.9, true]
+                        }
+                    }
+                }, '"0" must be a string', done);
+            });
+
+            it('Unknown services', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command'],
+                                working_directory: "/asdasd/asd"
+                            },
+                            'services': ['sqlserver', 'sqlite3']
+                        }
+                    }
+                }, '"0" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
+            });
+
+            it('Known services', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'integration-test',
+                            'test': {
+                                image: 'bob',
+                                commands:
+                                  ['command'],
+                                working_directory: "/asdasd/asd"
+                            },
+                            'services': [
+                                'mysql',
+                                'postgresql',
+                                'mariadb',
+                                'mongodb',
+                                'couchdb',
+                                'rabbitmq',
+                                // 'riak',
+                                'memcached',
+                                'cassandra',
+                                'neo4j',
+                                'elasticsearch',
+                                'rethinkdb',
+                            ]
+                        }
+                    }
+                });
+                done();
+
+            });
+
+
+        });
     });
 
     describe('Complete descriptor', () => {
