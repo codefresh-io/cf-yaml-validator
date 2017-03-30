@@ -1574,7 +1574,7 @@ describe('Validate Codefresh YAML', () => {
 
         describe('integration-test step attributes', () => {
 
-            it('No containers', (done) => {
+            it('No preconfigured_services', (done) => {
 
                 validate({
                     version: '1.0',
@@ -1599,7 +1599,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'integration-test',
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                 },
@@ -1609,7 +1609,7 @@ describe('Validate Codefresh YAML', () => {
                 }, '"test" is required', done);
             });
 
-            it('Bad container', (done) => {
+            it('Bad preconfigured_service', (done) => {
 
                 validateForError({
                     version: '1.0',
@@ -1621,7 +1621,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: 'hi there',
                             }
                         }
@@ -1641,7 +1641,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     ports: [3306]
                                 },
@@ -1663,7 +1663,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: '3306'
@@ -1686,7 +1686,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: 3306
@@ -1709,7 +1709,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1733,7 +1733,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1757,7 +1757,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1783,7 +1783,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1809,7 +1809,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1836,7 +1836,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1863,7 +1863,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1892,7 +1892,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1921,7 +1921,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [1234, 5678],
@@ -1947,7 +1947,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [],
@@ -1976,7 +1976,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: '',
                                     ports: [1234, 5678],
@@ -2003,7 +2003,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
@@ -2037,7 +2037,7 @@ describe('Validate Codefresh YAML', () => {
                                 commands:
                                   ['command']
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
@@ -2071,7 +2071,7 @@ describe('Validate Codefresh YAML', () => {
                                 image: 'bob',
                                 commands: [ ]
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
@@ -2105,7 +2105,7 @@ describe('Validate Codefresh YAML', () => {
                                 image: 'bob',
                                 commands: [ '   ', '' ]
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
@@ -2138,7 +2138,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'test',
                                     ports: [1234, 5678],
@@ -2174,7 +2174,7 @@ describe('Validate Codefresh YAML', () => {
                                   ['command'],
                                 working_directory: '/var/whatever'
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [
@@ -2193,7 +2193,7 @@ describe('Validate Codefresh YAML', () => {
 
             });
 
-            it('Test with services, containers and lotsa stuff', (done) => {
+            it('Test with services, preconfigured_services and lotsa stuff', (done) => {
 
                 validate({
                     version: '1.0',
@@ -2206,7 +2206,7 @@ describe('Validate Codefresh YAML', () => {
                                   ['command'],
                                 working_directory: '/var/whatever'
                             },
-                            'containers': {
+                            'preconfigured_services': {
                                 redis: {
                                     image: 'redis',
                                     ports: [
@@ -2226,7 +2226,7 @@ describe('Validate Codefresh YAML', () => {
 
             });
 
-            it('No services nor containers', (done) => {
+            it('No services nor preconfigured_services', (done) => {
 
                 validate({
                     version: '1.0',

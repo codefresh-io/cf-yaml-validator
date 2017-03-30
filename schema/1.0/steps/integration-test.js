@@ -69,7 +69,7 @@ class IntegrationTest extends BaseSchema {
 
         let compositionProperties = {
             type: Joi.string().valid(IntegrationTest.getType()),
-            containers: containersObject,
+            preconfigured_services: containersObject,
             services: servicesArray,
             test: testObject,
         };
