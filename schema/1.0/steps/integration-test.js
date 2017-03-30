@@ -24,7 +24,7 @@ class IntegrationTest extends BaseSchema {
 
     getSchema() {
 
-        const servicesArray = Joi.array().items(
+        const preconfiguredServicesArray = Joi.array().items(
             Joi.string().valid([
                 'mysql',
                 'postgresql',
@@ -59,7 +59,7 @@ class IntegrationTest extends BaseSchema {
             ),
         });
 
-        const containersObject = Joi.object({}).pattern(/.*/, serviceObject);
+        const servicesObject = Joi.object({}).pattern(/.*/, serviceObject);
 
         const testObject = Joi.object({
             image: Joi.string().required(),
@@ -69,8 +69,8 @@ class IntegrationTest extends BaseSchema {
 
         let compositionProperties = {
             type: Joi.string().valid(IntegrationTest.getType()),
-            preconfigured_services: containersObject,
-            services: servicesArray,
+            services: servicesObject,
+            preconfigured_services: preconfiguredServicesArray,
             test: testObject,
         };
         return this._createSchema(compositionProperties).unknown();

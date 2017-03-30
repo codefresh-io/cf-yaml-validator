@@ -17,7 +17,7 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "./validator.js",
   "scripts": {
     "prepublish": "browserify validator.js -o bundle.js"
