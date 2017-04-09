@@ -2724,4 +2724,47 @@ describe('Validate Codefresh YAML', () => {
             done();
         });
     });
+
+    describe('Print original value on error', () => {
+
+        describe('Print original value', () => {
+
+            it('errored field is on the root', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 2
+                        }
+                    }
+                }, 'value: 2', done);
+            });
+
+            it('error field is inside a double annotated variable', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                metadata: {
+                                    set: [
+                                        {
+                                            '${{build_prj.image}}': [
+                                                'an invalid key'
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, 'value: an invalid key', done);
+            });
+        });
+
+
+    });
 });
