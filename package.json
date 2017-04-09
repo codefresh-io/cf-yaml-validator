@@ -41,6 +41,7 @@
   "dependencies": {
     "joi": "^9.2.0",
     "js-yaml": "^3.8.2",
+    "lodash": "^4.17.4",
     "yargs": "^6.3.0"
   },
   "files": [

@@ -12,6 +12,7 @@
 const Joi  = require('joi');
 const fs   = require('fs');
 const path = require('path');
+const _    = require('lodash');
 
 class Validator {
 
@@ -55,9 +56,24 @@ class Validator {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue;
             }
-            const validationResult = Joi.validate(step, stepSchema);
+            const validationResult = Joi.validate(step, stepSchema, {abortEarly: true});
             if (validationResult.error) {
-                throw new Error(`${stepName} failed validation: ${validationResult.error.message}`);
+
+                // regex to split joi's error path so that we can use lodah's _.get
+                // we make sure split first ${{}} annotations before splitting by dots (.)
+                let joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^\.]+)/g);
+
+                // TODO: I (Itai) put this code because i could not find a good regex to do all the job
+                let originalPath = [];
+                _.forEach(joiPathSplitted, (path) => {
+                    if (path && path !== '.') {
+                        originalPath.push(path);
+                    }
+                });
+
+                let originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+
+                throw new Error(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`);
             }
         }
     }
