@@ -29,7 +29,7 @@ class Build extends BaseSchema {
                                    .try(Joi.string(), Joi.object({ content: Joi.string() })),
             no_cache:          Joi.boolean(),
             squash:            Joi.boolean(),
-            image_name:        Joi.string().required(),
+            repository:        Joi.string().required(),
             build_arguments:   Joi.array().items(Joi.string()),
             tag:               Joi.string(),
             metadata:          Joi.object({
