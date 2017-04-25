@@ -29,6 +29,7 @@ class Push extends BaseSchema {
             registry:        Joi.string(),
             credentials:     BaseSchema._getCredentialsSchema(),
             tag:             Joi.string(),
+            image_name:      Joi.string(),
             accessKeyId:     Joi.string(),
             secretAccessKey: Joi.string(),
             region:          Joi.string()
