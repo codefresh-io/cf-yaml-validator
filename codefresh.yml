@@ -7,11 +7,3 @@ steps:
     commands:
       - yarn install
       - yarn gulp
-  deploy_to_npm:
-    title: Publishing to npm
-    image: node:7-alpine
-    commands:
-      - NPM_TOKEN=${{NPM_TOKEN}} yarn ci-publish
-    when:
-      branch:
-        only: [ master ]
