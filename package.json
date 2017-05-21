@@ -17,15 +17,18 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.0.19",
+  "version": "0.0.20",
   "main": "./validator.js",
   "scripts": {
+    "gulp": "gulp",
+    "ci-publish": "ci-publish",
     "prepublish": "browserify validator.js -o bundle.js"
   },
   "devDependencies": {
     "babel": "^6.5.2",
     "browserify": "^13.1.1",
     "chai": "^3.0.0",
+    "ci-publish": "^1.3.0",
     "gulp": "^3.9.0",
     "gulp-eslint": "^3.0.0",
     "gulp-istanbul": "^1.1.1",
