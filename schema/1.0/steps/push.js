@@ -22,7 +22,7 @@ class Push extends BaseSchema {
     }
 
     getSchema() {
-        let pushProperties = {
+        let pushTagProperties = {
             type:            Joi.string().valid(Push.getType()),
             provider:        Joi.string().regex(/^standard|docker|ecr$/),
             candidate:       Joi.string().required(),
@@ -35,6 +35,27 @@ class Push extends BaseSchema {
             region:          Joi.string()
 
         };
+
+        let pushTagsProperties = {
+            type:            Joi.string().valid(Push.getType()),
+            provider:        Joi.string().regex(/^standard|docker|ecr$/),
+            candidate:       Joi.string().required(),
+            registry:        Joi.string(),
+            credentials:     BaseSchema._getCredentialsSchema(),
+            tags:            Joi.array().items(Joi.string()),
+            image_name:      Joi.string(),
+            accessKeyId:     Joi.string(),
+            secretAccessKey: Joi.string(),
+            region:          Joi.string()
+
+        };
+
+
+        Joi.alternatives().try(
+            pushTagProperties,
+            pushTagsProperties
+        );
+
         return this._createSchema(pushProperties);
     }
 }
