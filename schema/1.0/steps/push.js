@@ -51,7 +51,7 @@ class Push extends BaseSchema {
         };
 
 
-        Joi.alternatives().try(
+        const pushProperties = Joi.alternatives().try(
             pushTagProperties,
             pushTagsProperties
         );
