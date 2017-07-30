@@ -1,5 +1,5 @@
 /**
- * Defines the freestyle step schema
+ * Defines the deploy step schema
  */
 
 'use strict';
@@ -11,30 +11,31 @@
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
 
-class Freestyle extends BaseSchema {
+class Deploy extends BaseSchema {
 
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
 
     static getType() {
-        return 'freestyle';
+        return 'deploy';
     }
 
     getSchema() {
-        let freestyleProperties = {
-            working_directory: Joi.string(),
-            image:             Joi.string().required(),
-            commands:          Joi.array().items(Joi.string()),
-            environment:       Joi.array().items(Joi.string()),
-            entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
+        let deployProperties = {
+            type: Joi.string().valid(Composition.getType()),
+            kind: Joi.string().required(),
+            cluster: Joi.string().required(),
+            namespace: Joi.string().required(),
+            service: Joi.string().required(),
+            candidate: Joi.object({
+                image: Joi.string().required(),
+                registry: Joi.string().required()
+            })
         };
-        return this._createSchema(freestyleProperties).unknown();
+        return this._createSchema(deployProperties).unknown();
     }
 
-    _applyStepCompatibility(schema) {
-        return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true });
-    }
 }
 // Exported objects/methods
-module.exports = Freestyle;
+module.exports = Deploy;
