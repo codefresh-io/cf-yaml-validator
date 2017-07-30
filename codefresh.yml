@@ -7,3 +7,13 @@ steps:
     commands:
       - yarn install
       - yarn gulp
+
+
+  deploy_to_npm:
+    title: Publishing To Npm
+    image: codefresh/npm-publish:master
+    commands:
+      - NPM_TOKEN=${{NPM_TOKEN}} npm run ci-publish
+    when:
+      branch:
+        only: [ master ]
