@@ -27,7 +27,12 @@ class Deploy extends BaseSchema {
             kind: Joi.string().required(),
             cluster: Joi.string().required(),
             namespace: Joi.string().required(),
-            service: Joi.string().required(),
+            file_path: Joi.string(),
+            service: Joi.when('file_path', {
+                is: Joi.string().required(),
+                then: Joi.any(),
+                otherwise: Joi.string().required()
+            }),
             candidate: Joi.object({
                 image: Joi.string().required(),
                 registry: Joi.string().required()
