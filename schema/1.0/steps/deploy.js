@@ -30,7 +30,7 @@ class Deploy extends BaseSchema {
             file_path: Joi.string(),
             service: Joi.when('file_path', {
                 is: Joi.string().required(),
-                then: Joi.any(),
+                then: Joi.any().forbidden(),
                 otherwise: Joi.string().required()
             }),
             candidate: Joi.object({
