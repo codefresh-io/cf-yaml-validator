@@ -3,8 +3,8 @@
  * Creates a Joi schema and tests the deserialized YAML descriptor
  */
 
-'use strict';
 
+'use strict';
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
@@ -13,6 +13,7 @@ const Joi  = require('joi');
 const fs   = require('fs');
 const path = require('path');
 const _    = require('lodash');
+const ValidatorError = require('../../validator-error');
 
 class Validator {
 
@@ -73,7 +74,7 @@ class Validator {
 
                 let originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
 
-                throw new Error(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`);
+                throw new ValidatorError(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`, validationResult.error);
             }
         }
     }
