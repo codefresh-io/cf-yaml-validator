@@ -28,6 +28,7 @@ class Deploy extends BaseSchema {
             cluster: Joi.string().required(),
             namespace: Joi.string().required(),
             file_path: Joi.string(),
+            timeout: Joi.string(),
             service: Joi.when('file_path', {
                 is: Joi.string().required(),
                 then: Joi.any().forbidden(),
