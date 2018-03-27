@@ -26,10 +26,13 @@ class Freestyle extends BaseSchema {
             working_directory: Joi.string(),
             image:             Joi.string().required(),
             commands:          Joi.array().items(Joi.string()),
+            cmd:               Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
             environment:       Joi.array().items(Joi.string()),
             entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
         };
-        return this._createSchema(freestyleProperties).unknown();
+        return this._createSchema(freestyleProperties).
+            without('commands','cmd'). //make sure cmd and commands are mutually exclusive AND optional
+            unknown();
     }
 
     _applyStepCompatibility(schema) {

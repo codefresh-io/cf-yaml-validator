@@ -499,6 +499,33 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"entry_point" must be a (string|array)', done);
             });
+
+            it('Non-string or array cmd', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            cmd: {}
+                        }
+                    }
+                }, '"cmd" must be a (string|array)', done);
+            });
+
+            it('cmd with commands', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            cmd: ["yo"],
+                            commands: ["what"]
+                        }
+                    }
+                }, '"commands" conflict with forbidden peer "cmd"', done);
+            });
         });
 
         describe('Git clone step attributes', () => {
