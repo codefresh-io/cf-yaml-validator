@@ -17,7 +17,7 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.0.247",
+  "version": "0.0.248",
   "main": "./validator.js",
   "scripts": {
     "gulp": "gulp",
