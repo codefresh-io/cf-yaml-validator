@@ -28,6 +28,7 @@ class Build extends BaseSchema {
             dockerfile:        Joi.alternatives()
                                    .try(Joi.string(), Joi.object({ content: Joi.string() })),
             no_cache:          Joi.boolean(),
+            no_cf_cache:       Joi.boolean(),
             squash:            Joi.boolean(),
             image_name:        Joi.string().required(),
             build_arguments:   Joi.array().items(Joi.string()),

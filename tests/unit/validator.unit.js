@@ -132,6 +132,20 @@ describe('Validate Codefresh YAML', () => {
                 });
             });
 
+            it('no_cf_cache on a build step', () => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'build',
+                            'image_name': 'jimb',
+                            'no_cf_cache': true
+                        }
+                    }
+                });
+            });
+
             it('Non-bool no_cache on a build step', (done) => {
 
                 validateForError({
@@ -144,6 +158,20 @@ describe('Validate Codefresh YAML', () => {
                         }
                     }
                 }, '"no_cache" must be a boolean', done);
+            });
+
+            it('Non-bool no_cache on a build step', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'build',
+                            'image_name': 'jimb',
+                            'no_cf_cache': 'please do sir'
+                        }
+                    }
+                }, '"no_cf_cache" must be a boolean', done);
             });
 
             it('squash on a build step', () => {
@@ -2573,6 +2601,8 @@ describe('Validate Codefresh YAML', () => {
                         'title': 'Build step',
                         'working_directory': 'working/dir',
                         'dockerfile': 'path/to/dockerfile',
+                        'no_cache': false,
+                        'no_cf_cache': true,
                         'image_name': 'teh-image',
                         'tag': 'develop',
                         'target': 'stage1',
@@ -2591,6 +2621,8 @@ describe('Validate Codefresh YAML', () => {
                         'title': 'Build step',
                         'working_directory': 'working/dir',
                         'dockerfile': { content: 'jimson' },
+                        'no_cache': false,
+                        'no_cf_cache': true,
                         'image_name': 'teh-image',
                         'tag': 'develop',
                         'target': 'stage1',
