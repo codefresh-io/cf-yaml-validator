@@ -28,11 +28,7 @@ class GitClone extends BaseSchema {
             repo:                Joi.string().required(),
             revision:            Joi.string(),
             credentials:         BaseSchema._getCredentialsSchema(),
-            contexts:            Joi.array(Joi.object().keys({
-                type: Joi.string().valid(['git.github', 'git.gitlab', 'git.bitbucket', 'git.stash']).required(),
-                owner: Joi.string().valid(['account', 'user']).required(),
-                name: Joi.string().required(),
-            }))
+            git:                 Joi.string()
         };
         return this._createSchema(gitCloneProperties);
     }
