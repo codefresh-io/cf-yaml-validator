@@ -2406,6 +2406,41 @@ describe('Validate Codefresh YAML', () => {
 
 
         });
+
+        describe('Parallel step attributes', () => {
+
+            it('steps missing', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            type: 'parallel',
+                            name: 'hey'
+                        }
+                    }
+                }, '"steps" is required', done);
+            });
+
+            it('sub step is missing image', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            type: 'parallel',
+                            name: 'hey',
+                            steps: {
+                                jimmy: {
+
+                                }
+                            }
+                        }
+                    }
+                }, '"image" is required', done);
+            });
+
+        });
     });
 
     describe('Complete descriptor', () => {

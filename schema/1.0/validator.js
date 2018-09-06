@@ -52,16 +52,21 @@ class Validator {
                         steps[innerName] = innerStep;
                     });
                 } else {
-                    throw new ValidatorError(`${name} failed validation`, {
-                        details: [
-                            {
-                                message: 'Parallel step must contain inner steps',
-                                tpye: 'Validation',
-                                path: '',
-                                context: {},
-                            }
-                        ]
-                    });
+                    const error = new Error('"steps" is required and must be an array steps');
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: '"steps" is required and must be an array of type steps',
+                            type: 'Validation',
+                            path: 'steps',
+                            context: {
+                                key: 'steps'
+                            },
+                        }
+                    ];
+
+                    throw new ValidatorError(`${name} failed validation: [${error.message}. value: ${step.steps}]`, error);
                 }
             } else {
                 steps[name] = step;
@@ -80,11 +85,11 @@ class Validator {
             }
             const validationResult = Joi.validate(step, stepSchema, {abortEarly: true});
             if (validationResult.error) {
-    
+
                 // regex to split joi's error path so that we can use lodah's _.get
                 // we make sure split first ${{}} annotations before splitting by dots (.)
                 let joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^\.]+)/g);
-    
+
                 // TODO: I (Itai) put this code because i could not find a good regex to do all the job
                 let originalPath = [];
                 _.forEach(joiPathSplitted, (path) => {
@@ -92,9 +97,9 @@ class Validator {
                         originalPath.push(path);
                     }
                 });
-    
+
                 let originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-    
+
                 throw new ValidatorError(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`, validationResult.error);
             }
         }
