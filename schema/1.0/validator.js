@@ -44,7 +44,34 @@ class Validator {
 
     static _validateStepSchema(objectModel) {
         const stepsSchemas = Validator._resolveStepSchemas();
-        const steps        = objectModel.steps;
+        const steps = {};
+        _.map(objectModel.steps, (step, name) => {
+            if(step.type === 'parallel'){
+                if (_.size(step.steps) > 0 ){
+                    _.map(step.steps,(innerStep, innerName) => {
+                        steps[innerName] = innerStep;
+                    });
+                } else {
+                    const error = new Error('"steps" is required and must be an array steps');
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: '"steps" is required and must be an array of type steps',
+                            type: 'Validation',
+                            path: 'steps',
+                            context: {
+                                key: 'steps'
+                            },
+                        }
+                    ];
+
+                    throw new ValidatorError(`${name} failed validation: [${error.message}. value: ${step.steps}]`, error);
+                }
+            } else {
+                steps[name] = step;
+            }
+        });
         for (const stepName in steps) {
             const step = steps[stepName];
             let type   = step.type;
@@ -52,7 +79,6 @@ class Validator {
                 type = 'freestyle';
             }
             const stepSchema = stepsSchemas[type];
-
             if (!stepSchema) {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue;
