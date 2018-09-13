@@ -72,6 +72,7 @@ class IntegrationTest extends BaseSchema {
             services: servicesObject,
             preconfigured_services: preconfiguredServicesArray,
             test: testObject,
+            stage: Joi.string()
         };
         return this._createSchema(compositionProperties).unknown();
     }
