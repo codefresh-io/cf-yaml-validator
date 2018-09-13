@@ -34,8 +34,7 @@ class Push extends BaseSchema {
             image_name:      Joi.string(),
             accessKeyId:     Joi.string(),
             secretAccessKey: Joi.string(),
-            region:          Joi.string(),
-            stage: Joi.string()
+            region:          Joi.string()
 
         };
 

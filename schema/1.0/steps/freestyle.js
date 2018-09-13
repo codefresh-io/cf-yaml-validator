@@ -28,8 +28,7 @@ class Freestyle extends BaseSchema {
             commands:          Joi.array().items(Joi.string()),
             cmd:               Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
             environment:       Joi.array().items(Joi.string()),
-            entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
-            stage: Joi.string()
+            entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
         };
         return this._createSchema(freestyleProperties).
             without('commands','cmd'). //make sure cmd and commands are mutually exclusive AND optional

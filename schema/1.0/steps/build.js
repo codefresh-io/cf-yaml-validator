@@ -36,8 +36,7 @@ class Build extends BaseSchema {
             metadata:          Joi.object({
                 set: Build._getMetadataAnnotationSetSchema()
             }),
-            target:               Joi.string(),
-            stage: Joi.string()
+            target:               Joi.string()
         };
         return this._createSchema(buildProperties);
     }

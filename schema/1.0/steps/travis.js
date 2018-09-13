@@ -52,8 +52,7 @@ class Travis extends BaseSchema {
         let compositionProperties = {
             type: Joi.string().valid(Travis.getType()),
             services: servicesObject,
-            test: testObject,
-            stage: Joi.string()
+            test: testObject
         };
         return this._createSchema(compositionProperties).unknown();
     }

@@ -49,7 +49,8 @@ class BaseSchema {
                     })
                 ]
             ),
-            'when':           BaseSchema._getWhenSchema()
+            'when':           BaseSchema._getWhenSchema(),
+            stage: Joi.string()
         });
     }
 

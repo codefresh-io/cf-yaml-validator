@@ -26,8 +26,7 @@ class CompositionLaunch extends BaseSchema {
             type:                    Joi.string().valid(CompositionLaunch.getType()),
             'working_directory':     Joi.string(),
             composition:             Joi.alternatives(Joi.object(), Joi.string()).required(),
-            'composition_variables': Joi.array().items(Joi.string()),
-            stage: Joi.string()
+            'composition_variables': Joi.array().items(Joi.string())
         };
         return this._createSchema(compositionProperties).unknown();
     }

@@ -37,8 +37,7 @@ class Deploy extends BaseSchema {
             candidate: Joi.object({
                 image: Joi.string().required(),
                 registry: Joi.string().required()
-            }),
-            stage: Joi.string()
+            })
         };
         return this._createSchema(deployProperties).unknown();
     }
