@@ -71,7 +71,7 @@ class IntegrationTest extends BaseSchema {
             type: Joi.string().valid(IntegrationTest.getType()),
             services: servicesObject,
             preconfigured_services: preconfiguredServicesArray,
-            test: testObject,
+            test: testObject
         };
         return this._createSchema(compositionProperties).unknown();
     }
