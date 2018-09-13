@@ -60,7 +60,7 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"image_name" is required', done);
             });
-            
+
 
         });
     });
