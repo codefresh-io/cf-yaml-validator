@@ -50,7 +50,7 @@ class BaseSchema {
                 ]
             ),
             'when':           BaseSchema._getWhenSchema(),
-            stage: Joi.string()
+            stage:            Joi.string()
         });
     }
 
