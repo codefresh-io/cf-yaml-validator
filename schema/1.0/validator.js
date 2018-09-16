@@ -29,21 +29,21 @@ class Validator {
         Joi.assert(objectModel, rootSchema);
     }
 
-    static _resolveStepSchemas() {
+    static _resolveStepSchemas(objectModel = {}) {
         const stepsPath          = path.join(__dirname, 'steps');
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
         const stepsSchemaModules = {};
         allStepSchemaFiles.forEach((schemaFile => {
             const StepSchemaModule = require(path.join(stepsPath, schemaFile));
             if (StepSchemaModule.getType()) {
-                stepsSchemaModules[StepSchemaModule.getType()] = new StepSchemaModule().getSchema();
+                stepsSchemaModules[StepSchemaModule.getType()] = new StepSchemaModule(objectModel).getSchema();
             }
         }));
         return stepsSchemaModules;
     }
 
     static _validateStepSchema(objectModel) {
-        const stepsSchemas = Validator._resolveStepSchemas();
+        const stepsSchemas = Validator._resolveStepSchemas(objectModel);
         const steps = {};
         _.map(objectModel.steps, (step, name) => {
             if(step.type === 'parallel'){
