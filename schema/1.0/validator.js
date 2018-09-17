@@ -24,7 +24,8 @@ class Validator {
     static _validateRootSchema(objectModel) {
         const rootSchema = Joi.object({
             version: Joi.number().positive().required(),
-            steps:   Joi.object().pattern(/^.+$/, Joi.object()).required()
+            steps:   Joi.object().pattern(/^.+$/, Joi.object()).required(),
+            stages: Joi.array().items(Joi.string()),
         });
         Joi.assert(objectModel, rootSchema);
     }

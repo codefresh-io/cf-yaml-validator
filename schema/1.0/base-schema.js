@@ -54,7 +54,7 @@ class BaseSchema {
                 ]
             ),
             'when':           BaseSchema._getWhenSchema(),
-            stage:            Joi.string().valid(...(this._objectModel.stages || [])),
+            stage:            Joi.string().valid(...(this._objectModel.stages || [])).optional(),
         });
     }
 
