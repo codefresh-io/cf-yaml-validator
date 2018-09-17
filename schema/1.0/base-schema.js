@@ -13,6 +13,10 @@ const Joi = require('joi');
 
 class BaseSchema {
 
+    constructor(objectModel = {}){
+        this._objectModel = objectModel;
+    }
+
     //------------------------------------------------------------------------------
     // Helpers
     //------------------------------------------------------------------------------
@@ -50,7 +54,7 @@ class BaseSchema {
                 ]
             ),
             'when':           BaseSchema._getWhenSchema(),
-            stage:            Joi.string()
+            stage:            Joi.string().valid(...(this._objectModel.stages || [])).optional(),
         });
     }
 
