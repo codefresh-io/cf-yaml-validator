@@ -26,7 +26,6 @@ class Validator {
             version: Joi.number().positive().required(),
             steps:   Joi.object().pattern(/^.+$/, Joi.object()).required(),
             stages: Joi.array().items(Joi.string()),
-            mode: Joi.string().valid('sequential', 'parallel'),
         });
         Joi.assert(objectModel, rootSchema);
     }
