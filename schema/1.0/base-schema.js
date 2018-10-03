@@ -30,7 +30,8 @@ class BaseSchema {
             condition: Joi.object({
                 all: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string()),
                 any: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string())
-            })
+            }),
+            steps: Joi.any()
         });
     }
 
