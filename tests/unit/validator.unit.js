@@ -2819,6 +2819,227 @@ describe('Validate Codefresh YAML', () => {
             });
             done();
         });
+
+        describe('include When in step', () => {
+            describe('steps', () => {
+
+                describe('positive', () => {
+                    
+                    it('allow as array', (done) => {
+                        validate({
+                            version: '1.0',
+                            steps: {
+                                free: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                    'when': {
+                                        steps: [
+                                            {
+                                                name: 'step_name',
+                                            }
+                                        ]
+                                    },
+                                },
+                            }
+                        });
+                        done();
+                    });
+    
+                    it('allow as object', (done) => {
+                        validate({
+                            version: '1.0',
+                            steps: {
+                                free: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                    'when': {
+                                        steps: {
+                                            all: [
+                                                {
+                                                    name: 'step_name',
+                                                    on: [
+                                                        'success'
+                                                    ]
+                                                }
+                                            ],
+                                        }
+                                    },
+                                },
+                            }
+                        });
+                        done();
+                    });
+
+                });
+
+                describe('negative', () => {
+                    it('array not empty', (done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: {
+                                free: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                    'when': {
+                                        steps: []
+                                    },
+                                },
+                            }
+                        }, '"steps" must contain at least 1 items', done);
+                    });
+                    
+                    it('dont include "all" and "any" together', (done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: {
+                                free: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                    'when': {
+                                        steps: {
+                                            all: [{
+                                                name: 'name'
+                                            }],
+                                            any: [{
+                                                name: 'name'
+                                            }]
+                                        }
+                                    },
+                                },
+                            }
+                        }, 'contains a conflict between exclusive peers', done);
+                    });
+                });
+            });
+        });
+
+        describe('success criteria', () => {
+
+            describe('for workflow', () => {
+                
+                describe('positive', () => {
+
+                    it('allow only steps', (done) => {
+                        validate({
+                            version: '1.0',
+                            success_criteria: {
+                                steps: {
+                                    ignore: [
+                                        'step'
+                                    ]
+                                }
+                            },
+                            steps: {
+                                free_1: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                                free_2: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                            }
+                        });
+                        done();
+
+                    });
+
+                    it('allow to ignore steps', (done) => {
+                        validate({
+                            version: '1.0',
+                            success_criteria: {
+                                steps: {
+                                    only: [
+                                        'step'
+                                    ]
+                                }
+                            },
+                            steps: {
+                                free_1: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                                free_2: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                            }
+                        });
+                        done();
+
+                    });
+
+                    it('allow only and ignore steps', (done) => {
+                        validate({
+                            version: '1.0',
+                            success_criteria: {
+                                steps: {
+                                    only: [
+                                        'step'
+                                    ],
+                                    ignore: [
+                                        'step'
+                                    ]
+                                }
+                            },
+                            steps: {
+                                free_1: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                                free_2: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                            }
+                        });
+                        done();
+                    });
+
+                    it('allow only and ignore steps', (done) => {
+                        validate({
+                            version: '1.0',
+                            success_criteria: {
+                                steps: {
+                                    only: [
+                                        'step'
+                                    ],
+                                    ignore: [
+                                        'step'
+                                    ]
+                                }
+                            },
+                            steps: {
+                                free_1: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                                free_2: {
+                                    'title': 'Freestyle step',
+                                    'image': 'image/id',
+                                    'commands': ['jim', 'bob'],
+                                },
+                            }
+                        });
+                        done();
+                    });
+
+                });
+
+            });
+
+        });
     });
 
     describe('Print original value on error', () => {
