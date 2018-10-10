@@ -14,6 +14,7 @@ const fs   = require('fs');
 const path = require('path');
 const _    = require('lodash');
 const ValidatorError = require('../../validator-error');
+const BaseSchema = require('./base-schema');
 
 class Validator {
 
@@ -28,7 +29,7 @@ class Validator {
             stages: Joi.array().items(Joi.string()),
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
-            success_criteria: Joi.object()
+            success_criteria: BaseSchema.getSuccessCriteriaSchema()
         });
         Joi.assert(objectModel, rootSchema);
     }

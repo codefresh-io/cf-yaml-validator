@@ -21,17 +21,47 @@ class BaseSchema {
     // Helpers
     //------------------------------------------------------------------------------
 
+    static getConditionSchema(){
+        return Joi.object({
+            all: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string()),
+            any: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string())
+        });
+    }
+
     static _getWhenSchema() {
+
+
+        const stepSchema = Joi.object().keys({
+            name: Joi.string().required(),
+            on: Joi.array().items(
+                    Joi.string()
+                    .valid([
+                        'success',
+                        'running',
+                        'failure',
+                        'skipped',
+                        'pending',
+                        'terminating',
+                        'terminated',
+                        'finished'
+                    ]))
+                .min(1)
+        });
+        
         return Joi.object({
             branch:    Joi.object({
                 ignore: Joi.array().items(Joi.string()),
                 only:   Joi.array().items(Joi.string())
             }),
-            condition: Joi.object({
-                all: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string()),
-                any: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string())
-            }),
-            steps: Joi.any()
+            condition: BaseSchema.getConditionSchema(),
+            steps: [
+                Joi.object().keys({
+                    all: Joi.array().items(stepSchema).min(1),
+                    any: Joi.array().items(stepSchema).min(1)
+                })
+                .xor('all', 'any'), 
+                Joi.array().min(1).items(stepSchema)
+            ]
         });
     }
 
@@ -122,6 +152,22 @@ class BaseSchema {
 
     getSchema() {
         throw new Error('Implement this');
+    }
+    
+    static getSuccessCriteriaSchema(){
+
+        const stepsSchema = Joi.array().items(Joi.string()).min(1);
+
+        return Joi.object({
+            steps: [
+                Joi.object().keys({
+                    ignore: stepsSchema,
+                    only: stepsSchema
+                }),
+                Joi.array().items(Joi.string())
+            ],
+            condition: BaseSchema.getConditionSchema(),
+        });
     }
 }
 // Exported objects/methods
