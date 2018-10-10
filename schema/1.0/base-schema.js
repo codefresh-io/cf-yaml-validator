@@ -42,7 +42,8 @@ class BaseSchema {
                         'skipped',
                         'pending',
                         'terminating',
-                        'terminated'
+                        'terminated',
+                        'finished'
                     ]))
                 .min(1)
         });
