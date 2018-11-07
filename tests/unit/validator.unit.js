@@ -3056,7 +3056,7 @@ describe('Validate Codefresh YAML', () => {
                 done();
             });
 
-            it('Retry with exponantial factor must be positive number non zero', (done) => {
+            it('Retry with exponential factor must be positive number non zero', (done) => {
                 validateForError({
                     version: '1.0',
                     steps: {
@@ -3065,11 +3065,11 @@ describe('Validate Codefresh YAML', () => {
                             'image': 'image/id',
                             'commands': ['env'],
                             retry: {
-                                exponantialFactor: ""
+                                exponentialFactor: ""
                             }
                         },
                     }
-                }, '"exponantialFactor" must be a number', done);
+                }, '"exponentialFactor" must be a number', done);
             });
 
             it('Retry max attempts must be positive number non zero', (done) => {
