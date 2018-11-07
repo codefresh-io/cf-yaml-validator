@@ -30,7 +30,7 @@ class BaseSchema {
 
     static _getRetrySchema() {
         return Joi.object({
-            exponantialFactor: Joi.number().default(1).positive().not(0),
+            exponentialFactor: Joi.number().default(1).positive().not(0),
             delay: Joi.number().default(5).positive().not(0),
             maxAttempts: Joi.number().default(1).positive().not(0),
         });
