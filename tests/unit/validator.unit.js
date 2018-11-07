@@ -3040,6 +3040,70 @@ describe('Validate Codefresh YAML', () => {
             });
 
         });
+
+        describe.only('Retry', () => {
+            it('No retry is valid', (done) => {
+                validate({
+                    version: '1.0',
+                    steps: {
+                        free_1: {
+                            'title': 'Freestyle step',
+                            'image': 'image/id',
+                            'commands': ['env'],
+                        },
+                    }
+                });
+                done();
+            });
+
+            it('Retry with exponential factor must be positive number non zero', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        free_1: {
+                            'title': 'Freestyle step',
+                            'image': 'image/id',
+                            'commands': ['env'],
+                            retry: {
+                                exponentialFactor: ""
+                            }
+                        },
+                    }
+                }, '"exponentialFactor" must be a number', done);
+            });
+
+            it('Retry max attempts must be positive number non zero', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        free_1: {
+                            'title': 'Freestyle step',
+                            'image': 'image/id',
+                            'commands': ['env'],
+                            retry: {
+                                maxAttempts: ""
+                            }
+                        },
+                    }
+                }, '"maxAttempts" must be a number', done);
+            });
+
+            it('Retry delay must be positive number non zero', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        free_1: {
+                            'title': 'Freestyle step',
+                            'image': 'image/id',
+                            'commands': ['env'],
+                            retry: {
+                                delay: ""
+                            }
+                        },
+                    }
+                }, '"delay" must be a number', done);
+            });
+        });
     });
 
     describe('Print original value on error', () => {

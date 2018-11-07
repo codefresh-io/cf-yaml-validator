@@ -28,6 +28,14 @@ class BaseSchema {
         });
     }
 
+    static _getRetrySchema() {
+        return Joi.object({
+            exponentialFactor: Joi.number().default(1).positive().not(0),
+            delay: Joi.number().default(5).positive().not(0),
+            maxAttempts: Joi.number().default(1).positive().not(0),
+        });
+    }
+
     static _getWhenSchema() {
 
 
@@ -86,6 +94,7 @@ class BaseSchema {
             ),
             'when':           BaseSchema._getWhenSchema(),
             stage:            Joi.string().valid(...(this._objectModel.stages || [])).optional(),
+            retry:            BaseSchema._getRetrySchema(),
         });
     }
 
