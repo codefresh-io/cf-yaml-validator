@@ -3041,7 +3041,7 @@ describe('Validate Codefresh YAML', () => {
 
         });
 
-        describe.only('Retry', () => {
+        describe('Retry', () => {
             it('No retry is valid', (done) => {
                 validate({
                     version: '1.0',
