@@ -51,7 +51,9 @@ class BaseSchema {
                         'pending',
                         'terminating',
                         'terminated',
-                        'finished'
+                        'finished',
+                        'approved',
+                        'denied',
                     ]))
                 .min(1)
         });
