@@ -6,9 +6,7 @@ steps:
     image: node:7-alpine
     commands:
       - yarn install
-      - yarn gulp
-      - gulp test:unit
-
+      - yarn test
 
   deploy_to_npm:
     title: Publishing To Npm

@@ -20,7 +20,7 @@
   "version": "0.0.35",
   "main": "./validator.js",
   "scripts": {
-    "gulp": "gulp",
+    "test": "gulp test:unit",
     "ci-publish": "ci-publish",
     "prepublish": "browserify validator.js -o bundle.js"
   },
