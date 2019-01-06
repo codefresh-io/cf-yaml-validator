@@ -2824,7 +2824,7 @@ describe('Validate Codefresh YAML', () => {
             describe('steps', () => {
 
                 describe('positive', () => {
-                    
+
                     it('allow as array', (done) => {
                         validate({
                             version: '1.0',
@@ -2845,7 +2845,7 @@ describe('Validate Codefresh YAML', () => {
                         });
                         done();
                     });
-    
+
                     it('allow as object', (done) => {
                         validate({
                             version: '1.0',
@@ -2890,7 +2890,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }, '"steps" must contain at least 1 items', done);
                     });
-                    
+
                     it('dont include "all" and "any" together', (done) => {
                         validateForError({
                             version: '1.0',
@@ -2920,7 +2920,7 @@ describe('Validate Codefresh YAML', () => {
         describe('success criteria', () => {
 
             describe('for workflow', () => {
-                
+
                 describe('positive', () => {
 
                     it('allow only steps', (done) => {
