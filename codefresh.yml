@@ -7,6 +7,7 @@ steps:
     commands:
       - yarn install
       - yarn gulp
+      - gulp test:unit
 
 
   deploy_to_npm:
