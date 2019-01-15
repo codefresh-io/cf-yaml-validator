@@ -2446,11 +2446,10 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps: {
                         jim: {
-                            type: 'pending-approval',
-                            name: 'hey',
+                            type: 'parallel',
                             steps: {
-                                jimmy: {
-
+                                pending: {
+                                    type: 'pending-approval'
                                 }
                             }
                         }
@@ -2458,6 +2457,21 @@ describe('Validate Codefresh YAML', () => {
                 }, '"type" can\\\'t be pending-approval', done);
             });
 
+        });
+
+        describe('Pending-approval step attributes', () => {
+            it('general', (done) => {
+
+                validate({
+                    version: '1.0',
+                    steps: {
+                        pending: {
+                            type: 'pending-approval',
+                        }
+                    }
+                });
+                done();
+            });
         });
     });
 
