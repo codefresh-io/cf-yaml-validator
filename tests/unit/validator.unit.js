@@ -2440,6 +2440,24 @@ describe('Validate Codefresh YAML', () => {
                 }, '"image" is required', done);
             });
 
+            it('sub step can not be pending-approval', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            type: 'pending-approval',
+                            name: 'hey',
+                            steps: {
+                                jimmy: {
+
+                                }
+                            }
+                        }
+                    }
+                }, '"type" can\\\'t be pending-approval', done);
+            });
+
         });
     });
 

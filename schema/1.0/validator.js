@@ -15,6 +15,7 @@ const path = require('path');
 const _    = require('lodash');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
+const PendingApproval = require('./steps/pending-approval');
 
 class Validator {
 
@@ -84,6 +85,23 @@ class Validator {
                 type = 'freestyle';
             }
             const stepSchema = stepsSchemas[type];
+            if (type === PendingApproval.getType()) {
+                const error = new Error(`"type" can't be ${PendingApproval.getType()}`);
+                error.name = 'ValidationError';
+                error.isJoi = true;
+                error.details = [
+                    {
+                        message: `"type" can't be ${PendingApproval.getType()}`,
+                        type: 'Validation',
+                        path: 'type',
+                        context: {
+                            key: 'type'
+                        },
+                    }
+                ];
+
+                throw new ValidatorError(`${stepName} failed validation: [${error.message}. value: ${step.steps}]`, error);
+            }
             if (!stepSchema) {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue;
