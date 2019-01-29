@@ -75,7 +75,7 @@ class Validator {
                                 }
                             ];
 
-                            throw new ValidatorError(`${stepName} failed validation: [${error.message}. value: ${step.steps}]`, error);
+                            throw new ValidatorError(`${stepName} failed validation: [${error.message}]`, error);
                         }
                     }
                 } else {
