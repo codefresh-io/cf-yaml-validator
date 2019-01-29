@@ -33,8 +33,17 @@
         "allowTemplateLiterals": true
       }
     ],
+    "max-len": [
+      2,
+      {
+        "code": 150,
+        "tabWidth": 4,
+        "ignoreUrls": true
+      }
+    ],
     "no-underscore-dangle": "off",
     "no-param-reassign": "off",
+    "class-methods-use-this": "off",
     "no-else-return": "off",
     "arrow-body-style": "off",
     "strict": [

@@ -1,7 +1,8 @@
+'use strict';
 
 class ValidatorError extends Error {
 
-    constructor(message, {details}) {
+    constructor(message, { details }) {
         super(message);
         this.details = details;
     }

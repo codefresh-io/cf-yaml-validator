@@ -22,8 +22,8 @@ class PendingApproval extends BaseSchema {
     }
 
     getSchema() {
-        let pendingApprovalProperties = {
-            type:                Joi.string().valid(PendingApproval.getType()),
+        const pendingApprovalProperties = {
+            type: Joi.string().valid(PendingApproval.getType()),
         };
         return this._createSchema(pendingApprovalProperties);
     }

@@ -45,7 +45,7 @@ class IntegrationTest extends BaseSchema {
         const environmentAsObject = Joi.object({})
             .pattern(/[_a-zA-Z][_a-zA-Z0-9]{1,30}/, Joi.string());
         const environmentAsArray = Joi.array().items(
-            Joi.string().regex(/^[_a-zA-Z][_a-zA-Z0-9]{1,256}\=.*/)
+            Joi.string().regex(/^[_a-zA-Z][_a-zA-Z0-9]{1,256}=.*/)
         );
 
         const serviceObject = Joi.object({
@@ -67,7 +67,7 @@ class IntegrationTest extends BaseSchema {
             working_directory: Joi.string(),
         }).required();
 
-        let compositionProperties = {
+        const compositionProperties = {
             type: Joi.string().valid(IntegrationTest.getType()),
             services: servicesObject,
             preconfigured_services: preconfiguredServicesArray,

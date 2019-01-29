@@ -1,11 +1,23 @@
 version: '1.0'
 
 steps:
-  unit_tests:
-    title: Running unit-tests
-    image: node:7-alpine
+
+  install_dependencies:
+    title: 'Installing testing dependencies'
+    image: node:11.8.0
     commands:
-      - yarn install
+    - yarn install --frozen-lockfile
+
+  eslint:
+    title: 'Running linting logic'
+    image: node:11.8.0
+    commands:
+    - yarn eslint
+
+  unit_tests:
+    title: 'Running unit-tests'
+    image: node:11.8.0
+    commands:
       - yarn test
 
   deploy_to_npm:

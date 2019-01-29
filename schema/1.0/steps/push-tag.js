@@ -23,11 +23,11 @@ class PushTag extends BaseSchema {
 
     getSchema() {
 
-        let pushTagsProperties = {
-            title:           Joi.string(),
-            type:            Joi.string().valid(PushTag.getType()),
-            image_name:      Joi.string().required(),
-            tags:            Joi.array().items(Joi.string()).required(),
+        const pushTagsProperties = {
+            title: Joi.string(),
+            type: Joi.string().valid(PushTag.getType()),
+            image_name: Joi.string().required(),
+            tags: Joi.array().items(Joi.string()).required(),
 
         };
 

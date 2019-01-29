@@ -22,18 +22,18 @@ class Freestyle extends BaseSchema {
     }
 
     getSchema() {
-        let freestyleProperties = {
+        const freestyleProperties = {
             working_directory: Joi.string(),
-            image:             Joi.string().required(),
-            commands:          Joi.array().items(Joi.string()),
-            cmd:               Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
-            volumes:           Joi.array().items(Joi.string().regex(/\:/)),
-            environment:       Joi.array().items(Joi.string()),
-            entry_point:       Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
+            image: Joi.string().required(),
+            commands: Joi.array().items(Joi.string()),
+            cmd: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
+            volumes: Joi.array().items(Joi.string().regex(/:/)),
+            environment: Joi.array().items(Joi.string()),
+            entry_point: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string()))
         };
-        return this._createSchema(freestyleProperties).
-            without('commands','cmd'). //make sure cmd and commands are mutually exclusive AND optional
-            unknown();
+        return this._createSchema(freestyleProperties)
+            .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional
+            .unknown();
     }
 
     _applyStepCompatibility(schema) {

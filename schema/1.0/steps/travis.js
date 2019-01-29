@@ -27,7 +27,7 @@ class Travis extends BaseSchema {
         const environmentAsObject = Joi.object({})
             .pattern(/[_a-zA-Z][_a-zA-Z0-9]{1,30}/, Joi.string());
         const environmentAsArray = Joi.array().items(
-            Joi.string().regex(/^[_a-zA-Z][_a-zA-Z0-9]{1,256}\=.*/)
+            Joi.string().regex(/^[_a-zA-Z][_a-zA-Z0-9]{1,256}=.*/)
         );
 
         const serviceObject = Joi.object({
@@ -49,7 +49,7 @@ class Travis extends BaseSchema {
 
         const servicesObject = Joi.object({}).pattern(/.*/, serviceObject).required();
 
-        let compositionProperties = {
+        const compositionProperties = {
             type: Joi.string().valid(Travis.getType()),
             services: servicesObject,
             test: testObject

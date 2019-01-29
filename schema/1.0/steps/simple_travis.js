@@ -48,7 +48,7 @@ class Travis extends BaseSchema {
             ])
         ).required();
 
-        let compositionProperties = {
+        const compositionProperties = {
             type: Joi.string().valid(Travis.getType()),
             services: servicesArray,
             test: testObject

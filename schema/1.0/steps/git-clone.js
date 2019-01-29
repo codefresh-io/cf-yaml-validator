@@ -22,19 +22,19 @@ class GitClone extends BaseSchema {
     }
 
     getSchema() {
-        let gitCloneProperties = {
-            type:                Joi.string().valid(GitClone.getType()),
+        const gitCloneProperties = {
+            'type': Joi.string().valid(GitClone.getType()),
             'working_directory': Joi.string(),
-            repo:                Joi.string().required(),
-            revision:            Joi.string(),
-            credentials:         BaseSchema._getCredentialsSchema(),
-            git:                 Joi.string()
+            'repo': Joi.string().required(),
+            'revision': Joi.string(),
+            'credentials': BaseSchema._getCredentialsSchema(),
+            'git': Joi.string()
         };
         return this._createSchema(gitCloneProperties);
     }
 
     _applyStepCompatibility(schema) {
-        return schema.rename('working-directory', 'working_directory', {ignoreUndefined: true});
+        return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true });
     }
 }
 // Exported objects/methods

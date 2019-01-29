@@ -13,7 +13,7 @@ const Joi = require('joi');
 
 class BaseSchema {
 
-    constructor(objectModel = {}){
+    constructor(objectModel = {}) {
         this._objectModel = objectModel;
     }
 
@@ -21,7 +21,7 @@ class BaseSchema {
     // Helpers
     //------------------------------------------------------------------------------
 
-    static getConditionSchema(){
+    static getConditionSchema() {
         return Joi.object({
             all: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string()),
             any: Joi.object().pattern(/^[a-zA-Z0-9_]+$/, Joi.string())
@@ -42,7 +42,7 @@ class BaseSchema {
         const stepSchema = Joi.object().keys({
             name: Joi.string().required(),
             on: Joi.array().items(
-                    Joi.string()
+                Joi.string()
                     .valid([
                         'success',
                         'running',
@@ -54,14 +54,15 @@ class BaseSchema {
                         'finished',
                         'approved',
                         'denied',
-                    ]))
+                    ])
+            )
                 .min(1)
         });
-        
+
         return Joi.object({
-            branch:    Joi.object({
+            branch: Joi.object({
                 ignore: Joi.array().items(Joi.string()),
-                only:   Joi.array().items(Joi.string())
+                only: Joi.array().items(Joi.string())
             }),
             condition: BaseSchema.getConditionSchema(),
             steps: [
@@ -69,7 +70,7 @@ class BaseSchema {
                     all: Joi.array().items(stepSchema).min(1),
                     any: Joi.array().items(stepSchema).min(1)
                 })
-                .xor('all', 'any'), 
+                    .xor('all', 'any'),
                 Joi.array().min(1).items(stepSchema)
             ]
         });
@@ -77,9 +78,9 @@ class BaseSchema {
 
     _applyCommonSchemaProperties(schemaProperties) {
         return Object.assign(schemaProperties, {
-            'description':    Joi.string(),
-            'title':          Joi.string(),
-            'fail_fast':      Joi.boolean(),
+            'description': Joi.string(),
+            'title': Joi.string(),
+            'fail_fast': Joi.boolean(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
@@ -94,9 +95,9 @@ class BaseSchema {
                     })
                 ]
             ),
-            'when':           BaseSchema._getWhenSchema(),
-            stage:            Joi.string().valid(...(this._objectModel.stages || [])).optional(),
-            retry:            BaseSchema._getRetrySchema(),
+            'when': BaseSchema._getWhenSchema(),
+            'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
+            'retry': BaseSchema._getRetrySchema(),
         });
     }
 
@@ -148,8 +149,8 @@ class BaseSchema {
         });
         return Object.assign(schemaProperties, {
             'on_success': metadataAnnotationSchema,
-            'on_fail':    metadataAnnotationSchema,
-            'on_finish':  metadataAnnotationSchema,
+            'on_fail': metadataAnnotationSchema,
+            'on_finish': metadataAnnotationSchema,
         });
     }
 
@@ -164,8 +165,8 @@ class BaseSchema {
     getSchema() {
         throw new Error('Implement this');
     }
-    
-    static getSuccessCriteriaSchema(){
+
+    static getSuccessCriteriaSchema() {
 
         const stepsSchema = Joi.array().items(Joi.string()).min(1);
 
