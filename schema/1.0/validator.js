@@ -58,7 +58,7 @@ class Validator {
                     _.map(step.steps, (innerStep, innerName) => {
                         steps[innerName] = innerStep;
                     });
-                    for (const stepName in step.steps) { // eslint-disable-line
+                    for (const stepName in steps) { // eslint-disable-line
                         const subStep = steps[stepName];
                         if (_.get(subStep, 'type', 'freestyle') === PendingApproval.getType()) {
                             const error = new Error(`"type" can't be ${PendingApproval.getType()}`);
@@ -75,7 +75,7 @@ class Validator {
                                 }
                             ];
 
-                            throw new ValidatorError(`${stepName} failed validation: [${error.message}. value: ${step.steps}]`, error);
+                            throw new ValidatorError(`${stepName} failed validation: [${error.message}]`, error);
                         }
                     }
                 } else {
