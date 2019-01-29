@@ -2470,7 +2470,7 @@ describe('Validate Codefresh YAML', () => {
                 }, '"type" can\\\'t be pending-approval', done);
             });
 
-            it.skip('allow pending-step in case it is not in the parallel step', (done) => {
+            it('allow pending-step in case it is not in the parallel step', (done) => {
                 validate({
                     'version': '1.0',
                     'steps': {
