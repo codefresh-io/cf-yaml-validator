@@ -5,6 +5,7 @@
 
 
 'use strict';
+
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
@@ -26,7 +27,7 @@ class Validator {
     static _validateRootSchema(objectModel) {
         const rootSchema = Joi.object({
             version: Joi.number().positive().required(),
-            steps:   Joi.object().pattern(/^.+$/, Joi.object()).required(),
+            steps: Joi.object().pattern(/^.+$/, Joi.object()).required(),
             stages: Joi.array().items(Joi.string()),
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
@@ -39,8 +40,8 @@ class Validator {
         const stepsPath          = path.join(__dirname, 'steps');
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
         const stepsSchemaModules = {};
-        allStepSchemaFiles.forEach((schemaFile => {
-            const StepSchemaModule = require(path.join(stepsPath, schemaFile));
+        allStepSchemaFiles.forEach(((schemaFile) => {
+            const StepSchemaModule = require(path.join(stepsPath, schemaFile)); // eslint-disable-line
             if (StepSchemaModule.getType()) {
                 stepsSchemaModules[StepSchemaModule.getType()] = new StepSchemaModule(objectModel).getSchema();
             }
@@ -52,14 +53,14 @@ class Validator {
         const stepsSchemas = Validator._resolveStepSchemas(objectModel);
         const steps = {};
         _.map(objectModel.steps, (step, name) => {
-            if(step.type === 'parallel'){
-                if (_.size(step.steps) > 0 ){
-                    _.map(step.steps,(innerStep, innerName) => {
+            if (step.type === 'parallel') {
+                if (_.size(step.steps) > 0) {
+                    _.map(step.steps, (innerStep, innerName) => {
                         steps[innerName] = innerStep;
                     });
-                    for (const stepName in steps) {
-                        const step = steps[stepName];
-                        if (_.get(step, 'type', 'freestyle') === PendingApproval.getType()) {
+                    for (const stepName in steps) { // eslint-disable-line
+                        const subStep = steps[stepName];
+                        if (_.get(subStep, 'type', 'freestyle') === PendingApproval.getType()) {
                             const error = new Error(`"type" can't be ${PendingApproval.getType()}`);
                             error.name = 'ValidationError';
                             error.isJoi = true;
@@ -74,7 +75,7 @@ class Validator {
                                 }
                             ];
 
-                            throw new ValidatorError(`${stepName} failed validation: [${error.message}. value: ${step.steps}]`, error);
+                            throw new ValidatorError(`${stepName} failed validation: [${error.message}]`, error);
                         }
                     }
                 } else {
@@ -98,35 +99,35 @@ class Validator {
                 steps[name] = step;
             }
         });
-        for (const stepName in steps) {
+        for (const stepName in steps) { // eslint-disable-line
             const step = steps[stepName];
-            let type   = step.type;
+            let { type } = step;
             if (!type) {
                 type = 'freestyle';
             }
             const stepSchema = stepsSchemas[type];
             if (!stepSchema) {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
-                continue;
+                continue; // eslint-disable-line no-continue
             }
-            const validationResult = Joi.validate(step, stepSchema, {abortEarly: true});
+            const validationResult = Joi.validate(step, stepSchema, { abortEarly: true });
             if (validationResult.error) {
 
                 // regex to split joi's error path so that we can use lodah's _.get
                 // we make sure split first ${{}} annotations before splitting by dots (.)
-                let joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^\.]+)/g);
+                const joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^.]+)/g);
 
                 // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-                let originalPath = [];
-                _.forEach(joiPathSplitted, (path) => {
-                    if (path && path !== '.') {
-                        originalPath.push(path);
+                const originalPath = [];
+                _.forEach(joiPathSplitted, (keyPath) => {
+                    if (keyPath && keyPath !== '.') {
+                        originalPath.push(keyPath);
                     }
                 });
 
-                let originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+                const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
 
-                throw new ValidatorError(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`, validationResult.error);
+                throw new ValidatorError(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`, validationResult.error); // eslint-disable-line max-len
             }
         }
     }

@@ -5,12 +5,12 @@
 
 const chai = require('chai');
 
-const expect    = chai.expect;
+const { expect }    = chai;
 const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
 
-const Validator = require('../../validator');
+const Validator = require('../validator');
 
 function validate(model) {
     return Validator(model);
@@ -548,11 +548,25 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             image: 'bob',
-                            cmd: ["yo"],
-                            commands: ["what"]
+                            cmd: ['yo'],
+                            commands: ['what']
                         }
                     }
                 }, '"commands" conflict with forbidden peer "cmd"', done);
+            });
+
+            it('do not allow volume without :', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            commands: ['what'],
+                            volumes: ['heyhey']
+                        }
+                    }
+                }, 'fails to match the required pattern: /:/', done);
             });
         });
 
@@ -1165,7 +1179,7 @@ describe('Validate Codefresh YAML', () => {
                                     image: 'redis',
                                     ports: [1234, 5678],
                                     environment: [{
-                                        someValue: "123"
+                                        someValue: '123'
                                     }
                                     ]
                                 },
@@ -1217,8 +1231,8 @@ describe('Validate Codefresh YAML', () => {
                                     image: 'redis',
                                     ports: [1234, 5678],
                                     environment: [
-                                        "TEST=hello",
-                                        "GOODBYE=you"
+                                        'TEST=hello',
+                                        'GOODBYE=you'
                                     ]
                                 },
                             }
@@ -1503,7 +1517,6 @@ describe('Validate Codefresh YAML', () => {
             });
 
 
-
         });
 
         describe('simple_travis step attributes', () => {
@@ -1584,7 +1597,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 command: 'command',
-                                working_directory: "/asdasd/asd"
+                                working_directory: '/asdasd/asd'
                             },
                             'services': ['sqlserver', 'sqlite3']
                         }
@@ -1602,7 +1615,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 command: 'command',
-                                working_directory: "/asdasd/asd"
+                                working_directory: '/asdasd/asd'
                             },
                             'services': [
                                 'mysql',
@@ -1869,7 +1882,7 @@ describe('Validate Codefresh YAML', () => {
                                     image: 'redis',
                                     ports: [1234, 5678],
                                     environment: [{
-                                        someValue: "123"
+                                        someValue: '123'
                                     }
                                     ]
                                 },
@@ -1923,8 +1936,8 @@ describe('Validate Codefresh YAML', () => {
                                     image: 'redis',
                                     ports: [1234, 5678],
                                     environment: [
-                                        "TEST=hello",
-                                        "GOODBYE=you"
+                                        'TEST=hello',
+                                        'GOODBYE=you'
                                     ]
                                 },
                             }
@@ -2124,7 +2137,7 @@ describe('Validate Codefresh YAML', () => {
                             'type': 'integration-test',
                             'test': {
                                 image: 'bob',
-                                commands: [ ]
+                                commands: []
                             },
                             'services': {
                                 redis: {
@@ -2158,7 +2171,7 @@ describe('Validate Codefresh YAML', () => {
                             'type': 'integration-test',
                             'test': {
                                 image: 'bob',
-                                commands: [ '   ', '' ]
+                                commands: ['   ', '']
                             },
                             'services': {
                                 redis: {
@@ -2362,7 +2375,7 @@ describe('Validate Codefresh YAML', () => {
                                 image: 'bob',
                                 commands:
                                   ['command'],
-                                working_directory: "/asdasd/asd"
+                                working_directory: '/asdasd/asd'
                             },
                             'preconfigured_services': ['sqlserver', 'sqlite3']
                         }
@@ -2381,7 +2394,7 @@ describe('Validate Codefresh YAML', () => {
                                 image: 'bob',
                                 commands:
                                   ['command'],
-                                working_directory: "/asdasd/asd"
+                                working_directory: '/asdasd/asd'
                             },
                             'preconfigured_services': [
                                 'mysql',
@@ -2455,6 +2468,29 @@ describe('Validate Codefresh YAML', () => {
                         }
                     }
                 }, '"type" can\\\'t be pending-approval', done);
+            });
+
+            it.skip('allow pending-step in case it is not in the parallel step', (done) => {
+                validate({
+                    'version': '1.0',
+                    'steps': {
+                        'pending_step': {
+                            'type': 'pending-approval',
+                        },
+                        'parallel_step': {
+                            'type': 'parallel',
+                            'steps': {
+                                'step1': {
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'env'
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                });
+                done();
             });
 
         });
@@ -3096,8 +3132,8 @@ describe('Validate Codefresh YAML', () => {
                             'title': 'Freestyle step',
                             'image': 'image/id',
                             'commands': ['env'],
-                            retry: {
-                                exponentialFactor: ""
+                            'retry': {
+                                exponentialFactor: ''
                             }
                         },
                     }
@@ -3112,8 +3148,8 @@ describe('Validate Codefresh YAML', () => {
                             'title': 'Freestyle step',
                             'image': 'image/id',
                             'commands': ['env'],
-                            retry: {
-                                maxAttempts: ""
+                            'retry': {
+                                maxAttempts: ''
                             }
                         },
                     }
@@ -3128,8 +3164,8 @@ describe('Validate Codefresh YAML', () => {
                             'title': 'Freestyle step',
                             'image': 'image/id',
                             'commands': ['env'],
-                            retry: {
-                                delay: ""
+                            'retry': {
+                                delay: ''
                             }
                         },
                     }

@@ -22,21 +22,21 @@ class Build extends BaseSchema {
     }
 
     getSchema() {
-        let buildProperties = {
-            type:              Joi.string().valid(Build.getType()),
+        const buildProperties = {
+            type: Joi.string().valid(Build.getType()),
             working_directory: Joi.string(),
-            dockerfile:        Joi.alternatives()
-                                   .try(Joi.string(), Joi.object({ content: Joi.string() })),
-            no_cache:          Joi.boolean(),
-            no_cf_cache:       Joi.boolean(),
-            squash:            Joi.boolean(),
-            image_name:        Joi.string().required(),
-            build_arguments:   Joi.array().items(Joi.string()),
-            tag:               Joi.string(),
-            metadata:          Joi.object({
+            dockerfile: Joi.alternatives()
+                .try(Joi.string(), Joi.object({ content: Joi.string() })),
+            no_cache: Joi.boolean(),
+            no_cf_cache: Joi.boolean(),
+            squash: Joi.boolean(),
+            image_name: Joi.string().required(),
+            build_arguments: Joi.array().items(Joi.string()),
+            tag: Joi.string(),
+            metadata: Joi.object({
                 set: Build._getMetadataAnnotationSetSchema()
             }),
-            target:               Joi.string()
+            target: Joi.string()
         };
         return this._createSchema(buildProperties);
     }

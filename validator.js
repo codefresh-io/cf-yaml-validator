@@ -36,7 +36,7 @@ class Validator {
         if (!fs.existsSync(`${validatorPath}.js`)) {
             throw new Error(`Unable to find a validator for schema version ${modelVersion}`);
         }
-        const VersionedValidator = require(validatorPath);
+        const VersionedValidator = require(validatorPath); // eslint-disable-line
         if (!VersionedValidator) {
             throw new Error(`Unable to find a validator for schema version ${modelVersion}`);
         }

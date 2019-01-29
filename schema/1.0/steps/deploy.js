@@ -22,7 +22,7 @@ class Deploy extends BaseSchema {
     }
 
     getSchema() {
-        let deployProperties = {
+        const deployProperties = {
             type: Joi.string().valid(Deploy.getType()),
             kind: Joi.string().required(),
             cluster: Joi.string().required(),

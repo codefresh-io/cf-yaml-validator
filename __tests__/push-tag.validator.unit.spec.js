@@ -5,12 +5,12 @@
 
 const chai = require('chai');
 
-const expect    = chai.expect;
+const { expect }    = chai;
 const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
 
-const Validator = require('../../validator');
+const Validator = require('../validator');
 
 function validate(model) {
     return Validator(model);
@@ -41,7 +41,7 @@ describe('Validate Codefresh YAML', () => {
                             title: 'Push tag',
                             type: 'push-tag',
                             image_name: 'codefresh/cf-docker-tag-pusher',
-                            tags: [1,2,3]
+                            tags: [1, 2, 3]
                         }
 
                     }
@@ -54,7 +54,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         push_tag: {
                             type: 'push-tag',
-                            tags: ['1','2','3']
+                            tags: ['1', '2', '3']
                         }
 
                     }
