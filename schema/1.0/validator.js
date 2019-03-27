@@ -24,6 +24,33 @@ class Validator {
     // Helpers
     //------------------------------------------------------------------------------
 
+    static _validateUniqueStepNames(objectModel) {
+        // get all step names:
+        const stepNames = _.flatMap(objectModel.steps, (step) => {
+            return step.steps ? Object.keys(step.steps) : [];
+        });
+        // get duplicate step names from step names:
+        const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
+        if (duplicateSteps.length > 0) {
+            const message = `Failed validation: Duplicate step name: ${duplicateSteps.toString()} : exist more than once.`;
+            const error = new Error(message);
+            error.name = 'ValidationError';
+            error.isJoi = true;
+            error.details = [
+                {
+                    message,
+                    type: 'Validation',
+                    path: 'steps',
+                    context: {
+                        key: 'steps'
+                    },
+                }
+            ];
+
+            throw new ValidatorError(`steps: ${duplicateSteps.toString()} failed validation: [${error.message}. value: ]`, error);
+        }
+    }
+
     static _validateRootSchema(objectModel) {
         const rootSchema = Joi.object({
             version: Joi.number().positive().required(),
@@ -143,6 +170,7 @@ class Validator {
      * @throws An error containing the details of the validation failure
      */
     static validate(objectModel) {
+        Validator._validateUniqueStepNames(objectModel);
         Validator._validateRootSchema(objectModel);
         Validator._validateStepSchema(objectModel);
     }
