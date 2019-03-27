@@ -25,9 +25,11 @@ class Validator {
     //------------------------------------------------------------------------------
 
     static _validateUniqueStepNames(objectModel) {
+        // get all step names:
         const stepNames = _.flatMap(objectModel.steps, (step) => {
-            return Object.keys(step.steps);
+            return step.steps ? Object.keys(step.steps) : [];
         });
+        // get duplicate step names from step names:
         const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
         if (duplicateSteps.length > 0) {
             const message = `Failed validation: Duplicate step name: ${duplicateSteps.toString()} : exist more than once.`;
