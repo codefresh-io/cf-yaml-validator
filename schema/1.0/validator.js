@@ -24,7 +24,7 @@ class Validator {
     // Helpers
     //------------------------------------------------------------------------------
 
-    static _validateUniqueStepNames(objectModel){
+    static _validateUniqueStepNames(objectModel) {
         const stepNames = _.flatMap(objectModel.steps, (step) => {
             return Object.keys(step.steps);
         });
