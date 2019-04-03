@@ -140,9 +140,16 @@ class Validator {
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: true });
             if (validationResult.error) {
 
+                let joiPathSplitted;
+
                 // regex to split joi's error path so that we can use lodah's _.get
                 // we make sure split first ${{}} annotations before splitting by dots (.)
-                const joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^.]+)/g);
+                try {
+                    joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^.]+)/g);
+                }
+                catch (e) {
+                    throw new ValidatorError(`${stepName} failed validation: [${validationResult.error.message}.`, validationResult.error); // eslint-disable-line max-len
+                }
 
                 // TODO: I (Itai) put this code because i could not find a good regex to do all the job
                 const originalPath = [];
