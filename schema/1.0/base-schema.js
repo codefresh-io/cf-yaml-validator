@@ -134,8 +134,15 @@ class BaseSchema {
                         Joi.number(),
                         Joi.object({ evaluate: Joi.string().required() })
                     ]
-                )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
+                )),
+                Joi.string().regex(/^[A-Za-z0-9_]+$/)
             )
+        );
+    }
+
+    static _getMetadataAnnotationUnsetSchema() {
+        return Joi.array().items(
+            Joi.string().regex(/^[A-Za-z0-9_]+$/)
         );
     }
 
@@ -143,8 +150,22 @@ class BaseSchema {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
                 set: Joi.array().items(
-                    Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
-                )
+                    Joi.alternatives().try(
+                        Joi.object({
+                            entity_id: Joi.string().required(),
+                            entity_type: Joi.string().required(),
+                            annotations: BaseSchema._getMetadataAnnotationSetSchema(),
+                        }),
+                        Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema()),
+                    ),
+                ),
+                unset: Joi.array().items(
+                    Joi.object({
+                        entity_id: Joi.string().required(),
+                        entity_type: Joi.string().required(),
+                        annotations: BaseSchema._getMetadataAnnotationUnsetSchema(),
+                    }),
+                ),
             })
         });
         return Object.assign(schemaProperties, {
