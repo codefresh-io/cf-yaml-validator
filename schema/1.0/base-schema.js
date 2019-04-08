@@ -124,25 +124,49 @@ class BaseSchema {
         });
     }
 
+    static _getAnnotationObjAlternative() {
+        return Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
+            [
+                Joi.string(),
+                Joi.boolean(),
+                Joi.number(),
+                Joi.object({ evaluate: Joi.string().required() })
+            ]
+        ));
+    }
+
+    static _getAnnotationStrAlternative() {
+        return Joi.string().regex(/^[A-Za-z0-9_]+$/);
+    }
+
+    static _getAnnotationExtObjSetAlternative() {
+        return Joi.object({
+            entity_id: Joi.string(),
+            entity_type: Joi.string(),
+            annotations: BaseSchema._getMetadataAnnotationSetSchema(),
+        });
+    }
+
     static _getMetadataAnnotationSetSchema() {
         return Joi.array().items(
             Joi.alternatives().try(
-                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
-                    [
-                        Joi.string(),
-                        Joi.boolean(),
-                        Joi.number(),
-                        Joi.object({ evaluate: Joi.string().required() })
-                    ]
-                )),
-                Joi.string().regex(/^[A-Za-z0-9_]+$/)
+                BaseSchema._getAnnotationObjAlternative(),
+                BaseSchema._getAnnotationStrAlternative(),
             )
         );
     }
 
+    static _getAnnotationExtObjUnsetAlternative() {
+        return Joi.object({
+            entity_id: Joi.string(),
+            entity_type: Joi.string(),
+            annotations: BaseSchema._getMetadataAnnotationUnsetSchema(),
+        });
+    }
+
     static _getMetadataAnnotationUnsetSchema() {
         return Joi.array().items(
-            Joi.string().regex(/^[A-Za-z0-9_]+$/)
+            BaseSchema._getAnnotationStrAlternative()
         );
     }
 
@@ -151,20 +175,12 @@ class BaseSchema {
             metadata: Joi.object({
                 set: Joi.array().items(
                     Joi.alternatives().try(
-                        Joi.object({
-                            entity_id: Joi.string().required(),
-                            entity_type: Joi.string().required(),
-                            annotations: BaseSchema._getMetadataAnnotationSetSchema(),
-                        }),
+                        BaseSchema._getAnnotationExtObjSetAlternative(),
                         Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema()),
                     ),
                 ),
                 unset: Joi.array().items(
-                    Joi.object({
-                        entity_id: Joi.string().required(),
-                        entity_type: Joi.string().required(),
-                        annotations: BaseSchema._getMetadataAnnotationUnsetSchema(),
-                    }),
+                    BaseSchema._getAnnotationExtObjUnsetAlternative(),
                 ),
             })
         });
