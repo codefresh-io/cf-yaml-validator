@@ -36,10 +36,14 @@ class Build extends BaseSchema {
             metadata: Joi.object({
                 set: Joi.array().items(
                     Joi.alternatives().try(
-                        Build._getAnnotationExtObjSetAlternative(),
                         Build._getAnnotationObjAlternative(),
                         Build._getAnnotationStrAlternative(),
                     )
+                ),
+            }),
+            annotations: Joi.object({
+                set: Joi.array().items(
+                    Build._getAnnotationExtObjSetAlternative(),
                 ),
                 unset: Joi.array().items(
                     BaseSchema._getAnnotationExtObjUnsetAlternative(),

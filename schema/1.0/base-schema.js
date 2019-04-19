@@ -174,10 +174,12 @@ class BaseSchema {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
                 set: Joi.array().items(
-                    Joi.alternatives().try(
-                        BaseSchema._getAnnotationExtObjSetAlternative(),
-                        Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema()),
-                    ),
+                    Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
+                )
+            }),
+            annotations: Joi.object({
+                set: Joi.array().items(
+                    BaseSchema._getAnnotationExtObjSetAlternative(),
                 ),
                 unset: Joi.array().items(
                     BaseSchema._getAnnotationExtObjUnsetAlternative(),
