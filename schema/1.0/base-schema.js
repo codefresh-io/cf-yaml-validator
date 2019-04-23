@@ -144,11 +144,11 @@ class BaseSchema {
             entity_id: Joi.string(),
             entity_type: Joi.string(),
             entity_name: Joi.string(),
-            annotations: BaseSchema._getMetadataAnnotationSetSchema(),
+            annotations: BaseSchema._getAnnotationSetSchema(),
         });
     }
 
-    static _getMetadataAnnotationSetSchema() {
+    static _getAnnotationSetSchema() {
         return Joi.array().items(
             Joi.alternatives().try(
                 BaseSchema._getAnnotationObjAlternative(),
@@ -168,6 +168,21 @@ class BaseSchema {
     static _getMetadataAnnotationUnsetSchema() {
         return Joi.array().items(
             BaseSchema._getAnnotationStrAlternative()
+        );
+    }
+
+    static _getMetadataAnnotationSetSchema() {
+        return Joi.array().items(
+            Joi.alternatives().try(
+                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
+                    [
+                        Joi.string(),
+                        Joi.boolean(),
+                        Joi.number(),
+                        Joi.object({ evaluate: Joi.string().required() })
+                    ]
+                )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
+            )
         );
     }
 
