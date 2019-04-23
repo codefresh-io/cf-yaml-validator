@@ -143,7 +143,6 @@ class BaseSchema {
         return Joi.object({
             entity_id: Joi.string(),
             entity_type: Joi.string(),
-            entity_name: Joi.string(),
             annotations: BaseSchema._getAnnotationSetSchema(),
         });
     }
