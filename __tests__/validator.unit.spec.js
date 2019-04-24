@@ -591,7 +591,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"an invalid key" is not allowed', done);
+                }, '"an invalid key" fails to match', done);
             });
 
             it('Invalid post-step metadata annotation value', (done) => {
