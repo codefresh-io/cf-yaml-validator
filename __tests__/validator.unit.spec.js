@@ -434,6 +434,213 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"evaluate" is required', done);
             });
+
+            it('Unknown post-step annotate operation', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    put: [
+                                        {
+                                            entity_type: 'image',
+                                            entity_id: '${{build_prj.image}}',
+                                            annotations: [
+                                                { 'qa': 'pending' }
+                                            ],
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }, '"put" is not allowed', done);
+            });
+
+            it('Unknown build annotate operation', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        build: {
+                            type: 'build',
+                            image_name: 'name',
+                            annotations: {
+                                put: [
+                                    {
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: [
+                                            { 'qa': 'pending' }
+                                        ],
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }, '"put" is not allowed', done);
+            });
+
+            it('Unknown post-step annotation entry', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    set: {
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: [
+                                            { 'qa': 'pending' }
+                                        ],
+                                    },
+                                }
+                            }
+                        }
+                    }
+                }, '"set" must be an array', done);
+            });
+
+            it('Unknown post-step annotation entry', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    unset: {
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: [
+                                            { 'qa': 'pending' }
+                                        ],
+                                    },
+                                }
+                            }
+                        }
+                    }
+                }, '"unset" must be an array', done);
+            });
+
+            it('Unknown build annotation entry', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        build: {
+                            type: 'build',
+                            image_name: 'name',
+                            annotations: {
+                                set: {
+                                    entity_type: 'image',
+                                    entity_id: '${{build_prj.image}}',
+                                    annotations: [
+                                        { 'qa': 'pending' }
+                                    ],
+                                },
+                            }
+                        }
+                    }
+                }, '"set" must be an array', done);
+            });
+
+            it('Invalid post-step annotation key', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    set: [{
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: [
+                                            { 'an invalid key': 'pending' }
+                                        ],
+                                    }]
+                                }
+                            }
+                        }
+                    }
+                }, '"an invalid key" is not allowed', done);
+            });
+
+            it('Invalid post-step annotation key', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    unset: [{
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: ['an invalid key'],
+                                    }]
+                                }
+                            }
+                        }
+                    }
+                }, '"an invalid key" is not allowed', done);
+            });
+
+            it('Invalid post-step metadata annotation value', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    set: [{
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: [
+                                            { 'key': [] }
+                                        ],
+                                    }]
+                                }
+                            }
+                        }
+                    }
+                }, '"key" must be a', done);
+            });
+
+            it('Invalid post-step annotation evaluation expression', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        push: {
+                            'type': 'push',
+                            'candidate': 'teh-image',
+                            'on_finish': {
+                                annotations: {
+                                    set: [{
+                                        entity_type: 'image',
+                                        entity_id: '${{build_prj.image}}',
+                                        annotations: [{
+                                            'key': {
+                                                eval: 'jimbob == jimbob'
+                                            }
+                                        }],
+                                    }]
+                                }
+                            }
+                        }
+                    }
+                }, '"evaluate" is required', done);
+            });
         });
 
         describe('Freestyle step attributes', () => {
