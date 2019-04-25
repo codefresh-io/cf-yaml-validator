@@ -153,7 +153,7 @@ class BaseSchema {
                 BaseSchema._getAnnotationObjAlternative(),
                 BaseSchema._getAnnotationStrAlternative(),
             )
-        );
+        ).required();
     }
 
     static _getAnnotationExtObjUnsetAlternative() {
@@ -167,7 +167,7 @@ class BaseSchema {
     static _getMetadataAnnotationUnsetSchema() {
         return Joi.array().items(
             BaseSchema._getAnnotationStrAlternative()
-        );
+        ).required();
     }
 
     static _getMetadataAnnotationSetSchema() {
