@@ -203,7 +203,7 @@ class BaseSchema {
                     Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
                 )
             }),
-            annotations: BaseSchema._getAnnotationsSchema,
+            annotations: BaseSchema._getAnnotationsSchema(),
         });
         return Object.assign(schemaProperties, {
             'on_success': metadataAnnotationSchema,
