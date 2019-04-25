@@ -185,6 +185,17 @@ class BaseSchema {
         );
     }
 
+    static _getAnnotationsSchema() {
+        return Joi.object({
+            set: Joi.array().items(
+                BaseSchema._getAnnotationExtObjSetAlternative(),
+            ),
+            unset: Joi.array().items(
+                BaseSchema._getAnnotationExtObjUnsetAlternative(),
+            ),
+        });
+    }
+
     _applyMetadataAnnotationSchemaProperties(schemaProperties) {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
@@ -192,14 +203,7 @@ class BaseSchema {
                     Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
                 )
             }),
-            annotations: Joi.object({
-                set: Joi.array().items(
-                    BaseSchema._getAnnotationExtObjSetAlternative(),
-                ),
-                unset: Joi.array().items(
-                    BaseSchema._getAnnotationExtObjUnsetAlternative(),
-                ),
-            })
+            annotations: BaseSchema._getAnnotationsSchema,
         });
         return Object.assign(schemaProperties, {
             'on_success': metadataAnnotationSchema,
