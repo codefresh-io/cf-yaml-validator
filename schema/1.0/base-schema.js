@@ -124,6 +124,52 @@ class BaseSchema {
         });
     }
 
+    static _getAnnotationObjAlternative() {
+        return Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
+            [
+                Joi.string(),
+                Joi.boolean(),
+                Joi.number(),
+                Joi.object({ evaluate: Joi.string().required() })
+            ]
+        ));
+    }
+
+    static _getAnnotationStrAlternative() {
+        return Joi.string().regex(/^[A-Za-z0-9_]+$/);
+    }
+
+    static _getAnnotationExtObjSetAlternative() {
+        return Joi.object({
+            entity_id: Joi.string(),
+            entity_type: Joi.string(),
+            annotations: BaseSchema._getAnnotationSetSchema(),
+        });
+    }
+
+    static _getAnnotationSetSchema() {
+        return Joi.array().items(
+            Joi.alternatives().try(
+                BaseSchema._getAnnotationObjAlternative(),
+                BaseSchema._getAnnotationStrAlternative(),
+            )
+        ).required();
+    }
+
+    static _getAnnotationExtObjUnsetAlternative() {
+        return Joi.object({
+            entity_id: Joi.string(),
+            entity_type: Joi.string(),
+            annotations: BaseSchema._getMetadataAnnotationUnsetSchema(),
+        });
+    }
+
+    static _getMetadataAnnotationUnsetSchema() {
+        return Joi.array().items(
+            BaseSchema._getAnnotationStrAlternative()
+        ).required();
+    }
+
     static _getMetadataAnnotationSetSchema() {
         return Joi.array().items(
             Joi.alternatives().try(
@@ -139,13 +185,25 @@ class BaseSchema {
         );
     }
 
+    static _getAnnotationsSchema() {
+        return Joi.object({
+            set: Joi.array().items(
+                BaseSchema._getAnnotationExtObjSetAlternative(),
+            ),
+            unset: Joi.array().items(
+                BaseSchema._getAnnotationExtObjUnsetAlternative(),
+            ),
+        });
+    }
+
     _applyMetadataAnnotationSchemaProperties(schemaProperties) {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
                 set: Joi.array().items(
                     Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
                 )
-            })
+            }),
+            annotations: BaseSchema._getAnnotationsSchema(),
         });
         return Object.assign(schemaProperties, {
             'on_success': metadataAnnotationSchema,
