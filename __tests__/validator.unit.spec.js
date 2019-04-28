@@ -775,6 +775,20 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, 'fails to match the required pattern: /:/', done);
             });
+
+            it('explicit shell', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            commands: ['what'],
+                            shell: 'bashh'
+                        }
+                    }
+                }, '["shell" must be one of [sh, bash]]', done);
+            });
         });
 
         describe('Git clone step attributes', () => {
