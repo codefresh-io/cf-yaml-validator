@@ -34,6 +34,7 @@ class Freestyle extends BaseSchema {
         };
         return this._createSchema(freestyleProperties)
             .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional
+            .without('shell', 'cmd') // make sure cmd and commands are mutually exclusive AND optional
             .unknown();
     }
 
