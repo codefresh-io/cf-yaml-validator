@@ -775,6 +775,34 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, 'fails to match the required pattern: /:/', done);
             });
+
+            it('explicit shell should fail if passed a non recognized value', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            commands: ['what'],
+                            shell: 'bashh'
+                        }
+                    }
+                }, '["shell" must be one of [sh, bash]]', done);
+            });
+
+            it('should fail in case of passing shell without commands', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            cmd: 'commands',
+                            shell: 'bash'
+                        }
+                    }
+                }, '"shell" conflict with forbidden peer "cmd"', done);
+            });
         });
 
         describe('Git clone step attributes', () => {
