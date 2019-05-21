@@ -10,19 +10,32 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const Joi  = require('joi');
-const fs   = require('fs');
+const Joi = require('joi');
+const fs = require('fs');
 const path = require('path');
-const _    = require('lodash');
+const _ = require('lodash');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
+let outputFormat;
 
 class Validator {
 
     //------------------------------------------------------------------------------
     // Helpers
     //------------------------------------------------------------------------------
+
+    static _throwValidationErrorAccordingToForamt(message, error) {
+        const err = new ValidatorError(message, error);
+        switch (outputFormat) {
+            case 'object':
+                throw err;
+            case 'message':
+                throw err;
+            default:
+                throw err.details;
+        }
+    }
 
     static _validateUniqueStepNames(objectModel) {
         // get all step names:
@@ -42,12 +55,14 @@ class Validator {
                     type: 'Validation',
                     path: 'steps',
                     context: {
-                        key: 'steps'
+                        key: 'steps',
                     },
-                }
+                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
+                    actionItems: `Please rename ${duplicateSteps.toString()} steps`,
+                },
             ];
 
-            throw new ValidatorError(`steps: ${duplicateSteps.toString()} failed validation: [${error.message}. value: ]`, error);
+            Validator._throwValidationErrorAccordingToForamt(`Failed validation: Duplicate step name: ${duplicateSteps.toString()} : exist more than once.`, error);
         }
     }
 
@@ -58,13 +73,34 @@ class Validator {
             stages: Joi.array().items(Joi.string()),
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
-            success_criteria: BaseSchema.getSuccessCriteriaSchema()
+            success_criteria: BaseSchema.getSuccessCriteriaSchema(),
         });
-        Joi.assert(objectModel, rootSchema);
+        try {
+            Joi.assert(objectModel, rootSchema);
+        } catch (err) {
+            const message = err.message;
+            const error = new Error(message);
+            error.name = 'ValidationError';
+            error.isJoi = true;
+            error.details = [
+                {
+                    message,
+                    type: 'Validation',
+                    path: 'workflow',
+                    context: {
+                        key: 'workflow',
+                    },
+                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                    actionItems: `Please make sure you have all the requiered fields`,
+                },
+            ];
+            Validator._throwValidationErrorAccordingToForamt(message, error);
+        }
     }
 
+
     static _resolveStepSchemas(objectModel = {}) {
-        const stepsPath          = path.join(__dirname, 'steps');
+        const stepsPath = path.join(__dirname, 'steps');
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
         const stepsSchemaModules = {};
         allStepSchemaFiles.forEach(((schemaFile) => {
@@ -97,12 +133,13 @@ class Validator {
                                     type: 'Validation',
                                     path: 'type',
                                     context: {
-                                        key: 'type'
+                                        key: 'type',
                                     },
-                                }
+                                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
+                                    actionItems: `Please make sure you have all the requiered fields`,
+                                },
                             ];
-
-                            throw new ValidatorError(`${stepName} failed validation: [${error.message}]`, error);
+                            Validator._throwValidationErrorAccordingToForamt(`${stepName} failed validation: [${error.message}]`, error);
                         }
                     }
                 } else {
@@ -115,12 +152,13 @@ class Validator {
                             type: 'Validation',
                             path: 'steps',
                             context: {
-                                key: 'steps'
+                                key: 'steps',
                             },
-                        }
+                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                            actionItems: `Please make sure you have all the requiered fields`,
+                        },
                     ];
-
-                    throw new ValidatorError(`${name} failed validation: [${error.message}. value: ${step.steps}]`, error);
+                    Validator._throwValidationErrorAccordingToForamt(`${name} failed validation: [${error.message}. value: ${step.steps}]`, error);
                 }
             } else {
                 steps[name] = step;
@@ -142,7 +180,8 @@ class Validator {
 
                 // regex to split joi's error path so that we can use lodah's _.get
                 // we make sure split first ${{}} annotations before splitting by dots (.)
-                const joiPathSplitted = _.get(validationResult, 'error.details[0].path').split(/(\$\{\{[^}]*}})|([^.]+)/g);
+                const joiPathSplitted = _.get(validationResult, 'error.details[0].path')
+                    .split(/(\$\{\{[^}]*}})|([^.]+)/g);
 
                 // TODO: I (Itai) put this code because i could not find a good regex to do all the job
                 const originalPath = [];
@@ -154,7 +193,8 @@ class Validator {
 
                 const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
 
-                throw new ValidatorError(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`, validationResult.error); // eslint-disable-line max-len
+                Validator._throwValidationErrorAccordingToForamt(`${stepName} failed validation: [${validationResult.error.message}. 
+                value: ${originalFieldValue}]`, validationResult.error);
             }
         }
     }
@@ -167,13 +207,16 @@ class Validator {
      * Validates a model of the deserialized YAML
      *
      * @param objectModel Deserialized YAML
+     * @param output desire output format YAML
      * @throws An error containing the details of the validation failure
      */
-    static validate(objectModel) {
+    static validate(objectModel, output = 'message') {
+        outputFormat = output;
         Validator._validateUniqueStepNames(objectModel);
         Validator._validateRootSchema(objectModel);
         Validator._validateStepSchema(objectModel);
     }
 }
+
 // Exported objects/methods
 module.exports = Validator.validate;
