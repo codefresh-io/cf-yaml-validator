@@ -14,6 +14,7 @@ const Joi = require('joi');
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
+const Table = require('cli-table');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
@@ -25,16 +26,37 @@ class Validator {
     // Helpers
     //------------------------------------------------------------------------------
 
-    static _throwValidationErrorAccordingToForamt(message, error) {
-        const err = new ValidatorError(message, error);
+    static _throwValidationErrorAccordingToFormat(error) {
+        const err = new ValidatorError(error);
         switch (outputFormat) {
             case 'object':
                 throw err;
             case 'message':
+                Validator._drawTable(err);
                 throw err;
             default:
                 throw err.details;
         }
+    }
+
+    static _drawTable(err) {
+        err.message = '';
+        _.forEach(err.details, (error) => {
+            const table = new Table();
+            if (error.message) {
+                table.push({ 'Message' :error.message })
+            }
+            if (error.docsLink) {
+                table.push({ 'Documentation Link' :error.docsLink })
+            }
+            if (error.type) {
+                table.push({ 'Error Type' :error.type })
+            }
+            if (error.actionItems) {
+                table.push({ 'Action Items' :error.actionItems })
+            }
+            err.message += `\n${table.toString()}`;
+        })
     }
 
     static _validateUniqueStepNames(objectModel) {
@@ -45,7 +67,7 @@ class Validator {
         // get duplicate step names from step names:
         const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
         if (duplicateSteps.length > 0) {
-            const message = `Failed validation: Duplicate step name: ${duplicateSteps.toString()} : exist more than once.`;
+            const message = `Duplicate step name: ${duplicateSteps.toString()} : exist more than once.`;
             const error = new Error(message);
             error.name = 'ValidationError';
             error.isJoi = true;
@@ -62,7 +84,7 @@ class Validator {
                 },
             ];
 
-            Validator._throwValidationErrorAccordingToForamt(`Failed validation: Duplicate step name: ${duplicateSteps.toString()} : exist more than once.`, error);
+            Validator._throwValidationErrorAccordingToFormat(error);
         }
     }
 
@@ -94,7 +116,7 @@ class Validator {
                     actionItems: `Please make sure you have all the requiered fields`,
                 },
             ];
-            Validator._throwValidationErrorAccordingToForamt(message, error);
+            Validator._throwValidationErrorAccordingToFormat(error);
         }
     }
 
@@ -139,7 +161,7 @@ class Validator {
                                     actionItems: `Please make sure you have all the requiered fields`,
                                 },
                             ];
-                            Validator._throwValidationErrorAccordingToForamt(`${stepName} failed validation: [${error.message}]`, error);
+                            Validator._throwValidationErrorAccordingToFormat(error);
                         }
                     }
                 } else {
@@ -158,7 +180,7 @@ class Validator {
                             actionItems: `Please make sure you have all the requiered fields`,
                         },
                     ];
-                    Validator._throwValidationErrorAccordingToForamt(`${name} failed validation: [${error.message}. value: ${step.steps}]`, error);
+                    Validator._throwValidationErrorAccordingToFormat(error);
                 }
             } else {
                 steps[name] = step;
@@ -193,8 +215,24 @@ class Validator {
 
                 const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
 
-                Validator._throwValidationErrorAccordingToForamt(`${stepName} failed validation: [${validationResult.error.message}. 
-                value: ${originalFieldValue}]`, validationResult.error);
+                const error = new Error(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`);
+                error.name = 'ValidationError';
+                error.isJoi = true;
+                error.details = [
+                    {
+                        message: `${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`,
+                        type: 'Validation',
+                        path: 'steps',
+                        context: {
+                            key: 'steps',
+                        },
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        actionItems: `Please make sure you have all the requiered fields`,
+                    },
+                ];
+
+                Validator._throwValidationErrorAccordingToFormat(error);
+
             }
         }
     }
