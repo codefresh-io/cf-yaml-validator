@@ -18,7 +18,18 @@ const Table = require('cli-table');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
-let outputFormat;
+
+let totalErrors;
+const docBaseUrl = 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
+const DocumentationLinks = {
+    freestyle: `${docBaseUrl}/freestyle/`,
+    build: `${docBaseUrl}/build-1/`,
+    push: `${docBaseUrl}/push-1/`,
+    deploy: `${docBaseUrl}/deploy/`,
+    'git-clone': `${docBaseUrl}/git-clone/`,
+    'launch-composition': `${docBaseUrl}/launch-composition-2/`,
+    'pending-approval': `${docBaseUrl}/approval/`,
+};
 
 class Validator {
 
@@ -26,38 +37,57 @@ class Validator {
     // Helpers
     //------------------------------------------------------------------------------
 
-    static _throwValidationErrorAccordingToFormat(error) {
-        const err = new ValidatorError(error);
+    static _throwValidationErrorAccordingToFormat(outputFormat) {
+        const err = new ValidatorError(totalErrors);
         switch (outputFormat) {
-            case 'object':
-                throw err;
+            case 'printify':
+                Validator._printify(err);
+                break;
             case 'message':
-                Validator._drawTable(err);
-                throw err;
+                Validator._message(err);
+                break;
             default:
-                throw err.details;
+                throw err;
         }
     }
 
-    static _drawTable(err) {
-        err.message = '';
-        _.forEach(err.details, (error) => {
+    static _addError(error) {
+        totalErrors.details = _.concat(totalErrors.details, error.details);
+    }
+
+    static _printify(err) {
+        _.forEach(totalErrors.details, (error) => {
             const table = new Table();
             if (error.message) {
-                table.push({ 'Message' :error.message })
-            }
-            if (error.docsLink) {
-                table.push({ 'Documentation Link' :error.docsLink })
+                table.push({ 'Message': error.message });
             }
             if (error.type) {
-                table.push({ 'Error Type' :error.type })
+                table.push({ 'Error Type': error.type });
+            }
+            if (error.level) {
+                table.push({ 'Error Level': error.level });
+            }
+            if (error.stepName) {
+                table.push({ 'Step Name': error.stepName });
+            }
+            if (error.docsLink) {
+                table.push({ 'Documentation Link': error.docsLink });
             }
             if (error.actionItems) {
-                table.push({ 'Action Items' :error.actionItems })
+                table.push({ 'Action Items': error.actionItems });
             }
             err.message += `\n${table.toString()}`;
-        })
+        });
+        throw err;
     }
+
+    static _message(err) {
+        _.forEach(totalErrors.details, (error) => {
+            err.message += `${error.message}\n`;
+        });
+        throw err;
+    }
+
 
     static _validateUniqueStepNames(objectModel) {
         // get all step names:
@@ -79,12 +109,13 @@ class Validator {
                     context: {
                         key: 'steps',
                     },
+                    level: 'workflow',
                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
                     actionItems: `Please rename ${duplicateSteps.toString()} steps`,
                 },
             ];
 
-            Validator._throwValidationErrorAccordingToFormat(error);
+            Validator._addError(error);
         }
     }
 
@@ -112,11 +143,12 @@ class Validator {
                     context: {
                         key: 'workflow',
                     },
+                    level: 'workflow',
                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                     actionItems: `Please make sure you have all the requiered fields`,
                 },
             ];
-            Validator._throwValidationErrorAccordingToFormat(error);
+            Validator._addError(error);
         }
     }
 
@@ -157,11 +189,13 @@ class Validator {
                                     context: {
                                         key: 'type',
                                     },
+                                    level: 'step',
+                                    stepName,
                                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
                                     actionItems: `Please make sure you have all the requiered fields`,
                                 },
                             ];
-                            Validator._throwValidationErrorAccordingToFormat(error);
+                            Validator._addError(error);
                         }
                     }
                 } else {
@@ -176,11 +210,12 @@ class Validator {
                             context: {
                                 key: 'steps',
                             },
+                            level: 'workflow',
                             docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                             actionItems: `Please make sure you have all the requiered fields`,
                         },
                     ];
-                    Validator._throwValidationErrorAccordingToFormat(error);
+                    Validator._addError(error);
                 }
             } else {
                 steps[name] = step;
@@ -215,23 +250,25 @@ class Validator {
 
                 const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
 
-                const error = new Error(`${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`);
+                const error = new Error();
                 error.name = 'ValidationError';
                 error.isJoi = true;
                 error.details = [
                     {
-                        message: `${stepName} failed validation: [${validationResult.error.message}. value: ${originalFieldValue}]`,
+                        message: `Step ${stepName}: ${validationResult.error.message}`,
                         type: 'Validation',
                         path: 'steps',
                         context: {
                             key: 'steps',
                         },
-                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                        actionItems: `Please make sure you have all the requiered fields`,
+                        level: 'step',
+                        stepName,
+                        docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                        actionItems: `Please make sure you have all the required fields`,
                     },
                 ];
 
-                Validator._throwValidationErrorAccordingToFormat(error);
+                Validator._addError(error);
 
             }
         }
@@ -245,14 +282,19 @@ class Validator {
      * Validates a model of the deserialized YAML
      *
      * @param objectModel Deserialized YAML
-     * @param output desire output format YAML
+     * @param outputFormat desire output format YAML
      * @throws An error containing the details of the validation failure
      */
-    static validate(objectModel, output = 'message') {
-        outputFormat = output;
+    static validate(objectModel, outputFormat = 'printify') {
+        totalErrors = {
+            details: [],
+        };
         Validator._validateUniqueStepNames(objectModel);
         Validator._validateRootSchema(objectModel);
         Validator._validateStepSchema(objectModel);
+        if (_.size(totalErrors.details) > 0) {
+            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+        }
     }
 }
 
