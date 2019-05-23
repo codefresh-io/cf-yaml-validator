@@ -22,10 +22,10 @@ const PendingApproval = require('./steps/pending-approval');
 let totalErrors;
 const docBaseUrl = 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
 const DocumentationLinks = {
-    freestyle: `${docBaseUrl}/freestyle/`,
-    build: `${docBaseUrl}/build-1/`,
-    push: `${docBaseUrl}/push-1/`,
-    deploy: `${docBaseUrl}/deploy/`,
+    'freestyle': `${docBaseUrl}/freestyle/`,
+    'build': `${docBaseUrl}/build-1/`,
+    'push': `${docBaseUrl}/push-1/`,
+    'deploy': `${docBaseUrl}/deploy/`,
     'git-clone': `${docBaseUrl}/git-clone/`,
     'launch-composition': `${docBaseUrl}/launch-composition-2/`,
     'pending-approval': `${docBaseUrl}/approval/`,
@@ -131,7 +131,7 @@ class Validator {
         try {
             Joi.assert(objectModel, rootSchema);
         } catch (err) {
-            const message = err.message;
+            const { message } = err;
             const error = new Error(message);
             error.name = 'ValidationError';
             error.isJoi = true;
@@ -248,8 +248,7 @@ class Validator {
                     }
                 });
 
-                const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-
+                // const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
                 const error = new Error();
                 error.name = 'ValidationError';
                 error.isJoi = true;
