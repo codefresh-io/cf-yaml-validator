@@ -12,16 +12,25 @@ chai.use(sinonChai);
 
 const Validator = require('../validator');
 
-function validate(model) {
-    return Validator(model);
+function validate(model, outputFormat) {
+    return Validator(model, outputFormat);
 }
 
-function validateForError(model, expectedMessage, done) {
+function validateForError(model, expectedMessage, done, outputFormat = 'message') {
     try {
-        validate(model);
+        validate(model, outputFormat);
         done(new Error('Validation should have failed'));
     } catch (e) {
-        expect(e.message).to.match(new RegExp(`.*${expectedMessage}.*`));
+        if (outputFormat === 'message') {
+            expect(e.message).to.match(new RegExp(`.*${expectedMessage}.*`));
+        } else {
+            expect(e.details[0].message).to.equal(expectedMessage.message);
+            expect(e.details[0].type).to.equal(expectedMessage.type);
+            expect(e.details[0].level).to.equal(expectedMessage.level);
+            expect(e.details[0].stepName).to.equal(expectedMessage.stepName);
+            expect(e.details[0].docsLink).to.equal(expectedMessage.docsLink);
+            expect(e.details[0].actionItems).to.equal(expectedMessage.actionItems);
+        }
         done();
     }
 }
@@ -2819,7 +2828,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, 'Failed validation: Duplicate step name: writing_file_1,writing_file_2 : exist more than once.', done);
+                }, 'Duplicate step name: writing_file_1,writing_file_2 : exist more than once.', done);
             });
         });
 
@@ -3542,6 +3551,30 @@ describe('Validate Codefresh YAML', () => {
             });
         });
 
+
+    });
+
+
+    describe('Printify mode', () => {
+
+        it('validate all the required fields', (done) => {
+            validateForError({
+                version: '1.0',
+                steps: {
+                    push: {
+                        'typea': 'push',
+                        'candidate': 'candidate',
+                    },
+                },
+            }, {
+                message: 'Step push: child "image" fails because ["image" is required]. value: undefined ',
+                type: 'Validation',
+                level: 'step',
+                stepName: 'push',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
+                actionItems: `Please make sure you have all the required fields`,
+            }, done, 'printify');
+        });
 
     });
 });

@@ -248,13 +248,13 @@ class Validator {
                     }
                 });
 
-                // const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+                const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
                 const error = new Error();
                 error.name = 'ValidationError';
                 error.isJoi = true;
                 error.details = [
                     {
-                        message: `Step ${stepName}: ${validationResult.error.message}`,
+                        message: `Step ${stepName}: ${validationResult.error.message}. value: ${originalFieldValue} `,
                         type: 'Validation',
                         path: 'steps',
                         context: {
