@@ -14,7 +14,8 @@ const Joi = require('joi');
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
-const Table = require('cli-table');
+const colors = require('colors');
+const Table = require('cli-table3');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
@@ -57,24 +58,28 @@ class Validator {
 
     static _printify(err) {
         _.forEach(totalErrors.details, (error) => {
-            const table = new Table();
+            const table = new Table({
+                style: { header: [] },
+                colWidths: [20, 100],
+                wordWrap: true,
+            });
             if (error.message) {
-                table.push({ 'Message': error.message });
+                table.push({ [colors.red('Message')]: colors.red(error.message) });
             }
             if (error.type) {
-                table.push({ 'Error Type': error.type });
+                table.push({ [colors.green('Error Type')]: error.type });
             }
             if (error.level) {
-                table.push({ 'Error Level': error.level });
+                table.push({ [colors.green('Error Level')]: error.level });
             }
             if (error.stepName) {
-                table.push({ 'Step Name': error.stepName });
+                table.push({ [colors.green('Step Name')]: error.stepName });
             }
             if (error.docsLink) {
-                table.push({ 'Documentation Link': error.docsLink });
+                table.push({ [colors.green('Documentation Link')]: error.docsLink });
             }
             if (error.actionItems) {
-                table.push({ 'Action Items': error.actionItems });
+                table.push({ [colors.green('Action Items')]: error.actionItems });
             }
             err.message += `\n${table.toString()}`;
         });
