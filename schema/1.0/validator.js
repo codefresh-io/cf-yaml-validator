@@ -20,7 +20,7 @@ const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 
 let totalErrors;
-const docBaseUrl = 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
+const docBaseUrl = process.env.DOCS_BASE_URL || 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
 const DocumentationLinks = {
     'freestyle': `${docBaseUrl}/freestyle/`,
     'build': `${docBaseUrl}/build-1/`,

@@ -23,7 +23,8 @@ function validateForError(model, expectedMessage, done, outputFormat = 'message'
     } catch (e) {
         if (outputFormat === 'message') {
             expect(e.message).to.match(new RegExp(`.*${expectedMessage}.*`));
-        } else {
+        }
+        if (outputFormat === 'printify') {
             expect(e.details[0].message).to.equal(expectedMessage.message);
             expect(e.details[0].type).to.equal(expectedMessage.type);
             expect(e.details[0].level).to.equal(expectedMessage.level);
