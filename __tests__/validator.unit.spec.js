@@ -12,13 +12,13 @@ chai.use(sinonChai);
 
 const Validator = require('../validator');
 
-function validate(model, outputFormat) {
-    return Validator(model, outputFormat);
+function validate(model, outputFormat, yaml) {
+    return Validator(model, outputFormat, yaml);
 }
 
-function validateForError(model, expectedMessage, done, outputFormat = 'message') {
+function validateForError(model, expectedMessage, done, outputFormat = 'message', yaml) {
     try {
-        validate(model, outputFormat);
+        validate(model, outputFormat, yaml);
         done(new Error('Validation should have failed'));
     } catch (e) {
         if (outputFormat === 'message') {
@@ -31,6 +31,7 @@ function validateForError(model, expectedMessage, done, outputFormat = 'message'
             expect(e.details[0].stepName).to.equal(expectedMessage.stepName);
             expect(e.details[0].docsLink).to.equal(expectedMessage.docsLink);
             expect(e.details[0].actionItems).to.equal(expectedMessage.actionItems);
+            expect(e.details[0].lines).to.equal(expectedMessage.lines);
         }
         done();
     }
@@ -2829,7 +2830,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, 'Duplicate step name: writing_file_1,writing_file_2 : exist more than once.', done);
+                }, 'step name exist more than once\nstep name exist more than once\n', done);
             });
         });
 
@@ -3568,13 +3569,36 @@ describe('Validate Codefresh YAML', () => {
                     },
                 },
             }, {
-                message: 'Step push: child "image" fails because ["image" is required]. value: undefined ',
+                message: '"image" is required',
                 type: 'Validation',
                 level: 'step',
                 stepName: 'push',
                 docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
                 actionItems: `Please make sure you have all the required fields`,
             }, done, 'printify');
+        });
+
+    });
+
+    describe('lint mode', () => {
+
+        it('validate all the required fields', (done) => {
+            validateForError({
+                versionx: '1.0',
+                steps: {
+                    push: {
+                        'type': 'push',
+                        'candidate': 'candidate',
+                    },
+                },
+            }, {
+                message: '"version" is required',
+                type: 'Validation',
+                level: 'workflow',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                actionItems: `Please make sure you have all the required fields`,
+                lines: 0,
+            }, done, 'lint', 'versionx: 1.0 \n steps \n push \n typea: push \n candidate: candidate');
         });
 
     });

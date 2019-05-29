@@ -57,6 +57,9 @@ class Validator {
     }
 
     static _getErrorLineNumber({ yaml, stepName, key }) {
+        if (!yaml) {
+            return;
+        }
         const requireStepValidation = !!stepName;
         const requirekeyValidation = !!key;
         let errorLine = 0;
@@ -78,7 +81,7 @@ class Validator {
                 return false;
             }
         });
-        return errorLine;
+        return errorLine; // eslint-disable-line
     }
 
     static _addError(error) {
@@ -239,7 +242,7 @@ class Validator {
                         },
                         level: 'workflow',
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                        actionItems: `Please make sure you have all the requiered fields`,
+                        actionItems: `Please make sure you have all the required fields`,
                         lines: Validator._getErrorLineNumber({ yaml, key: err.path }),
                     },
                 ];
@@ -289,7 +292,7 @@ class Validator {
                                     level: 'step',
                                     stepName,
                                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
-                                    actionItems: `Please make sure you have all the requiered fields`,
+                                    actionItems: `Please make sure you have all the required fields`,
                                     lines: Validator._getErrorLineNumber({ yaml, stepName }),
                                 },
                             ];
@@ -310,7 +313,7 @@ class Validator {
                             },
                             level: 'workflow',
                             docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                            actionItems: `Please make sure you have all the requiered fields`,
+                            actionItems: `Please make sure you have all the required fields`,
                         },
                     ];
                     Validator._addError(error);
