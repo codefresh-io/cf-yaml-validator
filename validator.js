@@ -24,7 +24,7 @@ class Validator {
      * @param objectModel Deserialized YAML
      * @throws An error containing the details of the validation failure
      */
-    static validate(objectModel, outputFormat) {
+    static validate(objectModel, outputFormat, yaml) {
         const defaultVersion = '1.0';
 
         let modelVersion = objectModel.version;
@@ -41,7 +41,7 @@ class Validator {
             throw new Error(`Unable to find a validator for schema version ${modelVersion}`);
         }
 
-        return VersionedValidator(objectModel, outputFormat);
+        return VersionedValidator(objectModel, outputFormat, yaml);
     }
 }
 // Exported objects/methods
