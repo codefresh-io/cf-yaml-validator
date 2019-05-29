@@ -2,9 +2,9 @@
 
 class ValidatorError extends Error {
 
-    constructor(message, { details }) {
-        super(message);
-        this.details = details;
+    constructor(error) {
+        super(error.message);
+        this.details = error.details;
     }
 }
 

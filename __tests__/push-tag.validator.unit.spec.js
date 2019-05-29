@@ -45,7 +45,7 @@ describe('Validate Codefresh YAML', () => {
                         }
 
                     }
-                }, '"tags" at position 0 fails', done);
+                }, '"0" must be a string. Current value: 1 \n"1" must be a string. Current value: 2 \n"2" must be a string. Current value: 3 \n', done); // eslint-disable-line
             });
 
             it('Invalid push-tag image-name', (done) => {

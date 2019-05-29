@@ -12,16 +12,27 @@ chai.use(sinonChai);
 
 const Validator = require('../validator');
 
-function validate(model) {
-    return Validator(model);
+function validate(model, outputFormat, yaml) {
+    return Validator(model, outputFormat, yaml);
 }
 
-function validateForError(model, expectedMessage, done) {
+function validateForError(model, expectedMessage, done, outputFormat = 'message', yaml) {
     try {
-        validate(model);
+        validate(model, outputFormat, yaml);
         done(new Error('Validation should have failed'));
     } catch (e) {
-        expect(e.message).to.match(new RegExp(`.*${expectedMessage}.*`));
+        if (outputFormat === 'message') {
+            expect(e.message).to.match(new RegExp(`.*${expectedMessage}.*`));
+        }
+        if (outputFormat === 'printify' || outputFormat === 'lint') {
+            expect(e.details[0].message).to.equal(expectedMessage.message);
+            expect(e.details[0].type).to.equal(expectedMessage.type);
+            expect(e.details[0].level).to.equal(expectedMessage.level);
+            expect(e.details[0].stepName).to.equal(expectedMessage.stepName);
+            expect(e.details[0].docsLink).to.equal(expectedMessage.docsLink);
+            expect(e.details[0].actionItems).to.equal(expectedMessage.actionItems);
+            expect(e.details[0].lines).to.equal(expectedMessage.lines);
+        }
         done();
     }
 }
@@ -2819,7 +2830,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, 'Failed validation: Duplicate step name: writing_file_1,writing_file_2 : exist more than once.', done);
+                }, 'step name exist more than once\nstep name exist more than once\n', done);
             });
         });
 
@@ -3542,6 +3553,66 @@ describe('Validate Codefresh YAML', () => {
             });
         });
 
+
+    });
+
+
+    describe('Printify mode', () => {
+
+        it('validate all the required fields', (done) => {
+            validateForError({
+                version: '1.0',
+                steps: {
+                    push: {
+                        'typea': 'push',
+                        'candidate': 'candidate',
+                    },
+                },
+            }, {
+                message: '"image" is required',
+                type: 'Validation',
+                level: 'step',
+                stepName: 'push',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
+                actionItems: `Please make sure you have all the required fields and valid values`,
+            }, done, 'printify');
+        });
+
+    });
+
+    describe('lint mode', () => {
+
+        it('validate all the required fields', (done) => {
+            validateForError({
+                versionx: '1.0',
+                steps: {
+                    push: {
+                        'type': 'push',
+                        'candidate': 'candidate',
+                    },
+                },
+            }, {
+                message: '"version" is required',
+                type: 'Validation',
+                level: 'workflow',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                actionItems: `Please make sure you have all the required fields`,
+                lines: 0,
+            }, done, 'lint', 'versionx: 1.0 \n steps \n push \n typea: push \n candidate: candidate');
+        });
+
+        it('validate lint in case we don`t have step name and key', (done) => {
+            validateForError({
+                versionx: '1.0',
+            }, {
+                message: '"version" is required',
+                type: 'Validation',
+                level: 'workflow',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                actionItems: `Please make sure you have all the required fields`,
+                lines: 0,
+            }, done, 'lint', 'versionx: 1.0');
+        });
 
     });
 });
