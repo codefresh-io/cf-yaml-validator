@@ -61,8 +61,11 @@ class Validator {
             return;
         }
         const requireStepValidation = !!stepName;
-        const requirekeyValidation = !!key;
+        const requireKeyValidation = !!key;
         let errorLine = 0;
+        if (!requireStepValidation && !requireStepValidation){
+            return errorLine; // eslint-disable-line
+        }
         let stepFound = false;
         const stepNameRegex = new RegExp(`${stepName}:`, 'g');
         const keyRegex = new RegExp(`${key}:`, 'g');
@@ -71,7 +74,7 @@ class Validator {
         _.forEach(yamlArray, (line, number) => { // eslint-disable-line
             if (requireStepValidation && stepNameRegex.exec(line)) {
                 errorLine = number + 1;
-                if (!requirekeyValidation) {
+                if (!requireKeyValidation) {
                     return false;
                 }
                 stepFound = true;
@@ -292,7 +295,7 @@ class Validator {
                                     level: 'step',
                                     stepName,
                                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
-                                    actionItems: `Please make sure you have all the required fields`,
+                                    actionItems: `Please change the type of the sub step`,
                                     lines: Validator._getErrorLineNumber({ yaml, stepName }),
                                 },
                             ];
@@ -314,6 +317,7 @@ class Validator {
                             level: 'workflow',
                             docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                             actionItems: `Please make sure you have all the required fields`,
+                            lines: Validator._getErrorLineNumber({ yaml }),
                         },
                     ];
                     Validator._addError(error);
@@ -365,7 +369,7 @@ class Validator {
                             level: 'step',
                             stepName,
                             docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                            actionItems: `Please make sure you have all the required fields`,
+                            actionItems: `Please make sure you have all the required fields and valid values`,
                             lines: Validator._getErrorLineNumber({ yaml, stepName, key: err.path }),
                         },
                     ];
