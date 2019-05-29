@@ -3574,7 +3574,7 @@ describe('Validate Codefresh YAML', () => {
                 level: 'step',
                 stepName: 'push',
                 docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
-                actionItems: `Please make sure you have all the required fields`,
+                actionItems: `Please make sure you have all the required fields and valid values`,
             }, done, 'printify');
         });
 
@@ -3599,6 +3599,19 @@ describe('Validate Codefresh YAML', () => {
                 actionItems: `Please make sure you have all the required fields`,
                 lines: 0,
             }, done, 'lint', 'versionx: 1.0 \n steps \n push \n typea: push \n candidate: candidate');
+        });
+
+        it('validate lint in case we don`t have step name and key', (done) => {
+            validateForError({
+                versionx: '1.0',
+            }, {
+                message: '"version" is required',
+                type: 'Validation',
+                level: 'workflow',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                actionItems: `Please make sure you have all the required fields`,
+                lines: 0,
+            }, done, 'lint', 'versionx: 1.0');
         });
 
     });

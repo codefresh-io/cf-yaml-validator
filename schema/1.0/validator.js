@@ -120,7 +120,7 @@ class Validator {
             if (error.actionItems) {
                 table.push({ [colors.green('Action Items')]: error.actionItems });
             }
-            if (error.lines) {
+            if (!_.isUndefined(error.lines)) {
                 table.push({ [colors.green('Error Lines')]: error.lines });
             }
             err.message += `\n${table.toString()}`;
