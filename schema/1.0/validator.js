@@ -63,7 +63,7 @@ class Validator {
         const requireStepValidation = !!stepName;
         const requireKeyValidation = !!key;
         let errorLine = 0;
-        if (!requireStepValidation && !requireStepValidation){
+        if (!requireStepValidation && !requireStepValidation) {
             return errorLine; // eslint-disable-line
         }
         let stepFound = false;
