@@ -27,8 +27,7 @@ class Validator {
      */
     static validate(objectModel, outputFormat, yaml) {
         const defaultVersion = '1.0';
-
-        let modelVersion = objectModel.version;
+        let modelVersion = objectModel.version === '1' ? '1.0' : objectModel.version;
         if (!modelVersion) {
             modelVersion = defaultVersion;
         }
