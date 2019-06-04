@@ -213,6 +213,7 @@ class Validator {
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
             success_criteria: BaseSchema.getSuccessCriteriaSchema(),
+            indicators: Joi.array(),
         });
         const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
         if (validationResult.error) {
