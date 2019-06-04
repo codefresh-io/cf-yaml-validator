@@ -79,7 +79,7 @@ describe('Validate Codefresh YAML', () => {
                         image: 'bob'
                     }
                 }
-            }, 'Unable to find a validator for schema version 0.1', done);
+            }, 'Invalid version', done);
         });
     });
 
