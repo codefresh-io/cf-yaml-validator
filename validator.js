@@ -27,9 +27,11 @@ class Validator {
      */
     static validate(objectModel, outputFormat, yaml) {
         const defaultVersion = '1.0';
-        let modelVersion = (objectModel.version === '1' || objectModel.version === 1) ? '1.0' : objectModel.version.toString();
+        let modelVersion = (objectModel.version === '1' || objectModel.version === 1) ? '1.0' : objectModel.version;
         if (!modelVersion) {
             modelVersion = defaultVersion;
+        } else {
+            modelVersion = modelVersion.toString();
         }
 
         const validatorPath = path.join(__dirname, 'schema', modelVersion, 'validator');
