@@ -79,7 +79,7 @@ describe('Validate Codefresh YAML', () => {
                         image: 'bob'
                     }
                 }
-            }, 'Invalid version', done);
+            }, 'Current version: 0.1 is invalid. please change version to 1.0', done);
         });
     });
 
