@@ -13,7 +13,7 @@ chai.use(sinonChai);
 const Validator = require('../validator');
 
 function validate(model) {
-    return Validator(model);
+    return Validator.validate(model);
 }
 
 function validateForError(model, expectedMessage, done) {
@@ -64,4 +64,5 @@ describe('Validate Codefresh YAML', () => {
 
         });
     });
+
 });

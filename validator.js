@@ -11,6 +11,7 @@
 
 const fs   = require('fs');
 const path = require('path');
+const _ = require('lodash');
 const ValidatorError = require('./validator-error');
 
 class Validator {
@@ -26,8 +27,17 @@ class Validator {
      * @throws An error containing the details of the validation failure
      */
     static validate(objectModel, outputFormat, yaml) {
+        const version = _.get(objectModel, 'version');
+        return Validator._getValidator(version).validate(objectModel, outputFormat, yaml);
+    }
+
+    static getJsonSchemas(version) {
+        return Validator._getValidator(version).getJsonSchemas();
+    }
+
+    static _getValidator(version) {
         const defaultVersion = '1.0';
-        let modelVersion = (objectModel.version === '1' || objectModel.version === 1) ? '1.0' : objectModel.version;
+        let modelVersion = (version === '1' || version === 1) ? '1.0' : version;
         if (!modelVersion) {
             modelVersion = defaultVersion;
         } else {
@@ -60,8 +70,8 @@ class Validator {
             throw new Error(`Unable to find a validator for schema version ${modelVersion}`);
         }
 
-        return VersionedValidator(objectModel, outputFormat, yaml);
+        return VersionedValidator;
     }
 }
 // Exported objects/methods
-module.exports = Validator.validate;
+module.exports = Validator;

@@ -256,22 +256,36 @@ class Validator {
         }
     }
 
+    static _resolveStepsModules() {
+        if (this.stepsModules) {
+            return this.stepsModules;
+        }
 
-    static _resolveStepSchemas(objectModel = {}) {
         const stepsPath = path.join(__dirname, 'steps');
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
-        const stepsSchemaModules = {};
+        const stepsModules = {};
         allStepSchemaFiles.forEach(((schemaFile) => {
-            const StepSchemaModule = require(path.join(stepsPath, schemaFile)); // eslint-disable-line
-            if (StepSchemaModule.getType()) {
-                stepsSchemaModules[StepSchemaModule.getType()] = new StepSchemaModule(objectModel).getSchema();
+            const StepModule = require(path.join(stepsPath, schemaFile)); // eslint-disable-line
+            if (StepModule.getType()) {
+                stepsModules[StepModule.getType()] = StepModule;
             }
         }));
-        return stepsSchemaModules;
+
+        this.stepsModules = stepsModules;
+        return this.stepsModules;
+    }
+
+    static _resolveStepsJoiSchemas(objectModel = {}) {
+        const stepsModules = Validator._resolveStepsModules();
+        const joiSchemas = {};
+        _.forEach(stepsModules, (StepModule, stepType) => {
+            joiSchemas[stepType] = new StepModule(objectModel).getSchema();
+        });
+        return joiSchemas;
     }
 
     static _validateStepSchema(objectModel, yaml) {
-        const stepsSchemas = Validator._resolveStepSchemas(objectModel);
+        const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel);
         const steps = {};
         _.map(objectModel.steps, (step, name) => {
             if (step.type === 'parallel') {
@@ -405,7 +419,21 @@ class Validator {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
     }
+
+    static getJsonSchemas() {
+        if (this.jsonSchemas) {
+            return this.jsonSchemas;
+        }
+
+        const stepsModules = Validator._resolveStepsModules();
+        const jsonSchemas = {};
+        _.forEach(stepsModules, (StepModule, stepType) => {
+            jsonSchemas[stepType] = new StepModule({}).getJsonSchema();
+        });
+        this.jsonSchemas = jsonSchemas;
+        return this.jsonSchemas;
+    }
 }
 
 // Exported objects/methods
-module.exports = Validator.validate;
+module.exports = Validator;
