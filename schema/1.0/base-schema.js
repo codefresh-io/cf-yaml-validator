@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 
 const Joi = require('joi');
+const convert = require('joi-to-json-schema');
 
 class BaseSchema {
 
@@ -222,6 +223,10 @@ class BaseSchema {
 
     getSchema() {
         throw new Error('Implement this');
+    }
+
+    getJsonSchema() {
+        return convert(this.getSchema());
     }
 
     static getSuccessCriteriaSchema() {

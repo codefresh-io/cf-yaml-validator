@@ -3,6 +3,7 @@
 
 'use strict';
 
+const _ = require('lodash');
 const chai = require('chai');
 
 const { expect }    = chai;
@@ -13,7 +14,7 @@ chai.use(sinonChai);
 const Validator = require('../validator');
 
 function validate(model, outputFormat, yaml) {
-    return Validator(model, outputFormat, yaml);
+    return Validator.validate(model, outputFormat, yaml);
 }
 
 function validateForError(model, expectedMessage, done, outputFormat = 'message', yaml) {
@@ -3612,6 +3613,15 @@ describe('Validate Codefresh YAML', () => {
                 actionItems: `Please make sure you have all the required fields`,
                 lines: 0,
             }, done, 'lint', 'versionx: 1.0');
+        });
+
+    });
+
+    describe('get json schema', () => {
+
+        it('should return json schemas', () => {
+            const schemas = Validator.getJsonSchemas();
+            expect(_.size(schemas)).to.equal(12);
         });
 
     });
