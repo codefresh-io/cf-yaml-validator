@@ -38,11 +38,8 @@ class Build extends BaseSchema {
             }),
             annotations: BaseSchema._getAnnotationsSchema(),
             target: Joi.string(),
-            ssh: Joi.array().items(Joi.string()).min(1),
-            secrets: Joi.array()
-                .items(Joi.alternatives()
-                    .try(Joi.string(), BaseSchema._getBuildSecretsSchema()))
-                .min(1),
+            ssh: BaseSchema._getSshSchema(),
+            secrets: BaseSchema._getSecretsSchema(),
         };
         return this._createSchema(buildProperties);
     }

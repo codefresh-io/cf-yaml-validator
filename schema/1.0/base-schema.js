@@ -197,12 +197,40 @@ class BaseSchema {
         });
     }
 
-    static _getBuildSecretsSchema() {
+    static _getSecretsSchema() {
+        return Joi.array()
+            .items(Joi.alternatives()
+                .try(
+                    Joi.string(),
+                    BaseSchema._getSecretsObjectSchema(),
+                ))
+            .min(1);
+    }
+
+    static _getSecretsObjectSchema() {
         return Joi.object({
-            id: Joi.string(),
+            id: Joi.string()
+                .when('target', {
+                    is: Joi.exist(),
+                    otherwise: Joi.required(),
+                }),
             src: Joi.string().required(),
             target: Joi.string(),
         });
+    }
+
+    static _getSshSchema() {
+        return Joi.alternatives()
+            .try(
+                Joi.string()
+                    .valid('default'),
+                Joi.array()
+                    .items(Joi.string())
+                    .min(1),
+                Joi.object()
+                    .min(1)
+                    .pattern(/.+/, Joi.string()),
+            );
     }
 
     _applyMetadataAnnotationSchemaProperties(schemaProperties) {
