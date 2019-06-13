@@ -197,6 +197,14 @@ class BaseSchema {
         });
     }
 
+    static _getBuildSecretsSchema() {
+        return Joi.object({
+            id: Joi.string(),
+            src: Joi.string().required(),
+            target: Joi.string(),
+        });
+    }
+
     _applyMetadataAnnotationSchemaProperties(schemaProperties) {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
