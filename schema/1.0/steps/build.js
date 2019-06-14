@@ -40,6 +40,7 @@ class Build extends BaseSchema {
             target: Joi.string(),
             ssh: BaseSchema._getSshSchema(),
             secrets: BaseSchema._getSecretsSchema(),
+            progress: Joi.string(),
         };
         return this._createSchema(buildProperties);
     }
