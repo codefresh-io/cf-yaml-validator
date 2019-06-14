@@ -198,13 +198,15 @@ class BaseSchema {
     }
 
     static _getSecretsSchema() {
-        return Joi.array()
-            .items(Joi.alternatives()
-                .try(
-                    Joi.string(),
-                    BaseSchema._getSecretsObjectSchema(),
-                ))
-            .min(1);
+        return Joi.alternatives()
+            .try(
+                Joi.array()
+                    .items(BaseSchema._getSecretsObjectSchema())
+                    .min(1),
+                Joi.array()
+                    .items(Joi.string())
+                    .min(1),
+            );
     }
 
     static _getSecretsObjectSchema() {
