@@ -32,7 +32,7 @@ class Build extends BaseSchema {
             squash: Joi.boolean(),
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
-            tag: opts.explicitBuildStep ? Joi.string().required() : Joi.string(),
+            tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
             metadata: Joi.object({
                 set: BaseSchema._getMetadataAnnotationSetSchema()
             }),
