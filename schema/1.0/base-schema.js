@@ -100,7 +100,6 @@ class BaseSchema {
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
             'max_duration': Joi.number().positive(),
-            'validate_user': Joi.boolean(),
         });
     }
 
