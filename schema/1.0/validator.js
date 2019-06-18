@@ -275,17 +275,17 @@ class Validator {
         return this.stepsModules;
     }
 
-    static _resolveStepsJoiSchemas(objectModel = {}) {
+    static _resolveStepsJoiSchemas(objectModel = {}, opts = {}) {
         const stepsModules = Validator._resolveStepsModules();
         const joiSchemas = {};
         _.forEach(stepsModules, (StepModule, stepType) => {
-            joiSchemas[stepType] = new StepModule(objectModel).getSchema();
+            joiSchemas[stepType] = new StepModule(objectModel).getSchema(opts[stepType]);
         });
         return joiSchemas;
     }
 
-    static _validateStepSchema(objectModel, yaml) {
-        const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel);
+    static _validateStepSchema(objectModel, yaml, opts) {
+        const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (step, name) => {
             if (step.type === 'parallel') {
@@ -408,13 +408,13 @@ class Validator {
      * @param outputFormat desire output format YAML
      * @throws An error containing the details of the validation failure
      */
-    static validate(objectModel, outputFormat = 'message', yaml) {
+    static validate(objectModel, outputFormat = 'message', yaml, opts) {
         totalErrors = {
             details: [],
         };
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
-        Validator._validateStepSchema(objectModel, yaml);
+        Validator._validateStepSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }

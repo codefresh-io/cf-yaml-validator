@@ -26,9 +26,9 @@ class Validator {
      * @param objectModel Deserialized YAML
      * @throws An error containing the details of the validation failure
      */
-    static validate(objectModel, outputFormat, yaml) {
+    static validate(objectModel, outputFormat, yaml, opts) {
         const version = _.get(objectModel, 'version');
-        return Validator._getValidator(version).validate(objectModel, outputFormat, yaml);
+        return Validator._getValidator(version).validate(objectModel, outputFormat, yaml, opts);
     }
 
     static getJsonSchemas(version) {
