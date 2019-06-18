@@ -197,6 +197,44 @@ class BaseSchema {
         });
     }
 
+    static _getSecretsSchema() {
+        return Joi.alternatives()
+            .try(
+                Joi.array()
+                    .items(BaseSchema._getSecretsObjectSchema())
+                    .min(1),
+                Joi.array()
+                    .items(Joi.string())
+                    .min(1),
+            );
+    }
+
+    static _getSecretsObjectSchema() {
+        return Joi.object({
+            id: Joi.string()
+                .when('target', {
+                    is: Joi.exist(),
+                    otherwise: Joi.required(),
+                }),
+            src: Joi.string().required(),
+            target: Joi.string(),
+        });
+    }
+
+    static _getSshSchema() {
+        return Joi.alternatives()
+            .try(
+                Joi.string()
+                    .valid('default'),
+                Joi.array()
+                    .items(Joi.string())
+                    .min(1),
+                Joi.object()
+                    .min(1)
+                    .pattern(/.+/, Joi.string()),
+            );
+    }
+
     _applyMetadataAnnotationSchemaProperties(schemaProperties) {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
