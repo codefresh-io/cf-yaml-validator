@@ -99,6 +99,7 @@ class BaseSchema {
             'when': BaseSchema._getWhenSchema(),
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
+            'timeout': Joi.number().positive(),
         });
     }
 
