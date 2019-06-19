@@ -212,13 +212,8 @@ class BaseSchema {
 
     static _getSecretsObjectSchema() {
         return Joi.object({
-            id: Joi.string()
-                .when('target', {
-                    is: Joi.exist(),
-                    otherwise: Joi.required(),
-                }),
+            id: Joi.string().required(),
             src: Joi.string().required(),
-            target: Joi.string(),
         });
     }
 
