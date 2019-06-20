@@ -265,9 +265,12 @@ class Validator {
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
         const stepsModules = {};
         allStepSchemaFiles.forEach(((schemaFile) => {
-            const StepModule = require(path.join(stepsPath, schemaFile)); // eslint-disable-line
-            if (StepModule.getType()) {
-                stepsModules[StepModule.getType()] = StepModule;
+            const stepPath = path.join(stepsPath, schemaFile);
+            if (fs.existsSync(stepPath)) {
+                const StepModule = require(stepPath); // eslint-disable-line
+                if (StepModule.getType()) {
+                    stepsModules[StepModule.getType()] = StepModule;
+                }
             }
         }));
 
@@ -288,6 +291,10 @@ class Validator {
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (step, name) => {
+            if (step.arguments) {
+                Object.assign(step, step.arguments);
+                delete step.arguments;
+            }
             if (step.type === 'parallel') {
                 if (_.size(step.steps) > 0) {
                     _.map(step.steps, (innerStep, innerName) => {
