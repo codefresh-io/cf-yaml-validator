@@ -265,7 +265,11 @@ class Validator {
         const allStepSchemaFiles = fs.readdirSync(stepsPath);
         const stepsModules = {};
         allStepSchemaFiles.forEach(((schemaFile) => {
-            const StepModule = require(path.join(stepsPath, schemaFile)); // eslint-disable-line
+            const stepPath = path.join(stepsPath, schemaFile);
+            if (!fs.existsSync(stepPath)) {
+                return this.stepsModules;
+            }
+            const StepModule = require(stepPath); // eslint-disable-line
             if (StepModule.getType()) {
                 stepsModules[StepModule.getType()] = StepModule;
             }
