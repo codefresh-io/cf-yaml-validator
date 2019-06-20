@@ -96,6 +96,7 @@ class BaseSchema {
                     })
                 ]
             ),
+            'arguments': Joi.object(),
             'when': BaseSchema._getWhenSchema(),
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
