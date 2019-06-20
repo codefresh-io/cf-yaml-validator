@@ -288,6 +288,10 @@ class Validator {
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (step, name) => {
+            if (step.arguments) {
+                Object.assign(step, step.arguments);
+                delete step.arguments;
+            }
             if (step.type === 'parallel') {
                 if (_.size(step.steps) > 0) {
                     _.map(step.steps, (innerStep, innerName) => {
