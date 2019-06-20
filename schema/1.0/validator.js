@@ -266,12 +266,11 @@ class Validator {
         const stepsModules = {};
         allStepSchemaFiles.forEach(((schemaFile) => {
             const stepPath = path.join(stepsPath, schemaFile);
-            if (!fs.existsSync(stepPath)) {
-                return this.stepsModules;
-            }
-            const StepModule = require(stepPath); // eslint-disable-line
-            if (StepModule.getType()) {
-                stepsModules[StepModule.getType()] = StepModule;
+            if (fs.existsSync(stepPath)) {
+                const StepModule = require(stepPath); // eslint-disable-line
+                if (StepModule.getType()) {
+                    stepsModules[StepModule.getType()] = StepModule;
+                }
             }
         }));
 
