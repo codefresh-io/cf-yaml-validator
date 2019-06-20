@@ -72,19 +72,6 @@ describe('schemas validation check', () => {
                     src: 'test',
                 }]);
             });
-            it('should be valid when array of objects with "id" and "src" and "target" keys', () => {
-                expectValid(schema, [{
-                    id: 'test',
-                    src: 'test',
-                    target: 'test',
-                }]);
-            });
-            it('should be valid when array of objects with "src" and "target" keys', () => {
-                expectValid(schema, [{
-                    target: 'test',
-                    src: 'test',
-                }]);
-            });
         });
         describe('invalid', () => {
             it('should be only array of string or objects', () => {
@@ -97,12 +84,9 @@ describe('schemas validation check', () => {
                 expectInvalid(schema, []);
             });
 
-            it('should be invalid when objects neither have "id" nor "target" key', () => {
+            it('should be invalid when objects do not have required fields', () => {
                 expectInvalid(schema, [{ src: 'test' }]);
-            });
-
-            it('should be invalid when objects do not have "src" key', () => {
-                expectInvalid(schema, [{ target: 'test' }]);
+                expectInvalid(schema, [{ id: 'test' }]);
             });
         });
     });
