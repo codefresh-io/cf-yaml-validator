@@ -41,6 +41,7 @@ class Build extends BaseSchema {
             ssh: BaseSchema._getSshSchema(),
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
+            buildkit: Joi.boolean(),
         };
         return this._createSchema(buildProperties);
     }
