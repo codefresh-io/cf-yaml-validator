@@ -3625,4 +3625,54 @@ describe('Validate Codefresh YAML', () => {
         });
 
     });
+
+    describe('building blocks', () => {
+        it('Should validate building block', () => {
+            validate({
+                'version': '1.0',
+                'steps': {
+                    'step1': {
+                        'title': 'regular freestyle step',
+                        'image': 'alpine:3.8',
+                        'commands': [
+                            'echo "running step"'
+                        ]
+                    },
+                    'step2': {
+                        'title': 'building block with 1 nasting level',
+                        'steps': {
+                            'step2_1': {
+                                'title': 'freestyle step in a building block',
+                                'image': 'alpine:3.8',
+                                'commands': [
+                                    'echo "running from nasted step"'
+                                ]
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        it('Throw an error in case the bulding block ', (done) => {
+            const yaml = {
+                'version': '1.0',
+                'steps': {
+                    'step2': {
+                        'title': {},
+                        'steps': {
+                            'step2_1': {
+                                'title': 'freestyle step in a building block',
+                                'image': 'alpine:3.8',
+                                'commands': [
+                                    'echo "running from nasted step"'
+                                ]
+                            }
+                        }
+                    }
+                }
+            };
+            validateForError(yaml, '"title" must be a string', done);
+        });
+    });
 });

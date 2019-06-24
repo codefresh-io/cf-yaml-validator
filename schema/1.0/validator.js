@@ -345,60 +345,81 @@ class Validator {
             } else {
                 steps[name] = step;
             }
+            return step;
         });
         for (const stepName in steps) { // eslint-disable-line
             const step = steps[stepName];
             let { type } = step;
-            if (!type) {
+            if (!type && !step.steps) {
                 type = 'freestyle';
             }
             const stepSchema = stepsSchemas[type];
-            if (!stepSchema) {
+            if (step.steps && !stepSchema) {
+                const result = Joi.validate(step, Object.assign({}, BaseSchema.getBaseSchema({}), BaseSchema.getMetadataAnnotationSchema({})), {
+                    abortEarly: false
+                });
+                Validator.handleJoiResult({
+                    result,
+                    type,
+                    stepName,
+                    yaml,
+                });
+                this._validateStepSchema(step, yaml, opts);
+            } else if (!stepSchema) {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
-                continue; // eslint-disable-line no-continue
+            } else {
+                const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
+                Validator.handleJoiResult({
+                    result: validationResult,
+                    type,
+                    stepName,
+                    yaml,
+                });
             }
-            const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
-            if (validationResult.error) {
-                _.forEach(validationResult.error.details, (err) => {
-                    // regex to split joi's error path so that we can use lodah's _.get
-                    // we make sure split first ${{}} annotations before splitting by dots (.)
-                    const joiPathSplitted = err.path
-                        .split(/(\$\{\{[^}]*}})|([^.]+)/g);
+        }
+    }
 
-                    // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-                    const originalPath = [];
-                    _.forEach(joiPathSplitted, (keyPath) => {
-                        if (keyPath && keyPath !== '.') {
-                            originalPath.push(keyPath);
-                        }
-                    });
+    static handleJoiResult({
+        result, type, stepName, yaml
+    }) {
+        if (result.error) {
+            _.forEach(result.error.details, (err) => {
+                // regex to split joi's error path so that we can use lodah's _.get
+                // we make sure split first ${{}} annotations before splitting by dots (.)
+                const joiPathSplitted = err.path
+                    .split(/(\$\{\{[^}]*}})|([^.]+)/g);
 
-                    const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-                    const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
-                    const error = new Error();
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message,
-                            type: 'Validation',
-                            path: 'steps',
-                            context: {
-                                key: 'steps',
-                            },
-                            level: 'step',
-                            stepName,
-                            docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                            actionItems: `Please make sure you have all the required fields and valid values`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName, key: err.path }),
-                        },
-                    ];
-
-                    Validator._addError(error);
+                // TODO: I (Itai) put this code because i could not find a good regex to do all the job
+                const originalPath = [];
+                _.forEach(joiPathSplitted, (keyPath) => {
+                    if (keyPath && keyPath !== '.') {
+                        originalPath.push(keyPath);
+                    }
                 });
 
+                const originalFieldValue = _.get(result, ['value', ...originalPath]);
+                const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+                const error = new Error();
+                error.name = 'ValidationError';
+                error.isJoi = true;
+                error.details = [
+                    {
+                        message,
+                        type: 'Validation',
+                        path: 'steps',
+                        context: {
+                            key: 'steps',
+                        },
+                        level: 'step',
+                        stepName,
+                        docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                        actionItems: `Please make sure you have all the required fields and valid values`,
+                        lines: Validator._getErrorLineNumber({ yaml, stepName, key: err.path }),
+                    },
+                ];
 
-            }
+                Validator._addError(error);
+            });
         }
     }
 
