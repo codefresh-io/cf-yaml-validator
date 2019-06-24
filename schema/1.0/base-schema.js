@@ -10,6 +10,7 @@
 //------------------------------------------------------------------------------
 
 const Joi = require('joi');
+const _ = require('lodash');
 const convert = require('joi-to-json-schema');
 
 class BaseSchema {
@@ -77,8 +78,8 @@ class BaseSchema {
         });
     }
 
-    _applyCommonSchemaProperties(schemaProperties) {
-        return Object.assign(schemaProperties, {
+    static getBaseSchema() {
+        return {
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
@@ -98,10 +99,15 @@ class BaseSchema {
             ),
             'arguments': Joi.object(),
             'when': BaseSchema._getWhenSchema(),
-            'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
+            'stage': Joi.string().valid(...(_.get(this, '_objectModel.stages', []))).optional(),
             'retry': BaseSchema._getRetrySchema(),
             'timeout': Joi.number().positive(),
-        });
+            'steps': Joi.object(),
+        };
+    }
+
+    _applyCommonSchemaProperties(schemaProperties = {}) {
+        return Object.assign(schemaProperties, BaseSchema.getBaseSchema());
     }
 
     _applyCommonCompatibility(schema) {
@@ -232,7 +238,7 @@ class BaseSchema {
             );
     }
 
-    _applyMetadataAnnotationSchemaProperties(schemaProperties) {
+    static getMetadataAnnotationSchema() {
         const metadataAnnotationSchema = Joi.object({
             metadata: Joi.object({
                 set: Joi.array().items(
@@ -241,11 +247,16 @@ class BaseSchema {
             }),
             annotations: BaseSchema._getAnnotationsSchema(),
         });
-        return Object.assign(schemaProperties, {
+
+        return {
             'on_success': metadataAnnotationSchema,
             'on_fail': metadataAnnotationSchema,
             'on_finish': metadataAnnotationSchema,
-        });
+        };
+    }
+
+    _applyMetadataAnnotationSchemaProperties(schemaProperties) {
+        return Object.assign(schemaProperties, BaseSchema.getMetadataAnnotationSchema());
     }
 
     //------------------------------------------------------------------------------
