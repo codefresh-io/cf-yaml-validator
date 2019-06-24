@@ -289,9 +289,6 @@ class Validator {
         const steps = {};
         _.map(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
-            if (step.steps && !step.type) {
-                return this._validateStepSchema(step, yaml, opts);
-            }
             if (step.arguments) {
                 Object.assign(step, step.arguments);
                 delete step.arguments;
@@ -348,6 +345,7 @@ class Validator {
             } else {
                 steps[name] = step;
             }
+            return step;
         });
         for (const stepName in steps) { // eslint-disable-line
             const step = steps[stepName];
@@ -361,6 +359,31 @@ class Validator {
                 continue; // eslint-disable-line no-continue
             }
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
+            if (type === 'freestyle' && step.steps) {
+                if (!validationResult.error) {
+                    const error = new Error();
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: 'Cannot have both, freestyle properties and steps',
+                            type: 'Validation',
+                            path: 'steps',
+                            context: {
+                                key: 'steps',
+                            },
+                            level: 'step',
+                            stepName,
+                            docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                            actionItems: `Please make sure you have all the required fields and valid values`,
+                            lines: Validator._getErrorLineNumber({ yaml }),
+                        },
+                    ];
+
+                    Validator._addError(error);
+                }
+                this._validateStepSchema(step, yaml, opts);
+            }
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
                     // regex to split joi's error path so that we can use lodah's _.get

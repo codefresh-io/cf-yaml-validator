@@ -3626,7 +3626,7 @@ describe('Validate Codefresh YAML', () => {
 
     });
 
-    describe('building blocks', () => {
+    describe.only('building blocks', () => {
         it('Should validate building block', () => {
             validate({
                 'version': '1.0',
@@ -3652,6 +3652,27 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }
             });
+        });
+
+        it.only('Conflict between steps and freestyle schema', (done) => {
+            validateForError({
+                'version': '1.0',
+                'steps': {
+                    'step2': {
+                        'title': 'building block with 1 nasting level',
+                        'image': 'alpine',
+                        'steps': {
+                            'step2_1': {
+                                'title': 'freestyle step in a building block',
+                                'image': 'alpine:3.8',
+                                'commands': [
+                                    'echo "running from nasted step"'
+                                ]
+                            }
+                        }
+                    }
+                }
+            }, 'Cannot have both, freestyle properties and steps', done);
         });
     });
 });
