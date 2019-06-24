@@ -34,8 +34,8 @@
   },
   "devDependencies": {
     "chai": "^3.0.0",
-    "eslint": "^5.12.1",
     "ci-publish": "^1.3.0",
+    "eslint": "^5.12.1",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.15.0",

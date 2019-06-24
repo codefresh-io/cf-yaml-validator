@@ -289,6 +289,9 @@ class Validator {
         const steps = {};
         _.map(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
+            if (step.steps && !step.type) {
+                return this._validateStepSchema(step, yaml, opts);
+            }
             if (step.arguments) {
                 Object.assign(step, step.arguments);
                 delete step.arguments;
