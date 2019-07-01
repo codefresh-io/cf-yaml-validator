@@ -101,7 +101,7 @@ class BaseSchema {
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
             'timeout': Joi.object({
-                time: Joi.number().positive(),
+                duration: Joi.number().positive(),
                 finalState: Joi.string()
                     .valid([
                         'terminated',
