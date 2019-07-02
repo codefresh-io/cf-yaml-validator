@@ -100,15 +100,6 @@ class BaseSchema {
             'when': BaseSchema._getWhenSchema(),
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
-            'timeout': Joi.object({
-                duration: Joi.number().positive(),
-                finalState: Joi.string()
-                    .valid([
-                        'terminated',
-                        'approved',
-                        'denied',
-                    ]),
-            }),
         });
     }
 
