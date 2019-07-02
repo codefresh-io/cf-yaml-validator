@@ -24,6 +24,15 @@ class PendingApproval extends BaseSchema {
     getSchema() {
         const pendingApprovalProperties = {
             type: Joi.string().valid(PendingApproval.getType()),
+            timeout: Joi.object({
+                duration: Joi.number().positive(),
+                finalState: Joi.string()
+                    .valid([
+                        'terminated',
+                        'approved',
+                        'denied',
+                    ]),
+            }),
         };
         return this._createSchema(pendingApprovalProperties);
     }
