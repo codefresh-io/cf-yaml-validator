@@ -30,7 +30,8 @@ class Freestyle extends BaseSchema {
             volumes: Joi.array().items(Joi.string().regex(/:/)),
             environment: Joi.array().items(Joi.string()),
             entry_point: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
-            shell: Joi.string().valid('sh', 'bash')
+            shell: Joi.string().valid('sh', 'bash'),
+            services: Joi.alternatives().try(Joi.object(), Joi.array())  // BaseSchema.getServicesSchema()
         };
         return this._createSchema(freestyleProperties)
             .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional

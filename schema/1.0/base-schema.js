@@ -278,6 +278,22 @@ class BaseSchema {
             condition: BaseSchema.getConditionSchema(),
         });
     }
+
+    static getServicesSchema() {
+
+        const serviceObject = Joi.object({
+            image: Joi.string().required(),
+            ports: Joi.array(
+                Joi.number()
+            )
+        });
+
+        return  Joi.object({}).pattern(/.*/, serviceObject);
+
+        // return Joi.object({
+        //     services: servicesObject
+        // });
+    }
 }
 // Exported objects/methods
 module.exports = BaseSchema;
