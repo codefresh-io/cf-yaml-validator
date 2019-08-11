@@ -278,6 +278,6 @@ class BaseSchema {
             condition: BaseSchema.getConditionSchema(),
         });
     }
-    
+}
 // Exported objects/methods
 module.exports = BaseSchema;
