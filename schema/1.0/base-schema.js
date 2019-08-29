@@ -78,7 +78,7 @@ class BaseSchema {
     }
 
     _applyCommonSchemaProperties(schemaProperties) {
-        return Object.assign(schemaProperties, {
+        return Object.assign({
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
@@ -100,7 +100,8 @@ class BaseSchema {
             'when': BaseSchema._getWhenSchema(),
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
-        });
+            'debug': BaseSchema._getDebugSchema(),
+        }, schemaProperties);
     }
 
     _applyCommonCompatibility(schema) {
@@ -244,6 +245,15 @@ class BaseSchema {
             'on_success': metadataAnnotationSchema,
             'on_fail': metadataAnnotationSchema,
             'on_finish': metadataAnnotationSchema,
+        });
+    }
+
+    static _getDebugSchema() {
+        return Joi.object({
+            phases: Joi.object({
+                before: Joi.boolean(),
+                after: Joi.boolean()
+            })
         });
     }
 
