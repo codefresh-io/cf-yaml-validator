@@ -41,6 +41,7 @@ class Freestyle extends BaseSchema {
             environment: Joi.array().items(Joi.string()),
             entry_point: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
             shell: Joi.string().valid('sh', 'bash'),
+            services: Joi.alternatives().try(Joi.object(), Joi.array()),
             debug: Freestyle._getDebugSchema(),
         };
         return this._createSchema(freestyleProperties)
