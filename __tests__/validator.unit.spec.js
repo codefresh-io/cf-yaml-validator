@@ -1193,6 +1193,65 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"0" must be a string', done);
             });
+
+            it('should fail when working_directory in composition_candidates ', (done) => {
+                const yamlObj = {
+                    "version": "1.0",
+                    "steps": {
+                        "my_sample_composition": {
+                            "type": "composition",
+                            "title": "Composition with volume",
+                            "composition": {
+                                "version": "2",
+                                "services": {
+                                    "my_service": {
+                                        "image": "alpine",
+                                        "command": "pwd",
+                                        "working_directory": "/tmp"
+                                    }
+                                }
+                            },
+                            "composition_candidates": {
+                                "my_unit_tests": {
+                                    "image": "alpine",
+                                    "volumes": [
+                                        "volume:volume"
+                                    ],
+                                    "working_directory": "/",
+                                    "command": "ls"
+                                }
+                            },
+                            "add_flow_volume_to_composition": true
+                        }
+                    }
+                };
+                const yaml = `version: '1.0'
+                                steps:
+                                  my_sample_composition:
+                                    type: composition
+                                    title: Composition with volume
+                                    composition:
+                                      version: '2'
+                                      services:
+                                        my_service:
+                                          image: alpine
+                                          command: 'pwd'
+                                          working_dir: /tmp
+                                    composition_candidates:
+                                      my_unit_tests:
+                                        image: alpine1
+                                        volumes:
+                                          - 'volume:volume'
+                                        working_director: '/'
+                                        command: ls
+                                    add_flow_volume_to_composition: true`;
+                try {
+                    validate(yamlObj, 'message', yaml);
+                    done('shoul fail because of working_directory');
+                } catch (e) {
+                    done();
+                }
+            });
         });
 
         describe('travis step attributes', () => {
