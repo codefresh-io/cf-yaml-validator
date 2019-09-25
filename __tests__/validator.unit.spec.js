@@ -2934,14 +2934,18 @@ describe('Validate Codefresh YAML', () => {
                         'type': 'composition',
                         'composition': {},
                         'composition_candidates': {
-                            jim: 'bob'
+                            jim: {
+                                image: 'alpine'
+                            }
                         }
                     },
                     string_composition: {
                         'type': 'composition',
                         'composition': 'path/to/composition',
                         'composition_candidates': {
-                            jim: 'bob'
+                            jim: {
+                                image: 'alpine'
+                            }
                         }
                     },
                     composition_launch: {
