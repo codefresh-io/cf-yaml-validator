@@ -1196,32 +1196,32 @@ describe('Validate Codefresh YAML', () => {
 
             it('should fail when working_directory in composition_candidates ', (done) => {
                 const yamlObj = {
-                    "version": "1.0",
-                    "steps": {
-                        "my_sample_composition": {
-                            "type": "composition",
-                            "title": "Composition with volume",
-                            "composition": {
-                                "version": "2",
-                                "services": {
-                                    "my_service": {
-                                        "image": "alpine",
-                                        "command": "pwd",
-                                        "working_directory": "/tmp"
+                    'version': '1.0',
+                    'steps': {
+                        'my_sample_composition': {
+                            'type': 'composition',
+                            'title': 'Composition with volume',
+                            'composition': {
+                                'version': '2',
+                                'services': {
+                                    'my_service': {
+                                        'image': 'alpine',
+                                        'command': 'pwd',
+                                        'working_directory': '/tmp'
                                     }
                                 }
                             },
-                            "composition_candidates": {
-                                "my_unit_tests": {
-                                    "image": "alpine",
-                                    "volumes": [
-                                        "volume:volume"
+                            'composition_candidates': {
+                                'my_unit_tests': {
+                                    'image': 'alpine',
+                                    'volumes': [
+                                        'volume:volume'
                                     ],
-                                    "working_directory": "/",
-                                    "command": "ls"
+                                    'working_directory': '/',
+                                    'command': 'ls'
                                 }
                             },
-                            "add_flow_volume_to_composition": true
+                            'add_flow_volume_to_composition': true
                         }
                     }
                 };
