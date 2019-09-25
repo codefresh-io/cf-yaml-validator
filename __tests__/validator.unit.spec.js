@@ -1247,7 +1247,7 @@ describe('Validate Codefresh YAML', () => {
                                     add_flow_volume_to_composition: true`;
                 try {
                     validate(yamlObj, 'message', yaml);
-                    done('shoul fail because of working_directory');
+                    done('should fail because of working_directory');
                 } catch (e) {
                     done();
                 }
