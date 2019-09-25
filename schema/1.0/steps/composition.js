@@ -26,7 +26,10 @@ class Composition extends BaseSchema {
             'type': Joi.string().valid(Composition.getType()),
             'working_directory': Joi.string(),
             'composition': Joi.alternatives(Joi.object(), Joi.string()).required(),
-            'composition_candidates': Joi.object().required(),
+            // allow any step name as composition candidate, and disallow working_directory as step field
+            'composition_candidates': Joi.object().pattern(/^/, Joi.object().keys({
+                working_directory: Joi.any().forbidden()
+            }).unknown()).required(),
             'composition_variables': Joi.array().items(Joi.string())
         };
         return this._createSchema(compositionProperties).unknown();
