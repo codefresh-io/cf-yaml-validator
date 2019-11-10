@@ -101,6 +101,7 @@ class BaseSchema {
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
             'debug': BaseSchema._getDebugSchema(),
+            'env': BaseSchema._getEnvSchema()
         }, schemaProperties);
     }
 
@@ -254,6 +255,24 @@ class BaseSchema {
                 before: Joi.boolean(),
                 after: Joi.boolean()
             })
+        });
+    }
+
+    static _getEnvSchema() {
+        return Joi.object().keys({
+            name: Joi.string().required(),
+            endpoints: Joi.array().items(Joi.object().keys({
+                name: Joi.string(),
+                url: Joi.string().uri(),
+            })),
+            type: Joi.string().valid(['kubernetes', 'helm-release']),
+            change: Joi.string(),
+            filters: Joi.array().items(Joi.object().keys({
+                cluster: Joi.string(),
+                namespace: Joi.string(),
+                releaseName: Joi.string(),
+                selectors: Joi.array().items(Joi.string()),
+            })),
         });
     }
 
