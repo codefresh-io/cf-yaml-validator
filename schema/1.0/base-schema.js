@@ -263,7 +263,7 @@ class BaseSchema {
             name: Joi.string().required(),
             endpoints: Joi.array().items(Joi.object().keys({
                 name: Joi.string(),
-                url: Joi.string().uri(),
+                url: Joi.string(),
             })),
             type: Joi.string().valid(['kubernetes', 'helm-release']),
             change: Joi.string(),
