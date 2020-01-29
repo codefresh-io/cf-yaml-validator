@@ -32,6 +32,8 @@ const DocumentationLinks = {
     'pending-approval': `${docBaseUrl}/approval/`,
 };
 
+const MaxStepLength = 150;
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -172,9 +174,44 @@ class Validator {
 
     static _validateUniqueStepNames(objectModel, yaml) {
         // get all step names:
-        const stepNames = _.flatMap(objectModel.steps, (step) => {
-            return step.steps ? Object.keys(step.steps) : [];
+        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
+            return step.steps ? Object.keys(step.steps) : [key];
         });
+        const currentMaxStepLength = stepNames.reduce((acc, curr) => {
+            if (curr.length > acc.length) {
+                acc = {
+                    length: curr.length,
+                    name: curr
+                };
+            }
+            return acc;
+        }, {
+            length: 0
+
+        });
+        if (currentMaxStepLength.length > MaxStepLength) {
+            const message = `step name length is limited to ${MaxStepLength}`;
+            const stepName = currentMaxStepLength.name;
+            Validator._addError({
+                message,
+                name: 'ValidationError',
+                details: [
+                    {
+                        message,
+                        type: 'Validation',
+                        path: 'steps',
+                        context: {
+                            key: 'steps',
+                        },
+                        level: 'step',
+                        stepName,
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
+                        actionItems: `Please rename ${stepName} steps`,
+                        lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                    },
+                ]
+            });
+        }
         // get duplicate step names from step names:
         const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
         if (duplicateSteps.length > 0) {
