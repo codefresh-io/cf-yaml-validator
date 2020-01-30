@@ -172,7 +172,7 @@ class Validator {
     }
 
 
-    static _validateUniqueStepNames(objectModel, yaml) {
+    static _validateStepsLength(objectModel, yaml) {
         // get all step names:
         const stepNames = _.flatMap(objectModel.steps, (step, key) => {
             return step.steps ? Object.keys(step.steps) : [key];
@@ -206,12 +206,19 @@ class Validator {
                         level: 'step',
                         stepName,
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
-                        actionItems: `Please rename ${stepName} steps`,
+                        actionItems: `Please shoten name for ${stepName} steps`,
                         lines: Validator._getErrorLineNumber({ yaml, stepName }),
                     },
                 ]
             });
         }
+    }
+
+    static _validateUniqueStepNames(objectModel, yaml) {
+        // get all step names:
+        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
+            return step.steps ? Object.keys(step.steps) : [key];
+        });
         // get duplicate step names from step names:
         const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
         if (duplicateSteps.length > 0) {
@@ -456,6 +463,7 @@ class Validator {
             details: [],
         };
         Validator._validateUniqueStepNames(objectModel, yaml);
+        Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
