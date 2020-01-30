@@ -32,6 +32,8 @@ const DocumentationLinks = {
     'pending-approval': `${docBaseUrl}/approval/`,
 };
 
+const MaxStepLength = 150;
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -170,10 +172,52 @@ class Validator {
     }
 
 
+    static _validateStepsLength(objectModel, yaml) {
+        // get all step names:
+        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
+            return step.steps ? Object.keys(step.steps) : [key];
+        });
+        const currentMaxStepLength = stepNames.reduce((acc, curr) => {
+            if (curr.length > acc.length) {
+                acc = {
+                    length: curr.length,
+                    name: curr
+                };
+            }
+            return acc;
+        }, {
+            length: 0
+
+        });
+        if (currentMaxStepLength.length > MaxStepLength) {
+            const message = `step name length is limited to ${MaxStepLength}`;
+            const stepName = currentMaxStepLength.name;
+            Validator._addError({
+                message,
+                name: 'ValidationError',
+                details: [
+                    {
+                        message,
+                        type: 'Validation',
+                        path: 'steps',
+                        context: {
+                            key: 'steps',
+                        },
+                        level: 'step',
+                        stepName,
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
+                        actionItems: `Please shoten name for ${stepName} steps`,
+                        lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                    },
+                ]
+            });
+        }
+    }
+
     static _validateUniqueStepNames(objectModel, yaml) {
         // get all step names:
-        const stepNames = _.flatMap(objectModel.steps, (step) => {
-            return step.steps ? Object.keys(step.steps) : [];
+        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
+            return step.steps ? Object.keys(step.steps) : [key];
         });
         // get duplicate step names from step names:
         const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
@@ -419,6 +463,7 @@ class Validator {
             details: [],
         };
         Validator._validateUniqueStepNames(objectModel, yaml);
+        Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {

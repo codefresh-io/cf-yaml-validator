@@ -2892,6 +2892,18 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, 'step name exist more than once\nstep name exist more than once\n', done);
             });
+            it('long-step-names', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        // eslint-disable-next-line max-len
+                        long123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890: {
+                            image: 'bob',
+                            commands: []
+                        }
+                    }
+                }, 'step name length is limited to 150', done);
+            });
         });
 
         describe('Pending-approval step attributes', () => {
