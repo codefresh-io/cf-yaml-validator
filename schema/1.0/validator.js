@@ -541,7 +541,7 @@ class Validator {
                 error.details = [
                     {
                         message: `Mix of tabs and spaces`,
-                        type: 'Warning',
+                        type: 'Error',
                         path: 'indention',
                         context: {
                             key: 'indention',
