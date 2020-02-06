@@ -547,7 +547,6 @@ class Validator {
                             key: 'indention',
                         },
                         level: 'workflow',
-                        name,
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                         actionItems: `Please remove all mixed tabs and spaces`,
                         lines: number
@@ -596,12 +595,15 @@ class Validator {
         totalErrors = {
             details: [],
         };
+        Validator._validateIndention(yaml);
+        if (_.size(totalErrors.details) > 0) {
+            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+        }
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateContextStep(objectModel, yaml, context);
-        Validator._validateIndention(yaml);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
