@@ -526,6 +526,9 @@ class Validator {
                 }
 
             }
+            if (step.type === 'parallel' || step.steps) {
+                this._validateContextStep(step, yaml, context);
+            }
 
 
         });
