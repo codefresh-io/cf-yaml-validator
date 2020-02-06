@@ -470,8 +470,7 @@ class Validator {
                             name,
                             docsLink: 'https://codefresh.io/docs/docs/integrations/git-providers/',
                             actionItems: `Please make sure you have git-provider`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key }),
-                            category: 'Warning'
+                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key })
                         },
                     ];
                     Validator._addError(error);
@@ -494,8 +493,7 @@ class Validator {
                             name,
                             docsLink: 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
                             actionItems: `Please make sure you have cluster`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'cluster' }),
-                            category: 'Warning'
+                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'cluster' })
                         },
                     ];
                     Validator._addError(error);
@@ -518,8 +516,7 @@ class Validator {
                             name,
                             docsLink: 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                             actionItems: `Please make sure you have registry`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'registry' }),
-                            category: 'Warning'
+                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'registry' })
                         },
                     ];
                     Validator._addError(error);
@@ -534,8 +531,32 @@ class Validator {
         });
     }
 
-    static _validateIndention(objectModel, yaml, context) {
+    static _validateIndention(yaml) {
+        const yamlArray = yaml.split('\n');
+        _.forEach(yamlArray, (line, number) => {
+            if (line.match('(\\t+\\s+|\\s+\\t+)')) {
+                const error = new Error('Mix of tabs and spaces');
+                error.name = 'ValidationError';
+                error.isJoi = true;
+                error.details = [
+                    {
+                        message: `Mix of tabs and spaces`,
+                        type: 'Warning',
+                        path: 'indention',
+                        context: {
+                            key: 'indention',
+                        },
+                        level: 'workflow',
+                        name,
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        actionItems: `Please remove all mixed tabs and spaces`,
+                        lines: number
+                    },
+                ];
+                Validator._addError(error);
+            }
 
+        });
     }
 
     //------------------------------------------------------------------------------
@@ -580,7 +601,7 @@ class Validator {
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateContextStep(objectModel, yaml, context);
-        Validator._validateIndention(objectModel, yaml);
+        Validator._validateIndention(yaml);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
