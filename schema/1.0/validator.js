@@ -447,6 +447,94 @@ class Validator {
         }
     }
 
+
+    static _validateContextStep(objectModel, yaml, context) {
+        _.forEach(objectModel.steps, (s, name) => {
+            const step = _.cloneDeep(s);
+            if (step.type === 'git-clone') {
+                if (_.isEmpty(context.git) || (step.git && !_.some(context.git, (obj) => { return obj.metadata.name === step.git; }))) {
+                    const error = new Error('Not found git-provider');
+                    const message = step.git ? `Not found git integration with name ${step.git}`: `Not found any git integration`;
+                    const key = step.git ? 'git' : undefined;
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message,
+                            type: 'Warning',
+                            path: 'git',
+                            context: {
+                                key: 'git',
+                            },
+                            level: 'workflow',
+                            name,
+                            docsLink: 'https://codefresh.io/docs/docs/integrations/git-providers/',
+                            actionItems: `Please make sure you have git-provider`,
+                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key }),
+                            category: 'Warning'
+                        },
+                    ];
+                    Validator._addError(error);
+                }
+            }
+            if (step.type === 'deploy') {
+                if (_.isEmpty(context.clusters) || !_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
+                    const error = new Error('Not found cluster');
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: `Not found cluster with name ${step.cluster}`,
+                            type: 'Warning',
+                            path: 'cluster',
+                            context: {
+                                key: 'cluster',
+                            },
+                            level: 'workflow',
+                            name,
+                            docsLink: 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                            actionItems: `Please make sure you have cluster`,
+                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'cluster' }),
+                            category: 'Warning'
+                        },
+                    ];
+                    Validator._addError(error);
+                }
+            }
+            if (step.type === 'push') {
+                if (_.isEmpty(context.registries) || !_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
+                    const error = new Error('Not found registry');
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: `Not found registry with name ${step.registry}`,
+                            type: 'Warning',
+                            path: 'registry',
+                            context: {
+                                key: 'registry',
+                            },
+                            level: 'workflow',
+                            name,
+                            docsLink: 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                            actionItems: `Please make sure you have registry`,
+                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'registry' }),
+                            category: 'Warning'
+                        },
+                    ];
+                    Validator._addError(error);
+                }
+
+            }
+
+
+        });
+    }
+
+    static _validateIndention(objectModel, yaml, context) {
+
+    }
+
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
@@ -466,6 +554,30 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
+        if (_.size(totalErrors.details) > 0) {
+            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+        }
+    }
+
+    /**
+     * Validates a model of the deserialized YAML
+     *
+     * @param objectModel Deserialized YAML
+     * @param outputFormat desire output format YAML
+     * @param yaml
+     * @param context
+     * @throws An error containing the details of the validation failure
+     */
+    static validateWithContext(objectModel, outputFormat = 'message', yaml, context, opts) {
+        totalErrors = {
+            details: [],
+        };
+        Validator._validateUniqueStepNames(objectModel, yaml);
+        Validator._validateStepsLength(objectModel, yaml);
+        Validator._validateRootSchema(objectModel, yaml);
+        Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateContextStep(objectModel, yaml, context);
+        Validator._validateIndention(objectModel, yaml);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
