@@ -34,6 +34,13 @@ const DocumentationLinks = {
 
 const MaxStepLength = 150;
 
+const ErrorType={
+    Warning:'Warning',
+    Error: 'Error'
+}
+
+
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -461,7 +468,7 @@ class Validator {
                     error.details = [
                         {
                             message,
-                            type: 'Warning',
+                            type: ErrorType.Warning,
                             path: 'git',
                             context: {
                                 key: 'git',
@@ -484,7 +491,7 @@ class Validator {
                     error.details = [
                         {
                             message: `Not found cluster with name ${step.cluster}`,
-                            type: 'Warning',
+                            type: ErrorType.Warning,
                             path: 'cluster',
                             context: {
                                 key: 'cluster',
@@ -507,7 +514,7 @@ class Validator {
                     error.details = [
                         {
                             message: `Not found registry with name ${step.registry}`,
-                            type: 'Warning',
+                            type: ErrorType.Warning,
                             path: 'registry',
                             context: {
                                 key: 'registry',
@@ -541,7 +548,7 @@ class Validator {
                 error.details = [
                     {
                         message: `Mix of tabs and spaces`,
-                        type: 'Error',
+                        type: ErrorType.Error,
                         path: 'indention',
                         context: {
                             key: 'indention',
