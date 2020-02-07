@@ -499,7 +499,7 @@ class Validator {
                         errorPath,
                         actionItems: 'Please add git integration'
                     }));
-                } else if (step.git && !_.some(context.git, (obj) => { return obj.metadata.name === step.git; })) {
+                } else if (step.git) {
                     if (step.git.includes('.')) {
                         Validator._addError(Validator._buildError({
                             message: 'Found git template',
@@ -511,7 +511,7 @@ class Validator {
                             actionItems: 'Please make sure that the expression will match a valid interpolation',
                             key
                         }));
-                    } else {
+                    } else if (!_.some(context.git, (obj) => { return obj.metadata.name === step.git; })) {
                         Validator._addError(Validator._buildError({
                             message: `Not found git integration with name ${step.git}`,
                             name,
@@ -548,7 +548,7 @@ class Validator {
                         errorPath,
                         actionItems: 'Please add cluster'
                     }));
-                } else if (step.cluster && !_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
+                } else if (step.cluster) {
                     if (step.cluster.includes('.')) {
                         Validator._addError(Validator._buildError({
                             message: 'Found cluster template',
@@ -560,7 +560,7 @@ class Validator {
                             actionItems: 'Please make sure that the expression will match a valid interpolation',
                             key
                         }));
-                    } else {
+                    } else if (!_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
                         Validator._addError(Validator._buildError({
                             message: `Not found cluster with name ${step.cluster}`,
                             name,
@@ -597,7 +597,7 @@ class Validator {
                         errorPath,
                         actionItems: 'Please add registry'
                     }));
-                } else if (step.registry && !_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
+                } else if (step.registry) {
                     if (step.registry.includes('.')) {
                         Validator._addError(Validator._buildError({
                             message: 'Found registry template',
@@ -609,7 +609,7 @@ class Validator {
                             actionItems: 'Please make sure that the expression will match a valid interpolation',
                             key
                         }));
-                    } else {
+                    } else if (!_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
                         Validator._addError(Validator._buildError({
                             message: `Not found registry with name ${step.registry}`,
                             name,
