@@ -36,16 +36,14 @@ const IntegrationLinks = {
     'git-clone': `https://codefresh.io/docs/docs/integrations/git-providers/`,
     'push': `https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/`,
     'deploy': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
-}
+};
 
 const MaxStepLength = 150;
 
 const ErrorType = {
-    Warning:'Warning',
+    Warning: 'Warning',
     Error: 'Error'
 };
-
-
 
 class Validator {
 
@@ -460,7 +458,9 @@ class Validator {
         }
     }
 
-    static _buildError({ message, name, yaml, type, docsLink, path, actionItems, key }) {
+    static _buildError({
+        message, name, yaml, type, docsLink, errorPath, actionItems, key
+    }) {
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;
@@ -468,18 +468,18 @@ class Validator {
             {
                 message,
                 type,
-                path,
+                path: errorPath,
                 context: {
                     key: path,
                 },
                 level: 'workflow',
                 name,
                 docsLink,
-                actionItems: actionItems,
-                lines: Validator._getErrorLineNumber({ yaml, stepName : name, key })
+                actionItems,
+                lines: Validator._getErrorLineNumber({ yaml, stepName: name, key })
             },
         ];
-        return error
+        return error;
     }
 
 
@@ -487,70 +487,150 @@ class Validator {
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
             if (step.type === 'git-clone') {
-                const path = 'git';
+                const errorPath = 'git';
                 const key = 'git';
                 if (_.isEmpty(context.git)) {
-                    Validator._addError(Validator._buildError({ message: 'Not found any git integration'
-                        ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add git integration' }));
+                    Validator._addError(Validator._buildError({
+                        message: 'Not found any git integration',
+                        name,
+                        yaml,
+                        type: ErrorType.Error,
+                        docsLink: _.get(IntegrationLinks, step.type),
+                        errorPath,
+                        actionItems: 'Please add git integration'
+                    }));
                 } else if (step.git && !_.some(context.git, (obj) => { return obj.metadata.name === step.git; })) {
                     if (step.git.includes('.')) {
-                        Validator._addError(Validator._buildError({message: 'Found git template'
-                            ,name, yaml, type: ErrorType.Warning, docsLink: _.get(IntegrationLinks, step.type), path,
-                            actionItems: 'Please make sure that the expression will match a valid interpolation'
-                            , key }));
+                        Validator._addError(Validator._buildError({
+                            message: 'Found git template',
+                            name,
+                            yaml,
+                            type: ErrorType.Warning,
+                            docsLink: _.get(IntegrationLinks, step.type),
+                            errorPath,
+                            actionItems: 'Please make sure that the expression will match a valid interpolation',
+                            key
+                        }));
                     } else {
-                        Validator._addError(Validator._buildError({message: `Not found git integration with name ${step.git}`
-                            ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add git integration'
-                            , key }));
+                        Validator._addError(Validator._buildError({
+                            message: `Not found git integration with name ${step.git}`,
+                            name,
+                            yaml,
+                            type: ErrorType.Error,
+                            docsLink: _.get(IntegrationLinks, step.type),
+                            errorPath,
+                            actionItems: 'Please add git integration',
+                            key
+                        }));
                     }
-                } else if (!step.git &&context.git.length>1) {
-                    Validator._addError(Validator._buildError({message: 'Found more then one git integration'
-                        ,name, yaml, type: ErrorType.Warning, docsLink: _.get(DocumentationLinks, step.type, docBaseUrl), path, actionItems: 'Please specify git field' }));
+                } else if (!step.git && context.git.length > 1) {
+                    Validator._addError(Validator._buildError({
+                        message: 'Found more then one git integration',
+                        name,
+                        yaml,
+                        type: ErrorType.Warning,
+                        docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                        errorPath,
+                        actionItems: 'Please specify git field'
+                    }));
                 }
             }
             if (step.type === 'deploy') {
-                const path = 'cluster';
+                const errorPath = 'cluster';
                 const key = 'cluster';
                 if (_.isEmpty(context.clusters)) {
-                    Validator._addError(Validator._buildError({ message: 'Not found any cluster'
-                        ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add cluster' }));
+                    Validator._addError(Validator._buildError({
+                        message: 'Not found any cluster',
+                        name,
+                        yaml,
+                        type: ErrorType.Error,
+                        docsLink: _.get(IntegrationLinks, step.type),
+                        errorPath,
+                        actionItems: 'Please add cluster'
+                    }));
                 } else if (step.cluster && !_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
-                    if(step.cluster.includes('.')){
-                        Validator._addError(Validator._buildError({message: 'Found cluster template'
-                            ,name, yaml, type: ErrorType.Warning, docsLink: _.get(IntegrationLinks, step.type), path,
-                            actionItems: 'Please make sure that the expression will match a valid interpolation'
-                            , key }));
-                    }else{
-                        Validator._addError(Validator._buildError({message: `Not found cluster with name ${step.cluster}`
-                            ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add cluster'
-                            , key }));
+                    if (step.cluster.includes('.')) {
+                        Validator._addError(Validator._buildError({
+                            message: 'Found cluster template',
+                            name,
+                            yaml,
+                            type: ErrorType.Warning,
+                            docsLink: _.get(IntegrationLinks, step.type),
+                            errorPath,
+                            actionItems: 'Please make sure that the expression will match a valid interpolation',
+                            key
+                        }));
+                    } else {
+                        Validator._addError(Validator._buildError({
+                            message: `Not found cluster with name ${step.cluster}`,
+                            name,
+                            yaml,
+                            type: ErrorType.Error,
+                            docsLink: _.get(IntegrationLinks, step.type),
+                            errorPath,
+                            actionItems: 'Please add cluster',
+                            key
+                        }));
                     }
-                } else if (!step.cluster &&context.clusters.length>1) {
-                    Validator._addError(Validator._buildError({message: 'Found more then one clusters'
-                        ,name, yaml, type: ErrorType.Warning, docsLink: _.get(DocumentationLinks, step.type, docBaseUrl), path,
-                        actionItems: 'Please specify cluster field' }));
+                } else if (!step.cluster && context.clusters.length > 1) {
+                    Validator._addError(Validator._buildError({
+                        message: 'Found more then one clusters',
+                        name,
+                        yaml,
+                        type: ErrorType.Warning,
+                        docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                        errorPath,
+                        actionItems: 'Please specify cluster field'
+                    }));
                 }
             }
             if (step.type === 'push') {
-                const path = 'registry';
+                const errorPath = 'registry';
                 const key = 'registry';
                 if (_.isEmpty(context.registries)) {
-                    Validator._addError(Validator._buildError({ message: 'Not found any registry'
-                        ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add registry' }));
+                    Validator._addError(Validator._buildError({
+                        message: 'Not found any registry',
+                        name,
+                        yaml,
+                        type: ErrorType.Error,
+                        docsLink: _.get(IntegrationLinks, step.type),
+                        errorPath,
+                        actionItems: 'Please add registry'
+                    }));
                 } else if (step.registry && !_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
-                    if(step.registry.includes('.')){
-                        Validator._addError(Validator._buildError({message: 'Found registry template'
-                            ,name, yaml, type: ErrorType.Warning, docsLink: _.get(IntegrationLinks, step.type), path,
-                            actionItems: 'Please make sure that the expression will match a valid interpolation'
-                            , key }));
-                    }else{
-                        Validator._addError(Validator._buildError({message: `Not found registry with name ${step.registry}`
-                            ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add registry'
-                            , key }));
+                    if (step.registry.includes('.')) {
+                        Validator._addError(Validator._buildError({
+                            message: 'Found registry template',
+                            name,
+                            yaml,
+                            type: ErrorType.Warning,
+                            docsLink: _.get(IntegrationLinks, step.type),
+                            errorPath,
+                            actionItems: 'Please make sure that the expression will match a valid interpolation',
+                            key
+                        }));
+                    } else {
+                        Validator._addError(Validator._buildError({
+                            message: `Not found registry with name ${step.registry}`,
+                            name,
+                            yaml,
+                            type: ErrorType.Error,
+                            docsLink: _.get(IntegrationLinks, step.type),
+                            errorPath,
+                            actionItems: 'Please add registry',
+                            key
+                        }));
                     }
-                } else if (!step.registry &&context.registries.length>1) {
-                    Validator._addError(Validator._buildError({message: 'Found more then one registry'
-                        ,name, yaml, type: ErrorType.Warning, docsLink: _.get(DocumentationLinks, step.type, docBaseUrl), path, actionItems: 'Please specify registry field' }));
+                } else if (!step.registry && context.registries.length > 1) {
+                    Validator._addError(Validator._buildError({
+                        message: 'Found more then one registry',
+                        name,
+                        yaml,
+                        type: ErrorType.Warning,
+                        docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                        errorPath,
+                        actionItems: 'Please specify registry field'
+                    }));
                 }
             }
             if (step.type === 'parallel' || step.steps) {
@@ -561,7 +641,7 @@ class Validator {
         });
     }
 
-    static _validateIndention(yaml) {
+    static _validateIndention(yaml, outputFormat) {
         const yamlArray = yaml.split('\n');
         _.forEach(yamlArray, (line, number) => {
             if (line.match('(\\t+\\s+|\\s+\\t+)')) {
@@ -629,7 +709,7 @@ class Validator {
         totalErrors = {
             details: [],
         };
-        Validator._validateIndention(yaml);
+        Validator._validateIndention(yaml, outputFormat);
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
