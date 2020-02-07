@@ -470,7 +470,7 @@ class Validator {
                 type,
                 path: errorPath,
                 context: {
-                    key: path,
+                    key: errorPath,
                 },
                 level: 'workflow',
                 name,
