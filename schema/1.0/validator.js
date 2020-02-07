@@ -485,12 +485,13 @@ class Validator {
             }
             if (step.type === 'deploy') {
                 if (_.isEmpty(context.clusters) || !_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
+                    const message = step.cluster ? `Not found cluster with name ${step.cluster}`: `Not found any cluster`;
                     const error = new Error('Not found cluster');
                     error.name = 'ValidationError';
                     error.isJoi = true;
                     error.details = [
                         {
-                            message: `Not found cluster with name ${step.cluster}`,
+                            message,
                             type: ErrorType.Warning,
                             path: 'cluster',
                             context: {
@@ -508,12 +509,13 @@ class Validator {
             }
             if (step.type === 'push') {
                 if (_.isEmpty(context.registries) || !_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
+                    const message = step.registry ? `Not found registry with name ${step.registry}`: `Not found any registry`;
                     const error = new Error('Not found registry');
                     error.name = 'ValidationError';
                     error.isJoi = true;
                     error.details = [
                         {
-                            message: `Not found registry with name ${step.registry}`,
+                            message,
                             type: ErrorType.Warning,
                             path: 'registry',
                             context: {
