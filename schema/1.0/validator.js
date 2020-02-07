@@ -591,8 +591,8 @@ class Validator {
      *
      * @param objectModel Deserialized YAML
      * @param outputFormat desire output format YAML
-     * @param yaml
-     * @param context
+     * @param yaml as string
+     * @param context by account with git, clusters and registries
      * @throws An error containing the details of the validation failure
      */
     static validateWithContext(objectModel, outputFormat = 'message', yaml, context, opts) {
