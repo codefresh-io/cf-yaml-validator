@@ -556,6 +556,10 @@ class Validator {
             }
 
         });
+        if (_.size(totalErrors.details) > 0) {
+            // throw error because when pipeline have a mix of tabs and spaces it not pass other validation
+            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+        }
     }
 
     //------------------------------------------------------------------------------
@@ -596,9 +600,6 @@ class Validator {
             details: [],
         };
         Validator._validateIndention(yaml);
-        if (_.size(totalErrors.details) > 0) {
-            Validator._throwValidationErrorAccordingToFormat(outputFormat);
-        }
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
