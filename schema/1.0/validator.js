@@ -32,12 +32,18 @@ const DocumentationLinks = {
     'pending-approval': `${docBaseUrl}/approval/`,
 };
 
+const IntegrationLinks = {
+    'git-clone': `https://codefresh.io/docs/docs/integrations/git-providers/`,
+    'push': `https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/`,
+    'deploy': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
+}
+
 const MaxStepLength = 150;
 
-const ErrorType={
+const ErrorType = {
     Warning:'Warning',
     Error: 'Error'
-}
+};
 
 
 
@@ -454,83 +460,98 @@ class Validator {
         }
     }
 
+    static _buildError({ message, name, yaml, type, docsLink, path, actionItems, key }) {
+        const error = new Error();
+        error.name = 'ValidationError';
+        error.isJoi = true;
+        error.details = [
+            {
+                message,
+                type,
+                path,
+                context: {
+                    key: path,
+                },
+                level: 'workflow',
+                name,
+                docsLink,
+                actionItems: actionItems,
+                lines: Validator._getErrorLineNumber({ yaml, stepName : name, key })
+            },
+        ];
+        return error
+    }
+
 
     static _validateContextStep(objectModel, yaml, context) {
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
             if (step.type === 'git-clone') {
-                if (_.isEmpty(context.git) || (step.git && !_.some(context.git, (obj) => { return obj.metadata.name === step.git; }))) {
-                    const error = new Error('Not found git-provider');
-                    const message = step.git ? `Not found git integration with name ${step.git}`: `Not found any git integration`;
-                    const key = step.git ? 'git' : undefined;
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message,
-                            type: ErrorType.Warning,
-                            path: 'git',
-                            context: {
-                                key: 'git',
-                            },
-                            level: 'workflow',
-                            name,
-                            docsLink: 'https://codefresh.io/docs/docs/integrations/git-providers/',
-                            actionItems: `Please make sure you have git-provider`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key })
-                        },
-                    ];
-                    Validator._addError(error);
+                const path = 'git';
+                const key = 'git';
+                if (_.isEmpty(context.git)) {
+                    Validator._addError(Validator._buildError({ message: 'Not found any git integration'
+                        ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add git integration' }));
+                } else if (step.git && !_.some(context.git, (obj) => { return obj.metadata.name === step.git; })) {
+                    if (step.git.includes('.')) {
+                        Validator._addError(Validator._buildError({message: 'Found git template'
+                            ,name, yaml, type: ErrorType.Warning, docsLink: _.get(IntegrationLinks, step.type), path,
+                            actionItems: 'Please make sure that the expression will match a valid interpolation'
+                            , key }));
+                    } else {
+                        Validator._addError(Validator._buildError({message: `Not found git integration with name ${step.git}`
+                            ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add git integration'
+                            , key }));
+                    }
+                } else if (!step.git &&context.git.length>1) {
+                    Validator._addError(Validator._buildError({message: 'Found more then one git integration'
+                        ,name, yaml, type: ErrorType.Warning, docsLink: _.get(DocumentationLinks, step.type, docBaseUrl), path, actionItems: 'Please specify git field' }));
                 }
             }
             if (step.type === 'deploy') {
-                if (_.isEmpty(context.clusters) || !_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
-                    const message = step.cluster ? `Not found cluster with name ${step.cluster}`: `Not found any cluster`;
-                    const error = new Error('Not found cluster');
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message,
-                            type: ErrorType.Warning,
-                            path: 'cluster',
-                            context: {
-                                key: 'cluster',
-                            },
-                            level: 'workflow',
-                            name,
-                            docsLink: 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
-                            actionItems: `Please make sure you have cluster`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'cluster' })
-                        },
-                    ];
-                    Validator._addError(error);
+                const path = 'cluster';
+                const key = 'cluster';
+                if (_.isEmpty(context.clusters)) {
+                    Validator._addError(Validator._buildError({ message: 'Not found any cluster'
+                        ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add cluster' }));
+                } else if (step.cluster && !_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
+                    if(step.cluster.includes('.')){
+                        Validator._addError(Validator._buildError({message: 'Found cluster template'
+                            ,name, yaml, type: ErrorType.Warning, docsLink: _.get(IntegrationLinks, step.type), path,
+                            actionItems: 'Please make sure that the expression will match a valid interpolation'
+                            , key }));
+                    }else{
+                        Validator._addError(Validator._buildError({message: `Not found cluster with name ${step.cluster}`
+                            ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add cluster'
+                            , key }));
+                    }
+                } else if (!step.cluster &&context.clusters.length>1) {
+                    Validator._addError(Validator._buildError({message: 'Found more then one clusters'
+                        ,name, yaml, type: ErrorType.Warning, docsLink: _.get(DocumentationLinks, step.type, docBaseUrl), path,
+                        actionItems: 'Please specify cluster field' }));
                 }
             }
             if (step.type === 'push') {
-                if (_.isEmpty(context.registries) || !_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
-                    const message = step.registry ? `Not found registry with name ${step.registry}`: `Not found any registry`;
-                    const error = new Error('Not found registry');
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message,
-                            type: ErrorType.Warning,
-                            path: 'registry',
-                            context: {
-                                key: 'registry',
-                            },
-                            level: 'workflow',
-                            name,
-                            docsLink: 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
-                            actionItems: `Please make sure you have registry`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName : name, key: 'registry' })
-                        },
-                    ];
-                    Validator._addError(error);
+                const path = 'registry';
+                const key = 'registry';
+                if (_.isEmpty(context.registries)) {
+                    Validator._addError(Validator._buildError({ message: 'Not found any registry'
+                        ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add registry' }));
+                } else if (step.registry && !_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
+                    if(step.registry.includes('.')){
+                        Validator._addError(Validator._buildError({message: 'Found registry template'
+                            ,name, yaml, type: ErrorType.Warning, docsLink: _.get(IntegrationLinks, step.type), path,
+                            actionItems: 'Please make sure that the expression will match a valid interpolation'
+                            , key }));
+                    }else{
+                        Validator._addError(Validator._buildError({message: `Not found registry with name ${step.registry}`
+                            ,name, yaml, type: ErrorType.Error, docsLink: _.get(IntegrationLinks, step.type), path, actionItems: 'Please add registry'
+                            , key }));
+                    }
+                } else if (!step.registry &&context.registries.length>1) {
+                    Validator._addError(Validator._buildError({message: 'Found more then one registry'
+                        ,name, yaml, type: ErrorType.Warning, docsLink: _.get(DocumentationLinks, step.type, docBaseUrl), path, actionItems: 'Please specify registry field' }));
                 }
-
             }
             if (step.type === 'parallel' || step.steps) {
                 this._validateContextStep(step, yaml, context);
