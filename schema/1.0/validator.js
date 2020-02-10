@@ -19,30 +19,20 @@ const Table = require('cli-table3');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
+const { ErrorType, ErrorBuilder } = require('./error-builder');
+const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./documentation-links');
+const GitClone = require('./steps/git-clone');
+const Deploy = require('./steps/deploy');
+const Push = require('./steps/push');
 
 let totalErrors;
-const docBaseUrl = process.env.DOCS_BASE_URL || 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
-const DocumentationLinks = {
-    'freestyle': `${docBaseUrl}/freestyle/`,
-    'build': `${docBaseUrl}/build/`,
-    'push': `${docBaseUrl}/push/`,
-    'deploy': `${docBaseUrl}/deploy/`,
-    'git-clone': `${docBaseUrl}/git-clone/`,
-    'launch-composition': `${docBaseUrl}/launch-composition/`,
-    'pending-approval': `${docBaseUrl}/approval/`,
-};
-
-const IntegrationLinks = {
-    'git-clone': `https://codefresh.io/docs/docs/integrations/git-providers/`,
-    'push': `https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/`,
-    'deploy': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
-};
 
 const MaxStepLength = 150;
 
-const ErrorType = {
-    Warning: 'Warning',
-    Error: 'Error'
+const StepValidator = {
+    'git-clone': GitClone,
+    'deploy': Deploy,
+    'push': Push
 };
 
 class Validator {
@@ -69,36 +59,6 @@ class Validator {
         }
     }
 
-    static _getErrorLineNumber({ yaml, stepName, key }) {
-        if (!yaml) {
-            return;
-        }
-        const requireStepValidation = !!stepName;
-        const requireKeyValidation = !!key;
-        let errorLine = 0;
-        if (!requireStepValidation && !requireStepValidation) {
-            return errorLine; // eslint-disable-line
-        }
-        let stepFound = false;
-        const stepNameRegex = new RegExp(`${stepName}:`, 'g');
-        const keyRegex = new RegExp(`${key}:`, 'g');
-        const yamlArray = yaml.split('\n');
-
-        _.forEach(yamlArray, (line, number) => { // eslint-disable-line
-            if (requireStepValidation && stepNameRegex.exec(line)) {
-                errorLine = number + 1;
-                if (!requireKeyValidation) {
-                    return false;
-                }
-                stepFound = true;
-            }
-            if ((!requireStepValidation || stepFound) && keyRegex.exec(line)) {
-                errorLine = number + 1;
-                return false;
-            }
-        });
-        return errorLine; // eslint-disable-line
-    }
 
     static _addError(error) {
         totalErrors.details = _.concat(totalErrors.details, error.details);
@@ -218,7 +178,7 @@ class Validator {
                         stepName,
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
                         actionItems: `Please shoten name for ${stepName} steps`,
-                        lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                        lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
                     },
                 ]
             });
@@ -250,7 +210,7 @@ class Validator {
                         stepName,
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
                         actionItems: `Please rename ${stepName} steps`,
-                        lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                        lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
                     },
                 ];
 
@@ -303,7 +263,7 @@ class Validator {
                         level: 'workflow',
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                         actionItems: `Please make sure you have all the required fields`,
-                        lines: Validator._getErrorLineNumber({ yaml, key: err.path }),
+                        lines: ErrorBuilder.getErrorLineNumber({ yaml, key: err.path }),
                     },
                 ];
 
@@ -372,7 +332,7 @@ class Validator {
                                     stepName,
                                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
                                     actionItems: `Please change the type of the sub step`,
-                                    lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
                                 },
                             ];
                             Validator._addError(error);
@@ -393,7 +353,7 @@ class Validator {
                             level: 'workflow',
                             docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                             actionItems: `Please make sure you have all the required fields`,
-                            lines: Validator._getErrorLineNumber({ yaml }),
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml }),
                         },
                     ];
                     Validator._addError(error);
@@ -446,7 +406,7 @@ class Validator {
                             stepName,
                             docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
                             actionItems: `Please make sure you have all the required fields and valid values`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName, key: err.path }),
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
                         },
                     ];
 
@@ -458,185 +418,19 @@ class Validator {
         }
     }
 
-    static _buildError({
-        message, name, yaml, type, docsLink, errorPath, actionItems, key
-    }) {
-        const error = new Error();
-        error.name = 'ValidationError';
-        error.isJoi = true;
-        error.details = [
-            {
-                message,
-                type,
-                path: errorPath,
-                context: {
-                    key: errorPath,
-                },
-                level: 'workflow',
-                name,
-                docsLink,
-                actionItems,
-                lines: Validator._getErrorLineNumber({ yaml, stepName: name, key })
-            },
-        ];
-        return error;
-    }
-
 
     static _validateContextStep(objectModel, yaml, context) {
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
-            if (step.type === 'git-clone') {
-                const errorPath = 'git';
-                const key = 'git';
-                if (_.isEmpty(context.git)) {
-                    Validator._addError(Validator._buildError({
-                        message: 'Not found any git integration',
-                        name,
-                        yaml,
-                        type: ErrorType.Error,
-                        docsLink: _.get(IntegrationLinks, step.type),
-                        errorPath,
-                        actionItems: 'Please add git integration'
-                    }));
-                } else if (step.git) {
-                    if (step.git.includes('.')) {
-                        Validator._addError(Validator._buildError({
-                            message: 'Found git template',
-                            name,
-                            yaml,
-                            type: ErrorType.Warning,
-                            docsLink: _.get(IntegrationLinks, step.type),
-                            errorPath,
-                            actionItems: 'Please make sure that the expression will match a valid interpolation',
-                            key
-                        }));
-                    } else if (!_.some(context.git, (obj) => { return obj.metadata.name === step.git; })) {
-                        Validator._addError(Validator._buildError({
-                            message: `Not found git integration with name ${step.git}`,
-                            name,
-                            yaml,
-                            type: ErrorType.Error,
-                            docsLink: _.get(IntegrationLinks, step.type),
-                            errorPath,
-                            actionItems: 'Please add git integration',
-                            key
-                        }));
-                    }
-                } else if (!step.git && context.git.length > 1) {
-                    Validator._addError(Validator._buildError({
-                        message: 'Found more then one git integration',
-                        name,
-                        yaml,
-                        type: ErrorType.Warning,
-                        docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                        errorPath,
-                        actionItems: 'Please specify git field'
-                    }));
-                }
-            }
-            if (step.type === 'deploy') {
-                const errorPath = 'cluster';
-                const key = 'cluster';
-                if (_.isEmpty(context.clusters)) {
-                    Validator._addError(Validator._buildError({
-                        message: 'Not found any cluster',
-                        name,
-                        yaml,
-                        type: ErrorType.Error,
-                        docsLink: _.get(IntegrationLinks, step.type),
-                        errorPath,
-                        actionItems: 'Please add cluster'
-                    }));
-                } else if (step.cluster) {
-                    if (step.cluster.includes('.')) {
-                        Validator._addError(Validator._buildError({
-                            message: 'Found cluster template',
-                            name,
-                            yaml,
-                            type: ErrorType.Warning,
-                            docsLink: _.get(IntegrationLinks, step.type),
-                            errorPath,
-                            actionItems: 'Please make sure that the expression will match a valid interpolation',
-                            key
-                        }));
-                    } else if (!_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
-                        Validator._addError(Validator._buildError({
-                            message: `Not found cluster with name ${step.cluster}`,
-                            name,
-                            yaml,
-                            type: ErrorType.Error,
-                            docsLink: _.get(IntegrationLinks, step.type),
-                            errorPath,
-                            actionItems: 'Please add cluster',
-                            key
-                        }));
-                    }
-                } else if (!step.cluster && context.clusters.length > 1) {
-                    Validator._addError(Validator._buildError({
-                        message: 'Found more then one clusters',
-                        name,
-                        yaml,
-                        type: ErrorType.Warning,
-                        docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                        errorPath,
-                        actionItems: 'Please specify cluster field'
-                    }));
-                }
-            }
-            if (step.type === 'push') {
-                const errorPath = 'registry';
-                const key = 'registry';
-                if (_.isEmpty(context.registries)) {
-                    Validator._addError(Validator._buildError({
-                        message: 'Not found any registry',
-                        name,
-                        yaml,
-                        type: ErrorType.Error,
-                        docsLink: _.get(IntegrationLinks, step.type),
-                        errorPath,
-                        actionItems: 'Please add registry'
-                    }));
-                } else if (step.registry) {
-                    if (step.registry.includes('.')) {
-                        Validator._addError(Validator._buildError({
-                            message: 'Found registry template',
-                            name,
-                            yaml,
-                            type: ErrorType.Warning,
-                            docsLink: _.get(IntegrationLinks, step.type),
-                            errorPath,
-                            actionItems: 'Please make sure that the expression will match a valid interpolation',
-                            key
-                        }));
-                    } else if (!_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
-                        Validator._addError(Validator._buildError({
-                            message: `Not found registry with name ${step.registry}`,
-                            name,
-                            yaml,
-                            type: ErrorType.Error,
-                            docsLink: _.get(IntegrationLinks, step.type),
-                            errorPath,
-                            actionItems: 'Please add registry',
-                            key
-                        }));
-                    }
-                } else if (!step.registry && context.registries.length > 1) {
-                    Validator._addError(Validator._buildError({
-                        message: 'Found more then one registry',
-                        name,
-                        yaml,
-                        type: ErrorType.Warning,
-                        docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                        errorPath,
-                        actionItems: 'Please specify registry field'
-                    }));
-                }
+            const validation = _.get(StepValidator, step.type);
+            if (validation) {
+                const { errors, warnings } = validation.validateStep(step, yaml, name, context);
+                errors.forEach(error => Validator._addError(error));
+                warnings.forEach(warning => Validator._addError(warning));
             }
             if (step.type === 'parallel' || step.steps) {
                 this._validateContextStep(step, yaml, context);
             }
-
 
         });
     }
@@ -650,15 +444,16 @@ class Validator {
                 error.isJoi = true;
                 error.details = [
                     {
-                        message: `Mix of tabs and spaces`,
+                        message: `Your YAML contains both spaces and tabs`,
                         type: ErrorType.Error,
                         path: 'indention',
+                        code: 600,
                         context: {
                             key: 'indention',
                         },
                         level: 'workflow',
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                        actionItems: `Please remove all mixed tabs and spaces`,
+                        actionItems: `Please remove all tabs with spaces`,
                         lines: number
                     },
                 ];

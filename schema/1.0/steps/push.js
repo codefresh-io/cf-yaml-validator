@@ -7,9 +7,11 @@
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-
+const _ = require('lodash');
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
+const { ErrorType, ErrorBuilder } = require('./../error-builder');
+const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links');
 
 class Push extends BaseSchema {
 
@@ -39,6 +41,59 @@ class Push extends BaseSchema {
         };
 
         return this._createSchema(pushTagsProperties);
+    }
+
+    static validateStep(step, yaml, name, context) {
+        const errorPath = 'registry';
+        const key = 'registry';
+        const errors = [];
+        const warnings = [];
+        if (_.isEmpty(context.registries)) {
+            errors.push(ErrorBuilder.buildError({
+                message: 'You have not added your Registry integration. Add Registry registry',
+                name,
+                yaml,
+                type: ErrorType.Error,
+                code: 200,
+                docsLink: _.get(IntegrationLinks, step.type),
+                errorPath,
+            }));
+        } else if (step.registry) {
+            if (step.registry.includes('.')) {
+                warnings.push(ErrorBuilder.buildError({
+                    message: 'Your Registry Integration uses a variable that is not configured and will fail without defining it',
+                    name,
+                    yaml,
+                    code: 201,
+                    type: ErrorType.Warning,
+                    docsLink: _.get(IntegrationLinks, step.type),
+                    errorPath,
+                    key
+                }));
+            } else if (!_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
+                errors.push(ErrorBuilder.buildError({
+                    message: `Registry ${step.registry} does not exist`,
+                    name,
+                    yaml,
+                    code: 202,
+                    type: ErrorType.Error,
+                    docsLink: _.get(IntegrationLinks, step.type),
+                    errorPath,
+                    key
+                }));
+            }
+        } else if (!step.registry && context.registries.length > 1) {
+            warnings.push(ErrorBuilder.buildError({
+                message: `You are using your default Registry Integration '${name}'`,
+                name,
+                yaml,
+                code: 203,
+                type: ErrorType.Warning,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+            }));
+        }
+        return { errors, warnings };
     }
 }
 // Exported objects/methods

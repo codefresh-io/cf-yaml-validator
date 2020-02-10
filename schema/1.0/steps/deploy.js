@@ -7,9 +7,11 @@
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-
+const _ = require('lodash');
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
+const { ErrorType, ErrorBuilder } = require('./../error-builder');
+const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links');
 
 class Deploy extends BaseSchema {
 
@@ -40,6 +42,59 @@ class Deploy extends BaseSchema {
             })
         };
         return this._createSchema(deployProperties).unknown();
+    }
+
+    static validateStep(step, yaml, name, context) {
+        const errorPath = 'cluster';
+        const key = 'cluster';
+        const errors = [];
+        const warnings = [];
+        if (_.isEmpty(context.clusters)) {
+            errors.push(ErrorBuilder.buildError({
+                message: 'You have not added your Cluster integration. Add Cluster',
+                name,
+                yaml,
+                code: 300,
+                type: ErrorType.Error,
+                docsLink: _.get(IntegrationLinks, step.type),
+                errorPath,
+            }));
+        } else if (step.cluster) {
+            if (step.cluster.includes('.')) {
+                warnings.push(ErrorBuilder.buildError({
+                    message: 'Your Cluster Integration uses a variable that is not configured and will fail without defining it',
+                    name,
+                    yaml,
+                    code: 301,
+                    type: ErrorType.Warning,
+                    docsLink: _.get(IntegrationLinks, step.type),
+                    errorPath,
+                    key
+                }));
+            } else if (!_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
+                errors.push(ErrorBuilder.buildError({
+                    message: `Cluster ${step.cluster} does not exist`,
+                    name,
+                    yaml,
+                    code: 302,
+                    type: ErrorType.Error,
+                    docsLink: _.get(IntegrationLinks, step.type),
+                    errorPath,
+                    key
+                }));
+            }
+        } else if (!step.cluster && context.clusters.length > 1) {
+            warnings.push(ErrorBuilder.buildError({
+                message: `You are using your default Cluster Integration '${name}'`,
+                name,
+                yaml,
+                code: 303,
+                type: ErrorType.Warning,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+            }));
+        }
+        return { errors, warnings };
     }
 
 }
