@@ -75,7 +75,7 @@ class Deploy extends BaseSchema {
                 }
             } else if (!_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Cluster ${step.cluster} does not exist.`,
+                    message: `Cluster '${step.cluster}' does not exist.`,
                     name,
                     yaml,
                     code: 302,
@@ -87,7 +87,7 @@ class Deploy extends BaseSchema {
             }
         } else if (!step.cluster && context.clusters.length > 1) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Cluster Integration '${name}.\
+                message: `You are using your default Cluster Integration '${name}'.\
  You have additional integrations configured which can be used if defined explicitly.'`,
                 name,
                 yaml,

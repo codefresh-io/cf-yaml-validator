@@ -74,7 +74,7 @@ class Push extends BaseSchema {
                 }
             } else if (!_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Registry ${step.registry} does not exist.`,
+                    message: `Registry '${step.registry}' does not exist.`,
                     name,
                     yaml,
                     code: 202,

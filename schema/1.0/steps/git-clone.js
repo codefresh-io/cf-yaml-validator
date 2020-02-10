@@ -83,7 +83,7 @@ class GitClone extends BaseSchema {
             }
         } else if (!step.git && context.git.length > 1) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Git Integration '${name}.\
+                message: `You are using your default Git Integration '${name}'.\
  You have additional integrations configured which can be used if defined explicitly.'`,
                 name,
                 yaml,
