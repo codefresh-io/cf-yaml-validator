@@ -20,12 +20,13 @@ const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
-const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./documentation-links');
+const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
 const GitClone = require('./steps/git-clone');
 const Deploy = require('./steps/deploy');
 const Push = require('./steps/push');
 
 let totalErrors;
+let totalWarnings;
 
 const MaxStepLength = 150;
 
@@ -44,6 +45,10 @@ class Validator {
     static _throwValidationErrorAccordingToFormat(outputFormat) {
         Validator._sortErrorAccordingLineNumber();
         const err = new ValidatorError(totalErrors);
+        if(totalWarnings){
+            Validator._sortWarningAccordingLineNumber();
+            err.warningDetails = totalWarnings.details;
+        }
         switch (outputFormat) {
             case 'printify':
                 Validator._printify(err);
@@ -62,6 +67,14 @@ class Validator {
 
     static _addError(error) {
         totalErrors.details = _.concat(totalErrors.details, error.details);
+    }
+
+    static _addWarning(warning) {
+        totalWarnings.details = _.concat(totalWarnings.details, warning.details);
+    }
+
+    static _sortWarningAccordingLineNumber() {
+        totalWarnings.details = _.sortBy(totalWarnings.details, [error => error.lines]);
     }
 
     static _sortErrorAccordingLineNumber() {
@@ -426,7 +439,7 @@ class Validator {
             if (validation) {
                 const { errors, warnings } = validation.validateStep(step, yaml, name, context);
                 errors.forEach(error => Validator._addError(error));
-                warnings.forEach(warning => Validator._addError(warning));
+                warnings.forEach(warning => Validator._addWarning(warning));
             }
             if (step.type === 'parallel' || step.steps) {
                 this._validateContextStep(step, yaml, context);
@@ -447,7 +460,7 @@ class Validator {
                         message: `Your YAML contains both spaces and tabs`,
                         type: ErrorType.Error,
                         path: 'indention',
-                        code: 600,
+                        code: 400,
                         context: {
                             key: 'indention',
                         },
@@ -504,13 +517,16 @@ class Validator {
         totalErrors = {
             details: [],
         };
+        totalWarnings = {
+            details: [],
+        };
         Validator._validateIndention(yaml, outputFormat);
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateContextStep(objectModel, yaml, context);
-        if (_.size(totalErrors.details) > 0) {
+        if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
     }
