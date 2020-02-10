@@ -50,7 +50,7 @@ class Push extends BaseSchema {
         const warnings = [];
         if (_.isEmpty(context.registries)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Registry integration. Add Registry registry',
+                message: 'You have not added your Registry integration. Add Registry registry.',
                 name,
                 yaml,
                 type: ErrorType.Error,
@@ -59,20 +59,22 @@ class Push extends BaseSchema {
                 errorPath,
             }));
         } else if (step.registry) {
-            if (step.registry.includes('.')) {
-                warnings.push(ErrorBuilder.buildError({
-                    message: 'Your Registry Integration uses a variable that is not configured and will fail without defining it',
-                    name,
-                    yaml,
-                    code: 201,
-                    type: ErrorType.Warning,
-                    docsLink: _.get(IntegrationLinks, step.type),
-                    errorPath,
-                    key
-                }));
+            if (step.registry.match('^(\\$\\{\\{).*(\\}\\})')) {
+                if (!_.has(context.variables, step.registry.substring(3, step.registry.length - 2))) {
+                    warnings.push(ErrorBuilder.buildError({
+                        message: 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
+                        name,
+                        yaml,
+                        code: 201,
+                        type: ErrorType.Warning,
+                        docsLink: _.get(IntegrationLinks, step.type),
+                        errorPath,
+                        key
+                    }));
+                }
             } else if (!_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Registry ${step.registry} does not exist`,
+                    message: `Registry ${step.registry} does not exist.`,
                     name,
                     yaml,
                     code: 202,
@@ -84,7 +86,8 @@ class Push extends BaseSchema {
             }
         } else if (!step.registry && context.registries.length > 1) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Registry Integration '${name}'`,
+                message: `You are using your default Registry Integration '${name}'.\
+ You have additional integrations configured which can be used if defined explicitly.`,
                 name,
                 yaml,
                 code: 203,

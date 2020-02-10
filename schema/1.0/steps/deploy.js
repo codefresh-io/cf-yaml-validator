@@ -51,7 +51,7 @@ class Deploy extends BaseSchema {
         const warnings = [];
         if (_.isEmpty(context.clusters)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Cluster integration. Add Cluster',
+                message: 'You have not added your Cluster integration. Add Cluster.',
                 name,
                 yaml,
                 code: 300,
@@ -60,20 +60,22 @@ class Deploy extends BaseSchema {
                 errorPath,
             }));
         } else if (step.cluster) {
-            if (step.cluster.includes('.')) {
-                warnings.push(ErrorBuilder.buildError({
-                    message: 'Your Cluster Integration uses a variable that is not configured and will fail without defining it',
-                    name,
-                    yaml,
-                    code: 301,
-                    type: ErrorType.Warning,
-                    docsLink: _.get(IntegrationLinks, step.type),
-                    errorPath,
-                    key
-                }));
+            if (step.cluster.match('^(\\$\\{\\{).*(\\}\\})')) {
+                if (!_.has(context.variables, step.cluster.substring(3, step.cluster.length - 2))) {
+                    warnings.push(ErrorBuilder.buildError({
+                        message: 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
+                        name,
+                        yaml,
+                        code: 301,
+                        type: ErrorType.Warning,
+                        docsLink: _.get(IntegrationLinks, step.type),
+                        errorPath,
+                        key
+                    }));
+                }
             } else if (!_.some(context.clusters, (obj) => { return obj.selector === step.cluster; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Cluster ${step.cluster} does not exist`,
+                    message: `Cluster ${step.cluster} does not exist.`,
                     name,
                     yaml,
                     code: 302,
@@ -85,7 +87,8 @@ class Deploy extends BaseSchema {
             }
         } else if (!step.cluster && context.clusters.length > 1) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Cluster Integration '${name}'`,
+                message: `You are using your default Cluster Integration '${name}.\
+ You have additional integrations configured which can be used if defined explicitly.'`,
                 name,
                 yaml,
                 code: 303,

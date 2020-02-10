@@ -457,7 +457,7 @@ class Validator {
                 error.isJoi = true;
                 error.details = [
                     {
-                        message: `Your YAML contains both spaces and tabs`,
+                        message: `Your YAML contains both spaces and tabs. Please remove all tabs with spaces.`,
                         type: ErrorType.Error,
                         path: 'indention',
                         code: 400,
@@ -466,7 +466,6 @@ class Validator {
                         },
                         level: 'workflow',
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                        actionItems: `Please remove all tabs with spaces`,
                         lines: number
                     },
                 ];
