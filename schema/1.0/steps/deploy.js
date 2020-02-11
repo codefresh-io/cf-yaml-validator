@@ -60,8 +60,8 @@ class Deploy extends BaseSchema {
                 errorPath,
             }));
         } else if (step.cluster) {
-            if (step.cluster.match('^(\\$\\{\\{).*(\\}\\})')) {
-                if (!_.has(context.variables, step.cluster.substring(3, step.cluster.length - 2))) {
+            if (BaseSchema.isRuntimeVariable(step.cluster)) {
+                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.cluster)) {
                     warnings.push(ErrorBuilder.buildError({
                         message: 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
                         name,

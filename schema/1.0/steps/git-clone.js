@@ -56,8 +56,8 @@ class GitClone extends BaseSchema {
                 errorPath,
             }));
         } else if (step.git) {
-            if (step.git.match('^(\\$\\{\\{).*(\\}\\})')) {
-                if (!_.has(context.variables, step.git.substring(3, step.git.length - 2))) {
+            if (BaseSchema.isRuntimeVariable(step.git)) {
+                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.git)) {
                     warnings.push(ErrorBuilder.buildError({
                         message: 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
                         name,

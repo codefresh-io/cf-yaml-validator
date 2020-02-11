@@ -45,7 +45,7 @@ class Validator {
     static _throwValidationErrorAccordingToFormat(outputFormat) {
         Validator._sortErrorAccordingLineNumber();
         const err = new ValidatorError(totalErrors);
-        if(totalWarnings){
+        if (totalWarnings) {
             Validator._sortWarningAccordingLineNumber();
             err.warningDetails = totalWarnings.details;
         }

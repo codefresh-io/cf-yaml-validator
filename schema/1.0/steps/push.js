@@ -59,8 +59,8 @@ class Push extends BaseSchema {
                 errorPath,
             }));
         } else if (step.registry) {
-            if (step.registry.match('^(\\$\\{\\{).*(\\}\\})')) {
-                if (!_.has(context.variables, step.registry.substring(3, step.registry.length - 2))) {
+            if (BaseSchema.isRuntimeVariable(step.registry)) {
+                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.registry)) {
                     warnings.push(ErrorBuilder.buildError({
                         message: 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
                         name,
