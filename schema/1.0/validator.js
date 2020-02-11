@@ -457,7 +457,7 @@ class Validator {
                 error.isJoi = true;
                 error.details = [
                     {
-                        message: `Your YAML contains both spaces and tabs. Please remove all tabs with spaces.`,
+                        message: 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
                         type: ErrorType.Error,
                         path: 'indention',
                         code: 400,
