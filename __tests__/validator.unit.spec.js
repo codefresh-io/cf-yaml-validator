@@ -4005,4 +4005,120 @@ describe('Validate Codefresh YAML with context', () => {
         validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
     });
 
+
+    it('validate yaml when integrations not found', async (done) => {
+        const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');
+        const model = {
+            version: '1.0',
+            steps: {
+                main_clone: {
+                    type: 'git-clone',
+                    description: 'Cloning main repository...',
+                    repo: 'codefresh/test',
+                    revision: '${{CF_BRANCH}}'
+                },
+                push: {
+                    title: 'Pushing image to cfcr',
+                    type: 'push',
+                    image_name: 'codefresh/test',
+                    candidate: '${{build}}',
+                    tags: [
+                        '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        '${{CF_REVISION}}']
+                },
+                deploy: {
+                    title: 'deploying to cluster',
+                    type: 'deploy',
+                    kind: 'kubernetes',
+                    service: 'kubernetes',
+                    namespace: 'default',
+                    arguments: {
+                        image: '${{build}}',
+                        registry: 'cfcr',
+                        commands:
+                            ['cf-deploy-kubernetes deployment.yml']
+                    }
+                }
+            }
+        };
+        const expectedMessage = [
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 3,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 4,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 5,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 6,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 7,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            }
+        ];
+        const expectedWarning = [];
+        const context = {
+            git: [
+                { metadata: { name: 'git' } },
+                { metadata: { name: 'git2' } }
+            ],
+            registries: [
+                { name: 'reg' }, { name: 'reg2' }
+            ],
+            clusters: [
+                { selector: 'cluster' }, { selector: 'cluster2' }
+            ],
+            variables: []
+        };
+        validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
+    });
+
+
 });
