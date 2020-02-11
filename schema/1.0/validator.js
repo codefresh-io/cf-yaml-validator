@@ -19,20 +19,22 @@ const Table = require('cli-table3');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
+const { ErrorType, ErrorBuilder } = require('./error-builder');
+const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
+const GitClone = require('./steps/git-clone');
+const Deploy = require('./steps/deploy');
+const Push = require('./steps/push');
 
 let totalErrors;
-const docBaseUrl = process.env.DOCS_BASE_URL || 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
-const DocumentationLinks = {
-    'freestyle': `${docBaseUrl}/freestyle/`,
-    'build': `${docBaseUrl}/build/`,
-    'push': `${docBaseUrl}/push/`,
-    'deploy': `${docBaseUrl}/deploy/`,
-    'git-clone': `${docBaseUrl}/git-clone/`,
-    'launch-composition': `${docBaseUrl}/launch-composition/`,
-    'pending-approval': `${docBaseUrl}/approval/`,
-};
+let totalWarnings;
 
 const MaxStepLength = 150;
+
+const StepValidator = {
+    'git-clone': GitClone,
+    'deploy': Deploy,
+    'push': Push
+};
 
 class Validator {
 
@@ -43,6 +45,10 @@ class Validator {
     static _throwValidationErrorAccordingToFormat(outputFormat) {
         Validator._sortErrorAccordingLineNumber();
         const err = new ValidatorError(totalErrors);
+        if (totalWarnings) {
+            Validator._sortWarningAccordingLineNumber();
+            err.warningDetails = totalWarnings.details;
+        }
         switch (outputFormat) {
             case 'printify':
                 Validator._printify(err);
@@ -58,39 +64,17 @@ class Validator {
         }
     }
 
-    static _getErrorLineNumber({ yaml, stepName, key }) {
-        if (!yaml) {
-            return;
-        }
-        const requireStepValidation = !!stepName;
-        const requireKeyValidation = !!key;
-        let errorLine = 0;
-        if (!requireStepValidation && !requireStepValidation) {
-            return errorLine; // eslint-disable-line
-        }
-        let stepFound = false;
-        const stepNameRegex = new RegExp(`${stepName}:`, 'g');
-        const keyRegex = new RegExp(`${key}:`, 'g');
-        const yamlArray = yaml.split('\n');
-
-        _.forEach(yamlArray, (line, number) => { // eslint-disable-line
-            if (requireStepValidation && stepNameRegex.exec(line)) {
-                errorLine = number + 1;
-                if (!requireKeyValidation) {
-                    return false;
-                }
-                stepFound = true;
-            }
-            if ((!requireStepValidation || stepFound) && keyRegex.exec(line)) {
-                errorLine = number + 1;
-                return false;
-            }
-        });
-        return errorLine; // eslint-disable-line
-    }
 
     static _addError(error) {
         totalErrors.details = _.concat(totalErrors.details, error.details);
+    }
+
+    static _addWarning(warning) {
+        totalWarnings.details = _.concat(totalWarnings.details, warning.details);
+    }
+
+    static _sortWarningAccordingLineNumber() {
+        totalWarnings.details = _.sortBy(totalWarnings.details, [error => error.lines]);
     }
 
     static _sortErrorAccordingLineNumber() {
@@ -207,7 +191,7 @@ class Validator {
                         stepName,
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
                         actionItems: `Please shoten name for ${stepName} steps`,
-                        lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                        lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
                     },
                 ]
             });
@@ -239,7 +223,7 @@ class Validator {
                         stepName,
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
                         actionItems: `Please rename ${stepName} steps`,
-                        lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                        lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
                     },
                 ];
 
@@ -292,7 +276,7 @@ class Validator {
                         level: 'workflow',
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                         actionItems: `Please make sure you have all the required fields`,
-                        lines: Validator._getErrorLineNumber({ yaml, key: err.path }),
+                        lines: ErrorBuilder.getErrorLineNumber({ yaml, key: err.path }),
                     },
                 ];
 
@@ -361,7 +345,7 @@ class Validator {
                                     stepName,
                                     docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
                                     actionItems: `Please change the type of the sub step`,
-                                    lines: Validator._getErrorLineNumber({ yaml, stepName }),
+                                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
                                 },
                             ];
                             Validator._addError(error);
@@ -382,7 +366,7 @@ class Validator {
                             level: 'workflow',
                             docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                             actionItems: `Please make sure you have all the required fields`,
-                            lines: Validator._getErrorLineNumber({ yaml }),
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml }),
                         },
                     ];
                     Validator._addError(error);
@@ -435,7 +419,7 @@ class Validator {
                             stepName,
                             docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
                             actionItems: `Please make sure you have all the required fields and valid values`,
-                            lines: Validator._getErrorLineNumber({ yaml, stepName, key: err.path }),
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
                         },
                     ];
 
@@ -444,6 +428,54 @@ class Validator {
 
 
             }
+        }
+    }
+
+
+    static _validateContextStep(objectModel, yaml, context) {
+        _.forEach(objectModel.steps, (s, name) => {
+            const step = _.cloneDeep(s);
+            const validation = _.get(StepValidator, step.type);
+            if (validation) {
+                const { errors, warnings } = validation.validateStep(step, yaml, name, context);
+                errors.forEach(error => Validator._addError(error));
+                warnings.forEach(warning => Validator._addWarning(warning));
+            }
+            if (step.type === 'parallel' || step.steps) {
+                this._validateContextStep(step, yaml, context);
+            }
+
+        });
+    }
+
+    static _validateIndention(yaml, outputFormat) {
+        const yamlArray = yaml.split('\n');
+        _.forEach(yamlArray, (line, number) => {
+            if (line.match('(\\t+\\s+|\\s+\\t+)')) {
+                const error = new Error('Mix of tabs and spaces');
+                error.name = 'ValidationError';
+                error.isJoi = true;
+                error.details = [
+                    {
+                        message: 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                        type: ErrorType.Error,
+                        path: 'indention',
+                        code: 400,
+                        context: {
+                            key: 'indention',
+                        },
+                        level: 'workflow',
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        lines: number
+                    },
+                ];
+                Validator._addError(error);
+            }
+
+        });
+        if (_.size(totalErrors.details) > 0) {
+            // throw error because when pipeline have a mix of tabs and spaces it not pass other validation
+            Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
     }
 
@@ -467,6 +499,33 @@ class Validator {
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
+            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+        }
+    }
+
+    /**
+     * Validates a model of the deserialized YAML
+     *
+     * @param objectModel Deserialized YAML
+     * @param outputFormat desire output format YAML
+     * @param yaml as string
+     * @param context by account with git, clusters and registries
+     * @throws An error containing the details of the validation failure
+     */
+    static validateWithContext(objectModel, outputFormat = 'message', yaml, context, opts) {
+        totalErrors = {
+            details: [],
+        };
+        totalWarnings = {
+            details: [],
+        };
+        Validator._validateIndention(yaml, outputFormat);
+        Validator._validateUniqueStepNames(objectModel, yaml);
+        Validator._validateStepsLength(objectModel, yaml);
+        Validator._validateRootSchema(objectModel, yaml);
+        Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateContextStep(objectModel, yaml, context);
+        if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
     }

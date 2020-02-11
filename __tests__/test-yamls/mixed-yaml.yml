@@ -1,0 +1,8 @@
+version: "1.0"
+steps:
+  main_clone:
+  	  type: "git-clone"
+  	  description: "Cloning main repository..."
+  	  repo: "codefresh/test"
+  	  revision: "${{CF_BRANCH}}"
+  	  git: "github"

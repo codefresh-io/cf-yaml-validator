@@ -31,6 +31,11 @@ class Validator {
         return Validator._getValidator(version).validate(objectModel, outputFormat, yaml, opts);
     }
 
+    static validateWithContext(objectModel, outputFormat, yaml, context, opts) {
+        const version = _.get(objectModel, 'version');
+        return Validator._getValidator(version).validateWithContext(objectModel, outputFormat, yaml, context, opts);
+    }
+
     static getJsonSchemas(version) {
         return Validator._getValidator(version).getJsonSchemas();
     }

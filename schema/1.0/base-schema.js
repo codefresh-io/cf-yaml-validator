@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
-
+const _ = require('lodash');
 const Joi = require('joi');
 const convert = require('joi-to-json-schema');
 
@@ -306,6 +306,14 @@ class BaseSchema {
             ],
             condition: BaseSchema.getConditionSchema(),
         });
+    }
+
+    static isRuntimeVariable(step) {
+        return step.match('^(\\$\\{\\{).*(\\}\\})');
+    }
+
+    static isRuntimeVariablesNotContainsStepVariable(variables, step) {
+        return !_.has(variables, step.substring(3, step.length - 2));
     }
 }
 // Exported objects/methods

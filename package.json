@@ -17,11 +17,11 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.10.1",
+  "version": "0.10.2",
   "main": "./validator.js",
   "scripts": {
     "test": "jest --coverage --runInBand",
-    "eslint": "eslint schema/** __tests__/** validator.js validator-error.js",
+    "eslint": "eslint schema/** __tests__/**/*.js validator.js validator-error.js",
     "ci-publish": "ci-publish"
   },
   "dependencies": {

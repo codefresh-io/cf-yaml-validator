@@ -5,6 +5,8 @@
 
 const _ = require('lodash');
 const chai = require('chai');
+const fs = require('fs');
+const path = require('path');
 
 const { expect }    = chai;
 const sinonChai = require('sinon-chai');
@@ -15,6 +17,22 @@ const Validator = require('../validator');
 
 function validate(model, outputFormat, yaml) {
     return Validator.validate(model, outputFormat, yaml);
+}
+
+function validateWithContext(model, outputFormat, yaml, context) {
+    return Validator.validateWithContext(model, outputFormat, yaml, context);
+}
+
+function validateForErrorWithContext(model, expectedError, expectedWarning, done, outputFormat = 'message', yaml, context) {
+    try {
+        validateWithContext(model, outputFormat, yaml, context);
+    } catch (e) {
+        if (outputFormat === 'message') {
+            expect(e.details).to.deep.equal(expectedError);
+            expect(e.warningDetails).deep.equal(expectedWarning);
+        }
+        done();
+    }
 }
 
 function validateForError(model, expectedMessage, done, outputFormat = 'message', yaml) {
@@ -3700,4 +3718,407 @@ describe('Validate Codefresh YAML', () => {
         });
 
     });
+});
+
+describe('Validate Codefresh YAML with context', () => {
+    const currentPath = './__tests__/';
+    it('validate yaml with template', async (done) => {
+        const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
+        const model = {
+            version: '1.0',
+            steps: {
+                main_clone: {
+                    type: 'git-clone',
+                    description: 'Cloning main repository...',
+                    repo: 'codefresh/test',
+                    revision: '${{CF_BRANCH}}',
+                    git: '${{github}}'
+                },
+                push: {
+                    title: 'Pushing image to cfcr',
+                    type: 'push',
+                    image_name: 'codefresh/test',
+                    registry: '${{cfcr}}',
+                    candidate: '${{build}}',
+                    tags: [
+                        '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        '${{CF_REVISION}}']
+                },
+                deploy: {
+                    title: 'deploying to cluster',
+                    type: 'deploy',
+                    kind: 'kubernetes',
+                    service: 'kubernetes',
+                    cluster: '${{test-cluster}}',
+                    namespace: 'default',
+                    arguments: {
+                        image: '${{build}}',
+                        registry: 'cfcr',
+                        commands:
+                            ['cf-deploy-kubernetes deployment.yml']
+                    }
+                }
+            }
+        };
+        const expectedMessage = [];
+        const expectedWarning = [
+            {
+                'code': 101,
+                'context': {
+                    'key': 'git'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
+                'level': 'workflow',
+                'lines': 8,
+                'message': 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
+                'name': 'main_clone',
+                'path': 'git',
+                'type': 'Warning'
+            },
+            {
+                'code': 201,
+                'context': {
+                    'key': 'registry'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                'level': 'workflow',
+                'lines': 13,
+                'message': 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
+                'name': 'push',
+                'path': 'registry',
+                'type': 'Warning'
+            },
+            {
+                'code': 301,
+                'context': {
+                    'key': 'cluster'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                'level': 'workflow',
+                'lines': 23,
+                'message': 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
+                'name': 'deploy',
+                'path': 'cluster',
+                'type': 'Warning'
+            }
+        ];
+        const context = {
+            git: [{ metadata: { name: 'git' } }], registries: [{ name: 'reg' }], clusters: [{ selector: 'cluster' }], variables: []
+        };
+        validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
+    });
+
+    it('validate yaml when integrations not found', async (done) => {
+        const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/default-yaml.yml'), 'utf8');
+        const model = {
+            version: '1.0',
+            steps: {
+                main_clone: {
+                    type: 'git-clone',
+                    description: 'Cloning main repository...',
+                    repo: 'codefresh/test',
+                    revision: '${{CF_BRANCH}}',
+                    git: 'github'
+                },
+                push: {
+                    title: 'Pushing image to cfcr',
+                    type: 'push',
+                    image_name: 'codefresh/test',
+                    registry: 'cfcr',
+                    candidate: '${{build}}',
+                    tags: [
+                        '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        '${{CF_REVISION}}']
+                },
+                deploy: {
+                    title: 'deploying to cluster',
+                    type: 'deploy',
+                    kind: 'kubernetes',
+                    service: 'kubernetes',
+                    cluster: 'test-cluster',
+                    namespace: 'default',
+                    arguments: {
+                        image: '${{build}}',
+                        registry: 'cfcr',
+                        commands:
+                            ['cf-deploy-kubernetes deployment.yml']
+                    }
+                }
+            }
+        };
+        const expectedMessage = [
+            {
+                'code': 100,
+                'context': {
+                    'key': 'git'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
+                'level': 'workflow',
+                'lines': 3,
+                'message': 'You have not added your Git integration. Add Git.',
+                'name': 'main_clone',
+                'path': 'git',
+                'type': 'Error'
+            },
+            {
+                'code': 200,
+                'context': {
+                    'key': 'registry'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                'level': 'workflow',
+                'lines': 9,
+                'message': 'You have not added your Registry integration. Add Registry registry.',
+                'name': 'push',
+                'path': 'registry',
+                'type': 'Error'
+            },
+            {
+                'code': 300,
+                'context': {
+                    'key': 'cluster'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                'level': 'workflow',
+                'lines': 18,
+                'message': 'You have not added your Cluster integration. Add Cluster.',
+                'name': 'deploy',
+                'path': 'cluster',
+                'type': 'Error'
+            }
+        ];
+        const expectedWarning = [];
+        const context = {
+            git: [], registries: [], clusters: [], variables: []
+        };
+        validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
+    });
+
+
+    it('validate yaml when integrations not found', async (done) => {
+        const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
+        const model = {
+            version: '1.0',
+            steps: {
+                main_clone: {
+                    type: 'git-clone',
+                    description: 'Cloning main repository...',
+                    repo: 'codefresh/test',
+                    revision: '${{CF_BRANCH}}'
+                },
+                push: {
+                    title: 'Pushing image to cfcr',
+                    type: 'push',
+                    image_name: 'codefresh/test',
+                    candidate: '${{build}}',
+                    tags: [
+                        '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        '${{CF_REVISION}}']
+                },
+                deploy: {
+                    title: 'deploying to cluster',
+                    type: 'deploy',
+                    kind: 'kubernetes',
+                    service: 'kubernetes',
+                    namespace: 'default',
+                    arguments: {
+                        image: '${{build}}',
+                        registry: 'cfcr',
+                        commands:
+                            ['cf-deploy-kubernetes deployment.yml']
+                    }
+                }
+            }
+        };
+        const expectedMessage = [
+            {
+                'actionItems': 'Please make sure you have all the required fields and valid values',
+                'context': {
+                    'key': 'steps'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/',
+                'level': 'step',
+                'lines': 16,
+                'message': '"cluster" is required',
+                'path': 'steps',
+                'stepName': 'deploy',
+                'type': 'Validation'
+            }
+        ];
+        const expectedWarning = [
+            {
+                'code': 103,
+                'context': {
+                    'key': 'git'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/git-clone/',
+                'level': 'workflow',
+                'lines': 3,
+                'message': 'You are using your default Git Integration \'main_clone\'.'
+                + ' You have additional integrations configured which can be used if defined explicitly.\'',
+                'name': 'main_clone',
+                'path': 'git',
+                'type': 'Warning'
+            },
+            {
+                'code': 203,
+                'context': {
+                    'key': 'registry'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
+                'level': 'workflow',
+                'lines': 8,
+                'message': 'You are using your default Registry Integration \'push\'.'
+                    + ' You have additional integrations configured which can be used if defined explicitly.',
+                'name': 'push',
+                'path': 'registry',
+                'type': 'Warning'
+            },
+            {
+                'code': 303,
+                'context': {
+                    'key': 'cluster'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/',
+                'level': 'workflow',
+                'lines': 16,
+                'message': 'You are using your default Cluster Integration \'deploy\'.'
+                    + ' You have additional integrations configured which can be used if defined explicitly.\'',
+                'name': 'deploy',
+                'path': 'cluster',
+                'type': 'Warning'
+            }
+        ];
+        const context = {
+            git: [
+                { metadata: { name: 'git' } },
+                { metadata: { name: 'git2' } }
+            ],
+            registries: [
+                { name: 'reg' }, { name: 'reg2' }
+            ],
+            clusters: [
+                { selector: 'cluster' }, { selector: 'cluster2' }
+            ],
+            variables: []
+        };
+        validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
+    });
+
+
+    it('validate yaml when integrations not found', async (done) => {
+        const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');
+        const model = {
+            version: '1.0',
+            steps: {
+                main_clone: {
+                    type: 'git-clone',
+                    description: 'Cloning main repository...',
+                    repo: 'codefresh/test',
+                    revision: '${{CF_BRANCH}}'
+                },
+                push: {
+                    title: 'Pushing image to cfcr',
+                    type: 'push',
+                    image_name: 'codefresh/test',
+                    candidate: '${{build}}',
+                    tags: [
+                        '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        '${{CF_REVISION}}']
+                },
+                deploy: {
+                    title: 'deploying to cluster',
+                    type: 'deploy',
+                    kind: 'kubernetes',
+                    service: 'kubernetes',
+                    namespace: 'default',
+                    arguments: {
+                        image: '${{build}}',
+                        registry: 'cfcr',
+                        commands:
+                            ['cf-deploy-kubernetes deployment.yml']
+                    }
+                }
+            }
+        };
+        const expectedMessage = [
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 3,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 4,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 5,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 6,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            },
+            {
+                'code': 400,
+                'context': {
+                    'key': 'indention'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                'level': 'workflow',
+                'lines': 7,
+                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'path': 'indention',
+                'type': 'Error'
+            }
+        ];
+        const expectedWarning = [];
+        const context = {
+            git: [
+                { metadata: { name: 'git' } },
+                { metadata: { name: 'git2' } }
+            ],
+            registries: [
+                { name: 'reg' }, { name: 'reg2' }
+            ],
+            clusters: [
+                { selector: 'cluster' }, { selector: 'cluster2' }
+            ],
+            variables: []
+        };
+        validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
+    });
+
+
 });
