@@ -14,8 +14,8 @@ const DocumentationLinks = {
 
 const IntegrationLinks = {
     'git-clone': `https://codefresh.io/docs/docs/integrations/git-providers/`,
-    'push': `https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/`,
-    'deploy': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
+    'deploy': `https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/`,
+    'push': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
 };
 
 module.exports = { docBaseUrl, DocumentationLinks, IntegrationLinks };
