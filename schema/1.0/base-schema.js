@@ -313,7 +313,7 @@ class BaseSchema {
     }
 
     static isRuntimeVariablesNotContainsStepVariable(variables, step) {
-        return !_.has(variables, step.substring(3, step.length - 2));
+        return !_.isUndefined(variables) && !_.has(variables, step.substring(3, step.length - 2));
     }
 }
 // Exported objects/methods

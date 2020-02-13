@@ -3780,7 +3780,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'registry'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                 'level': 'workflow',
                 'lines': 13,
                 'message': 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
@@ -3793,7 +3793,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'cluster'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
                 'level': 'workflow',
                 'lines': 23,
                 'message': 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
@@ -3865,7 +3865,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'registry'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                 'level': 'workflow',
                 'lines': 9,
                 'message': 'You have not added your Registry integration. Add Registry registry.',
@@ -3878,7 +3878,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'cluster'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
                 'level': 'workflow',
                 'lines': 18,
                 'message': 'You have not added your Cluster integration. Add Cluster.',
