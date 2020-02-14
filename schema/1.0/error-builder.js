@@ -56,7 +56,7 @@ class ErrorBuilder {
                 },
                 level: 'workflow',
                 code,
-                name,
+                stepName: name,
                 docsLink,
                 lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: name, key })
             },

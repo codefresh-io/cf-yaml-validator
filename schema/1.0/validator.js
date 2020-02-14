@@ -122,7 +122,6 @@ class Validator {
     }
 
     static _lint(err) {
-        err.message = `${colors.red('\n')}`;
         const table = new Table({
             chars: {
                 'top': '',
@@ -147,11 +146,22 @@ class Validator {
             colWidths: [5, 10, 80, 80],
             wordWrap: true,
         });
-        _.forEach(totalErrors.details, (error) => {
-            table.push([error.lines, colors.red('error'), error.message, error.docsLink]);
-        });
+        if (!_.isEmpty(totalWarnings.details)) {
+            const warningTable = _.cloneDeep(table);
+            _.forEach(totalWarnings.details, (warning) => {
+                warningTable.push([warning.lines, colors.yellow('warning'), warning.message, warning.docsLink]);
+            });
+            err.message = `${colors.yellow('\n')}`;
+            err.message +=  `\n${warningTable.toString()}\n`;
+        }
 
-        err.message +=  `\n${table.toString()}\n`;
+        if (!_.isEmpty(totalErrors.details)) {
+            _.forEach(totalErrors.details, (error) => {
+                table.push([error.lines, colors.red('error'), error.message, error.docsLink]);
+            });
+            err.message = `${colors.red('\n')}`;
+            err.message +=  `\n${table.toString()}\n`;
+        }
         throw err;
     }
 
