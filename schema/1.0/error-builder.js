@@ -41,7 +41,7 @@ class ErrorBuilder {
     }
 
     static buildError({
-        message, name, yaml, type, code, docsLink, errorPath,  key
+        message, name, yaml, type, code, docsLink, errorPath,  key, actionItems
     }) {
         const error = new Error();
         error.name = 'ValidationError';
@@ -56,9 +56,10 @@ class ErrorBuilder {
                 },
                 level: 'workflow',
                 code,
-                name,
+                stepName: name,
                 docsLink,
-                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: name, key })
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: name, key }),
+                actionItems
             },
         ];
         return error;

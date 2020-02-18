@@ -51,13 +51,14 @@ class Deploy extends BaseSchema {
         const warnings = [];
         if (_.isEmpty(context.clusters)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Cluster integration. Add Cluster.',
+                message: 'You have not added your Cluster integration.',
                 name,
                 yaml,
                 code: 300,
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
+                actionItems: 'Add Cluster.'
             }));
         } else if (step.cluster) {
             if (BaseSchema.isRuntimeVariable(step.cluster)) {
@@ -87,14 +88,14 @@ class Deploy extends BaseSchema {
             }
         } else if (!step.cluster && context.clusters.length > 1) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Cluster Integration '${name}'.\
- You have additional integrations configured which can be used if defined explicitly.'`,
+                message: `You are using your default Cluster Integration.`,
                 name,
                 yaml,
                 code: 303,
                 type: ErrorType.Warning,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
+                actionItems: 'You have additional integrations configured which can be used if defined explicitly.',
             }));
         }
         return { errors, warnings };

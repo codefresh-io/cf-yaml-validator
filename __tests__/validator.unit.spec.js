@@ -3763,6 +3763,7 @@ describe('Validate Codefresh YAML with context', () => {
         const expectedMessage = [];
         const expectedWarning = [
             {
+                'actionItems': undefined,
                 'code': 101,
                 'context': {
                     'key': 'git'
@@ -3771,11 +3772,12 @@ describe('Validate Codefresh YAML with context', () => {
                 'level': 'workflow',
                 'lines': 8,
                 'message': 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
-                'name': 'main_clone',
                 'path': 'git',
+                'stepName': 'main_clone',
                 'type': 'Warning'
             },
             {
+                'actionItems': undefined,
                 'code': 201,
                 'context': {
                     'key': 'registry'
@@ -3784,11 +3786,12 @@ describe('Validate Codefresh YAML with context', () => {
                 'level': 'workflow',
                 'lines': 13,
                 'message': 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
-                'name': 'push',
                 'path': 'registry',
+                'stepName': 'push',
                 'type': 'Warning'
             },
             {
+                'actionItems': undefined,
                 'code': 301,
                 'context': {
                     'key': 'cluster'
@@ -3797,8 +3800,8 @@ describe('Validate Codefresh YAML with context', () => {
                 'level': 'workflow',
                 'lines': 23,
                 'message': 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
-                'name': 'deploy',
                 'path': 'cluster',
+                'stepName': 'deploy',
                 'type': 'Warning'
             }
         ];
@@ -3848,6 +3851,7 @@ describe('Validate Codefresh YAML with context', () => {
         };
         const expectedMessage = [
             {
+                'actionItems': 'Add Git.',
                 'code': 100,
                 'context': {
                     'key': 'git'
@@ -3855,12 +3859,13 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
                 'level': 'workflow',
                 'lines': 3,
-                'message': 'You have not added your Git integration. Add Git.',
-                'name': 'main_clone',
+                'message': 'You have not added your Git integration.',
                 'path': 'git',
+                'stepName': 'main_clone',
                 'type': 'Error'
             },
             {
+                'actionItems': 'Add Registry registry.',
                 'code': 200,
                 'context': {
                     'key': 'registry'
@@ -3868,12 +3873,13 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                 'level': 'workflow',
                 'lines': 9,
-                'message': 'You have not added your Registry integration. Add Registry registry.',
-                'name': 'push',
+                'message': 'You have not added your Registry integration.',
                 'path': 'registry',
+                'stepName': 'push',
                 'type': 'Error'
             },
             {
+                'actionItems': 'Add Cluster.',
                 'code': 300,
                 'context': {
                     'key': 'cluster'
@@ -3881,9 +3887,9 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
                 'level': 'workflow',
                 'lines': 18,
-                'message': 'You have not added your Cluster integration. Add Cluster.',
-                'name': 'deploy',
+                'message': 'You have not added your Cluster integration.',
                 'path': 'cluster',
+                'stepName': 'deploy',
                 'type': 'Error'
             }
         ];
@@ -3895,7 +3901,7 @@ describe('Validate Codefresh YAML with context', () => {
     });
 
 
-    it('validate yaml when integrations not found', async (done) => {
+    it('validate yaml when integrations is empty', async (done) => {
         const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
         const model = {
             version: '1.0',
@@ -3947,6 +3953,7 @@ describe('Validate Codefresh YAML with context', () => {
         ];
         const expectedWarning = [
             {
+                'actionItems': 'You have additional integrations configured which can be used if defined explicitly.',
                 'code': 103,
                 'context': {
                     'key': 'git'
@@ -3954,13 +3961,13 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/git-clone/',
                 'level': 'workflow',
                 'lines': 3,
-                'message': 'You are using your default Git Integration \'main_clone\'.'
-                + ' You have additional integrations configured which can be used if defined explicitly.\'',
-                'name': 'main_clone',
+                'message': 'You are using your default Git Integration \'git\'.',
+                'stepName': 'main_clone',
                 'path': 'git',
                 'type': 'Warning'
             },
             {
+                'actionItems': 'You have additional integrations configured which can be used if defined explicitly.',
                 'code': 203,
                 'context': {
                     'key': 'registry'
@@ -3968,13 +3975,13 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
                 'level': 'workflow',
                 'lines': 8,
-                'message': 'You are using your default Registry Integration \'push\'.'
-                    + ' You have additional integrations configured which can be used if defined explicitly.',
-                'name': 'push',
+                'message': 'You are using your default Registry Integration \'reg2\'.',
+                'stepName': 'push',
                 'path': 'registry',
                 'type': 'Warning'
             },
             {
+                'actionItems': 'You have additional integrations configured which can be used if defined explicitly.',
                 'code': 303,
                 'context': {
                     'key': 'cluster'
@@ -3982,9 +3989,8 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/',
                 'level': 'workflow',
                 'lines': 16,
-                'message': 'You are using your default Cluster Integration \'deploy\'.'
-                    + ' You have additional integrations configured which can be used if defined explicitly.\'',
-                'name': 'deploy',
+                'message': 'You are using your default Cluster Integration.',
+                'stepName': 'deploy',
                 'path': 'cluster',
                 'type': 'Warning'
             }
@@ -3995,7 +4001,7 @@ describe('Validate Codefresh YAML with context', () => {
                 { metadata: { name: 'git2' } }
             ],
             registries: [
-                { name: 'reg' }, { name: 'reg2' }
+                { name: 'reg' }, { name: 'reg2', default: true }
             ],
             clusters: [
                 { selector: 'cluster' }, { selector: 'cluster2' }
@@ -4043,6 +4049,7 @@ describe('Validate Codefresh YAML with context', () => {
         };
         const expectedMessage = [
             {
+                'actionItems': 'Please remove all tabs with spaces.',
                 'code': 400,
                 'context': {
                     'key': 'indention'
@@ -4050,11 +4057,12 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                 'level': 'workflow',
                 'lines': 3,
-                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'message': 'Your YAML contains both spaces and tabs.',
                 'path': 'indention',
                 'type': 'Error'
             },
             {
+                'actionItems': 'Please remove all tabs with spaces.',
                 'code': 400,
                 'context': {
                     'key': 'indention'
@@ -4062,11 +4070,12 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                 'level': 'workflow',
                 'lines': 4,
-                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'message': 'Your YAML contains both spaces and tabs.',
                 'path': 'indention',
                 'type': 'Error'
             },
             {
+                'actionItems': 'Please remove all tabs with spaces.',
                 'code': 400,
                 'context': {
                     'key': 'indention'
@@ -4074,11 +4083,12 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                 'level': 'workflow',
                 'lines': 5,
-                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'message': 'Your YAML contains both spaces and tabs.',
                 'path': 'indention',
                 'type': 'Error'
             },
             {
+                'actionItems': 'Please remove all tabs with spaces.',
                 'code': 400,
                 'context': {
                     'key': 'indention'
@@ -4086,11 +4096,12 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                 'level': 'workflow',
                 'lines': 6,
-                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'message': 'Your YAML contains both spaces and tabs.',
                 'path': 'indention',
                 'type': 'Error'
             },
             {
+                'actionItems': 'Please remove all tabs with spaces.',
                 'code': 400,
                 'context': {
                     'key': 'indention'
@@ -4098,7 +4109,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                 'level': 'workflow',
                 'lines': 7,
-                'message': 'Your YAML contains both spaces and tabs. Please remove all tabs with spaces.',
+                'message': 'Your YAML contains both spaces and tabs.',
                 'path': 'indention',
                 'type': 'Error'
             }
