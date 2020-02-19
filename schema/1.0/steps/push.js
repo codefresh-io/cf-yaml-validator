@@ -43,29 +43,12 @@ class Push extends BaseSchema {
         return this._createSchema(pushTagsProperties);
     }
 
-    static _getRegistryFromStep(step) {
-        if (step.registry) {
-            return step.registry;
-        } else if (step.arguments) {
-            return step.arguments.registry;
-        }
-        return step.git;
-    }
-
-    static _getDefaultRegistryName(registriesContext) {
-        const registry = _.find(registriesContext, { default: true });
-        if (registry) {
-            return registry.name;
-        }
-        return registriesContext[0].name;
-    }
-
     static validateStep(step, yaml, name, context) {
         const errorPath = 'registry';
         const key = 'registry';
         const errors = [];
         const warnings = [];
-        const registry = Push._getRegistryFromStep(step);
+        const registry = BaseSchema._getFieldFromStep(step, 'registry');
         if (_.isEmpty(context.registries)) {
             errors.push(ErrorBuilder.buildError({
                 message: 'You have not added your Registry integration.',
@@ -93,7 +76,7 @@ class Push extends BaseSchema {
                 }
             } else if (!_.some(context.registries, (obj) => { return obj.name ===  registry; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Registry '${step.registry}' does not exist.`,
+                    message: `Registry '${registry}' does not exist.`,
                     name,
                     yaml,
                     code: 202,
@@ -104,7 +87,7 @@ class Push extends BaseSchema {
                 }));
             }
         } else if (!registry && context.registries.length > 1) {
-            const defaultRegistryName = Push._getDefaultRegistryName(context.registries);
+            const defaultRegistryName = BaseSchema._getDefaultNameFromContext(context.registries, 'name', { default: true });
             warnings.push(ErrorBuilder.buildError({
                 message: `You are using your default Registry Integration '${defaultRegistryName}'.`,
                 name,

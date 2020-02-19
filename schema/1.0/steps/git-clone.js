@@ -40,29 +40,12 @@ class GitClone extends BaseSchema {
         return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true });
     }
 
-    static _getGitFromStep(step) {
-        if (step.git) {
-            return step.git;
-        } else if (step.arguments) {
-            return step.arguments.git;
-        }
-        return step.git;
-    }
-
-    static _getDefaultGitName(gitContext) {
-        const git = _.find(gitContext, { metadata: { default: true } });
-        if (git) {
-            return git.metadata.name;
-        }
-        return gitContext[0].metadata.name;
-    }
-
     static validateStep(step, yaml, name, context) {
         const errorPath = 'git';
         const key = 'git';
         const errors = [];
         const warnings = [];
-        const git = GitClone._getGitFromStep(step);
+        const git = BaseSchema._getFieldFromStep(step, 'git');
         if (_.isEmpty(context.git)) {
             errors.push(ErrorBuilder.buildError({
                 message: 'You have not added your Git integration.',
@@ -90,7 +73,7 @@ class GitClone extends BaseSchema {
                 }
             } else if (!_.some(context.git, (obj) => { return obj.metadata.name === git; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Git '${step.git}' does not exist.`,
+                    message: `Git '${git}' does not exist.`,
                     name,
                     yaml,
                     code: 102,
@@ -101,7 +84,7 @@ class GitClone extends BaseSchema {
                 }));
             }
         } else if (!git && context.git.length > 1) {
-            const defaultGitName = GitClone._getDefaultGitName(context.git);
+            const defaultGitName = BaseSchema._getDefaultNameFromContext(context.git, 'metadata.name', { metadata: { default: true } });
             warnings.push(ErrorBuilder.buildError({
                 message: `You are using your default Git Integration '${defaultGitName}'.`,
                 name,
