@@ -315,6 +315,24 @@ class BaseSchema {
     static isRuntimeVariablesNotContainsStepVariable(variables, step) {
         return !_.isUndefined(variables) && !_.has(variables, step.substring(3, step.length - 2));
     }
+
+    static _getFieldFromStep(step, field) {
+        const fieldFromStep = _.get(step, field);
+        if (fieldFromStep) {
+            return fieldFromStep;
+        } else if (step.arguments) {
+            return _.get(step.arguments, field);
+        }
+        return fieldFromStep;
+    }
+
+    static _getDefaultNameFromContext(context, path, object) {
+        const defaultContext = _.find(context, object);
+        if (defaultContext) {
+            return _.get(defaultContext, path);
+        }
+        return _.get(context[0], path);
+    }
 }
 // Exported objects/methods
 module.exports = BaseSchema;

@@ -48,19 +48,21 @@ class Push extends BaseSchema {
         const key = 'registry';
         const errors = [];
         const warnings = [];
+        const registry = BaseSchema._getFieldFromStep(step, 'registry');
         if (_.isEmpty(context.registries)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Registry integration. Add Registry registry.',
+                message: 'You have not added your Registry integration.',
                 name,
                 yaml,
                 type: ErrorType.Error,
                 code: 200,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
+                actionItems: 'Add Registry registry.'
             }));
-        } else if (step.registry) {
-            if (BaseSchema.isRuntimeVariable(step.registry)) {
-                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.registry)) {
+        } else if (registry) {
+            if (BaseSchema.isRuntimeVariable(registry)) {
+                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, registry)) {
                     warnings.push(ErrorBuilder.buildError({
                         message: 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
                         name,
@@ -72,9 +74,9 @@ class Push extends BaseSchema {
                         key
                     }));
                 }
-            } else if (!_.some(context.registries, (obj) => { return obj.name ===  step.registry; })) {
+            } else if (!_.some(context.registries, (obj) => { return obj.name ===  registry; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Registry '${step.registry}' does not exist.`,
+                    message: `Registry '${registry}' does not exist.`,
                     name,
                     yaml,
                     code: 202,
@@ -84,16 +86,17 @@ class Push extends BaseSchema {
                     key
                 }));
             }
-        } else if (!step.registry && context.registries.length > 1) {
+        } else if (!registry && context.registries.length > 1) {
+            const defaultRegistryName = BaseSchema._getDefaultNameFromContext(context.registries, 'name', { default: true });
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Registry Integration '${name}'.\
- You have additional integrations configured which can be used if defined explicitly.`,
+                message: `You are using your default Registry Integration '${defaultRegistryName}'.`,
                 name,
                 yaml,
                 code: 203,
                 type: ErrorType.Warning,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
+                actionItems: 'You have additional integrations configured which can be used if defined explicitly.'
             }));
         }
         return { errors, warnings };
