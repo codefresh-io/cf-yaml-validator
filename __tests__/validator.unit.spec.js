@@ -3961,7 +3961,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/git-clone/',
                 'level': 'workflow',
                 'lines': 3,
-                'message': 'You are using your default Git Integration \'git\'.',
+                'message': 'You are using your default Git Integration \'git2\'.',
                 'stepName': 'main_clone',
                 'path': 'git',
                 'type': 'Warning'
@@ -3998,7 +3998,7 @@ describe('Validate Codefresh YAML with context', () => {
         const context = {
             git: [
                 { metadata: { name: 'git' } },
-                { metadata: { name: 'git2' } }
+                { metadata: { name: 'git2', default: true } }
             ],
             registries: [
                 { name: 'reg' }, { name: 'reg2', default: true }

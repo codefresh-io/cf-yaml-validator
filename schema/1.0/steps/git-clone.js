@@ -50,6 +50,10 @@ class GitClone extends BaseSchema {
     }
 
     static _getDefaultGitName(gitContext) {
+        const git = _.find(gitContext, { metadata: { default: true } });
+        if (git) {
+            return git.metadata.name;
+        }
         return gitContext[0].metadata.name;
     }
 
