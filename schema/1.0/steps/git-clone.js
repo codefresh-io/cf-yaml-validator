@@ -45,19 +45,21 @@ class GitClone extends BaseSchema {
         const key = 'git';
         const errors = [];
         const warnings = [];
+        const git = BaseSchema._getFieldFromStep(step, 'git');
         if (_.isEmpty(context.git)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Git integration. Add Git.',
+                message: 'You have not added your Git integration.',
                 name,
                 yaml,
                 code: 100,
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
+                actionItems: 'Add Git.'
             }));
-        } else if (step.git) {
-            if (BaseSchema.isRuntimeVariable(step.git)) {
-                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.git)) {
+        } else if (git) {
+            if (BaseSchema.isRuntimeVariable(git)) {
+                if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, git)) {
                     warnings.push(ErrorBuilder.buildError({
                         message: 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
                         name,
@@ -69,9 +71,9 @@ class GitClone extends BaseSchema {
                         key
                     }));
                 }
-            } else if (!_.some(context.git, (obj) => { return obj.metadata.name === step.git; })) {
+            } else if (!_.some(context.git, (obj) => { return obj.metadata.name === git; })) {
                 errors.push(ErrorBuilder.buildError({
-                    message: `Git '${step.git}' does not exist.`,
+                    message: `Git '${git}' does not exist.`,
                     name,
                     yaml,
                     code: 102,
@@ -81,16 +83,17 @@ class GitClone extends BaseSchema {
                     key
                 }));
             }
-        } else if (!step.git && context.git.length > 1) {
+        } else if (!git && context.git.length > 1) {
+            const defaultGitName = BaseSchema._getDefaultNameFromContext(context.git, 'metadata.name', { metadata: { default: true } });
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Git Integration '${name}'.\
- You have additional integrations configured which can be used if defined explicitly.'`,
+                message: `You are using your default Git Integration '${defaultGitName}'.`,
                 name,
                 yaml,
                 code: 103,
                 type: ErrorType.Warning,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
+                actionItems: 'You have additional integrations configured which can be used if defined explicitly.',
             }));
         }
         return { errors, warnings };
