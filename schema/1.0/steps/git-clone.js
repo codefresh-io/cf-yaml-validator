@@ -66,7 +66,7 @@ class GitClone extends BaseSchema {
                         yaml,
                         code: 101,
                         type: ErrorType.Warning,
-                        docsLink: _.get(IntegrationLinks, step.type),
+                        docsLink: _.get(IntegrationLinks, 'variables'),
                         errorPath,
                         key
                     }));

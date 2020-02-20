@@ -3768,7 +3768,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'git'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/',
                 'level': 'workflow',
                 'lines': 8,
                 'message': 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
@@ -3782,7 +3782,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'registry'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/',
                 'level': 'workflow',
                 'lines': 13,
                 'message': 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
@@ -3796,7 +3796,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'context': {
                     'key': 'cluster'
                 },
-                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/',
                 'level': 'workflow',
                 'lines': 23,
                 'message': 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',

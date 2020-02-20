@@ -69,7 +69,7 @@ class Deploy extends BaseSchema {
                         yaml,
                         code: 301,
                         type: ErrorType.Warning,
-                        docsLink: _.get(IntegrationLinks, step.type),
+                        docsLink: _.get(IntegrationLinks, 'variables'),
                         errorPath,
                         key
                     }));

@@ -69,7 +69,7 @@ class Push extends BaseSchema {
                         yaml,
                         code: 201,
                         type: ErrorType.Warning,
-                        docsLink: _.get(IntegrationLinks, step.type),
+                        docsLink: _.get(IntegrationLinks, 'variables'),
                         errorPath,
                         key
                     }));

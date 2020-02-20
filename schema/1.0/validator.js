@@ -146,13 +146,14 @@ class Validator {
             colWidths: [5, 10, 80, 80],
             wordWrap: true,
         });
-        if (!_.isEmpty(totalWarnings.details)) {
-            const warningTable = _.cloneDeep(table);
+        const warningTable = _.cloneDeep(table);
+
+        if (totalWarnings && !_.isEmpty(totalWarnings.details)) {
             _.forEach(totalWarnings.details, (warning) => {
                 warningTable.push([warning.lines, colors.yellow('warning'), warning.message, warning.docsLink]);
             });
-            err.message = `${colors.yellow('\n')}`;
-            err.message +=  `\n${warningTable.toString()}\n`;
+            err.warningMessage = `${colors.yellow('\n')}`;
+            err.warningMessage = `${warningTable.toString()}\n`;
         }
 
         if (!_.isEmpty(totalErrors.details)) {
@@ -162,6 +163,7 @@ class Validator {
             err.message = `${colors.red('\n')}`;
             err.message +=  `\n${table.toString()}\n`;
         }
+
         throw err;
     }
 
