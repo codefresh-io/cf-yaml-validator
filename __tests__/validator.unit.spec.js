@@ -3900,6 +3900,109 @@ describe('Validate Codefresh YAML with context', () => {
         validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
     });
 
+    it('validate yaml when pipeline have arguments', async (done) => {
+        const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
+        const model = {
+            version: '1.0',
+            steps: {
+                main_clone: {
+                    type: 'git-clone',
+                    description: 'Cloning main repository...',
+                    repo: 'codefresh/test',
+                    revision: '${{CF_BRANCH}}',
+                    arguments: {
+                        git: 'github'
+                    }
+                },
+                push: {
+                    title: 'Pushing image to cfcr',
+                    type: 'push',
+                    image_name: 'codefresh/test',
+                    arguments: {
+                        registry: 'cfcr'
+                    },
+                    candidate: '${{build}}',
+                    tags: [
+                        '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        '${{CF_REVISION}}']
+                },
+                deploy: {
+                    title: 'deploying to cluster',
+                    type: 'deploy',
+                    kind: 'kubernetes',
+                    service: 'kubernetes',
+                    cluster: 'test-cluster',
+                    namespace: 'default',
+                    arguments: {
+                        image: '${{build}}',
+                        registry: 'cfcr',
+                        commands:
+                            ['cf-deploy-kubernetes deployment.yml']
+                    }
+                }
+            }
+        };
+        const expectedMessage = [
+            {
+                'actionItems': undefined,
+                'code': 102,
+                'context': {
+                    'key': 'git'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
+                'level': 'workflow',
+                'lines': 9,
+                'message': 'Git \'github\' does not exist.',
+                'path': 'git',
+                'stepName': 'main_clone',
+                'type': 'Error'
+            },
+            {
+                'actionItems': undefined,
+                'code': 202,
+                'context': {
+                    'key': 'registry'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                'level': 'workflow',
+                'lines': 15,
+                'message': 'Registry \'cfcr\' does not exist.',
+                'path': 'registry',
+                'stepName': 'push',
+                'type': 'Error'
+            },
+            {
+                'actionItems': undefined,
+                'code': 302,
+                'context': {
+                    'key': 'cluster'
+                },
+                'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                'level': 'workflow',
+                'lines': 25,
+                'message': 'Cluster \'test-cluster\' does not exist.',
+                'path': 'cluster',
+                'stepName': 'deploy',
+                'type': 'Error'
+            }
+        ];
+        const expectedWarning = [];
+        const context = {
+            git: [
+                { metadata: { name: 'git' } },
+                { metadata: { name: 'git2', default: true } }
+            ],
+            registries: [
+                { name: 'reg' }, { name: 'reg2', default: true }
+            ],
+            clusters: [
+                { selector: 'cluster' }, { selector: 'cluster2' }
+            ],
+            variables: []
+        };
+        validateForErrorWithContext(model, expectedMessage, expectedWarning, done, 'message', yaml, context);
+    });
+
 
     it('validate yaml when integrations is empty', async (done) => {
         const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
@@ -4012,7 +4115,7 @@ describe('Validate Codefresh YAML with context', () => {
     });
 
 
-    it('validate yaml when integrations not found', async (done) => {
+    it('validate yaml when pipeline have mixed tabs and spaces', async (done) => {
         const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');
         const model = {
             version: '1.0',

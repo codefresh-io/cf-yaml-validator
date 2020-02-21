@@ -1,0 +1,31 @@
+version: "1.0"
+steps:
+  main_clone:
+    type: "git-clone"
+    description: "Cloning main repository..."
+    repo: "codefresh/test"
+    revision: "${{CF_BRANCH}}"
+    arguments:
+       git: "github"
+  push:
+    title: "Pushing image to cfcr"
+    type: "push"
+    image_name: "codefresh/test"
+    arguments:
+       registry: "cfcr"
+    candidate: "${{build}}"
+    tags:
+      - "${{CF_BRANCH_TAG_NORMALIZED}}"
+      - "${{CF_REVISION}}"
+  deploy:
+    title: "deploying to cluster"
+    type: "deploy"
+    kind: "kubernetes"
+    service: "kubernetes"
+    cluster: "test-cluster"
+    namespace: "default"
+    arguments:
+      image: "${{build}}"
+      registry: "cfcr"
+      commands:
+        - /cf-deploy-kubernetes deployment.yml
