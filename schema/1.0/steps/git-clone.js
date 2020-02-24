@@ -55,7 +55,6 @@ class GitClone extends BaseSchema {
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
-                actionItems: 'Add Git.'
             }));
         } else if (git) {
             if (BaseSchema.isRuntimeVariable(git)) {
@@ -66,7 +65,7 @@ class GitClone extends BaseSchema {
                         yaml,
                         code: 101,
                         type: ErrorType.Warning,
-                        docsLink: _.get(IntegrationLinks, step.type),
+                        docsLink: _.get(IntegrationLinks, 'variables'),
                         errorPath,
                         key
                     }));
