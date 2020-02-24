@@ -58,7 +58,6 @@ class Deploy extends BaseSchema {
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
-                actionItems: 'Add Cluster.'
             }));
         } else if (step.cluster) {
             if (BaseSchema.isRuntimeVariable(step.cluster)) {
@@ -69,7 +68,7 @@ class Deploy extends BaseSchema {
                         yaml,
                         code: 301,
                         type: ErrorType.Warning,
-                        docsLink: _.get(IntegrationLinks, step.type),
+                        docsLink: _.get(IntegrationLinks, 'variables'),
                         errorPath,
                         key
                     }));
