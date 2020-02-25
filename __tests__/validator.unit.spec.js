@@ -3851,7 +3851,7 @@ describe('Validate Codefresh YAML with context', () => {
         };
         const expectedMessage = [
             {
-                'actionItems': 'Add Git.',
+                'actionItems': undefined,
                 'code': 100,
                 'context': {
                     'key': 'git'
@@ -3865,7 +3865,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'type': 'Error'
             },
             {
-                'actionItems': 'Add Registry registry.',
+                'actionItems': undefined,
                 'code': 200,
                 'context': {
                     'key': 'registry'
@@ -3879,7 +3879,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'type': 'Error'
             },
             {
-                'actionItems': 'Add Cluster.',
+                'actionItems': undefined,
                 'code': 300,
                 'context': {
                     'key': 'cluster'

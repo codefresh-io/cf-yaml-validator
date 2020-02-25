@@ -55,7 +55,6 @@ class GitClone extends BaseSchema {
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
-                actionItems: 'Add Git.'
             }));
         } else if (git) {
             if (BaseSchema.isRuntimeVariable(git)) {

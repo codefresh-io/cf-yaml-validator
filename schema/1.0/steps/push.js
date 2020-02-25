@@ -58,7 +58,6 @@ class Push extends BaseSchema {
                 code: 200,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
-                actionItems: 'Add Registry registry.'
             }));
         } else if (registry) {
             if (BaseSchema.isRuntimeVariable(registry)) {

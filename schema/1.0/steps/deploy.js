@@ -58,7 +58,6 @@ class Deploy extends BaseSchema {
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
-                actionItems: 'Add Cluster.'
             }));
         } else if (step.cluster) {
             if (BaseSchema.isRuntimeVariable(step.cluster)) {
