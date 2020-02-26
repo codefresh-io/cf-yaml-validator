@@ -69,7 +69,7 @@ class Push extends BaseSchema {
                         code: 201,
                         type: ErrorType.Warning,
                         docsLink: _.get(IntegrationLinks, 'variables'),
-                        errorPath,
+                        errorPath: 'variables',
                         key
                     }));
                 }

@@ -52,7 +52,7 @@ class ErrorBuilder {
                 type,
                 path: errorPath,
                 context: {
-                    key: errorPath,
+                    key,
                 },
                 level: 'workflow',
                 code,

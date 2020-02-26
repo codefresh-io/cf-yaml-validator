@@ -3772,7 +3772,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'level': 'workflow',
                 'lines': 8,
                 'message': 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
-                'path': 'git',
+                'path': 'variables',
                 'stepName': 'main_clone',
                 'type': 'Warning'
             },
@@ -3786,7 +3786,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'level': 'workflow',
                 'lines': 13,
                 'message': 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
-                'path': 'registry',
+                'path': 'variables',
                 'stepName': 'push',
                 'type': 'Warning'
             },
@@ -3800,7 +3800,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'level': 'workflow',
                 'lines': 23,
                 'message': 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
-                'path': 'cluster',
+                'path': 'variables',
                 'stepName': 'deploy',
                 'type': 'Warning'
             }
@@ -3853,9 +3853,7 @@ describe('Validate Codefresh YAML with context', () => {
             {
                 'actionItems': undefined,
                 'code': 100,
-                'context': {
-                    'key': 'git'
-                },
+                'context': { key: undefined },
                 'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
                 'level': 'workflow',
                 'lines': 3,
@@ -3867,9 +3865,7 @@ describe('Validate Codefresh YAML with context', () => {
             {
                 'actionItems': undefined,
                 'code': 200,
-                'context': {
-                    'key': 'registry'
-                },
+                'context': { key: undefined },
                 'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                 'level': 'workflow',
                 'lines': 9,
@@ -3881,9 +3877,7 @@ describe('Validate Codefresh YAML with context', () => {
             {
                 'actionItems': undefined,
                 'code': 300,
-                'context': {
-                    'key': 'cluster'
-                },
+                'context': { key: undefined },
                 'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
                 'level': 'workflow',
                 'lines': 18,
@@ -4059,7 +4053,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'actionItems': 'You have additional integrations configured which can be used if defined explicitly.',
                 'code': 103,
                 'context': {
-                    'key': 'git'
+                    'key': undefined
                 },
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/git-clone/',
                 'level': 'workflow',
@@ -4073,7 +4067,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'actionItems': 'You have additional integrations configured which can be used if defined explicitly.',
                 'code': 203,
                 'context': {
-                    'key': 'registry'
+                    'key': undefined
                 },
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
                 'level': 'workflow',
@@ -4087,7 +4081,7 @@ describe('Validate Codefresh YAML with context', () => {
                 'actionItems': 'You have additional integrations configured which can be used if defined explicitly.',
                 'code': 303,
                 'context': {
-                    'key': 'cluster'
+                    'key': undefined
                 },
                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/',
                 'level': 'workflow',

@@ -121,8 +121,8 @@ class Validator {
         throw err;
     }
 
-    static _lint(err) {
-        const table = new Table({
+    static _createTable() {
+        return new Table({
             chars: {
                 'top': '',
                 'top-mid': '',
@@ -146,23 +146,62 @@ class Validator {
             colWidths: [5, 10, 80, 80],
             wordWrap: true,
         });
-        const warningTable = _.cloneDeep(table);
+    }
+
+    static _getSummarizeMessage() {
+        const warningCount = _.get(totalWarnings, 'details.length', 0);
+        const errorCount = _.get(totalErrors, 'details.length', 0);
+        const problemsCount = errorCount + warningCount;
+
+        let summarize = `✖ ${problemsCount}`;
+        if (problemsCount === 1) {
+            summarize += ' problem ';
+        } else {
+            summarize += ' problems ';
+        }
+        if (errorCount === 1) {
+            summarize += `(${errorCount} error, `;
+        } else {
+            summarize += `(${errorCount} errors, `;
+        }
+        if (warningCount === 1) {
+            summarize += `${warningCount} warning)`;
+        } else {
+            summarize += `${warningCount} warnings)`;
+        }
+        return summarize;
+    }
+
+    static _lint(err) {
+        const table = Validator._createTable();
+        const warningTable = Validator._createTable();
+        const documentationLinks =  new Set();
 
         if (totalWarnings && !_.isEmpty(totalWarnings.details)) {
             _.forEach(totalWarnings.details, (warning) => {
-                warningTable.push([warning.lines, colors.yellow('warning'), warning.message, warning.docsLink]);
+                warningTable.push([warning.lines, colors.yellow('warning'), warning.message]);
+                documentationLinks.add(`Visit ${warning.docsLink} for ${warning.path} documentation\n`);
             });
             err.warningMessage = `${colors.yellow('\n')}`;
-            err.warningMessage = `${warningTable.toString()}\n`;
+            err.warningMessage += `${colors.yellow('Yaml validation warnings:\n')}`;
+            err.warningMessage += `\n${warningTable.toString()}\n`;
+
+            err.summarize = colors.yellow(Validator._getSummarizeMessage());
         }
 
         if (!_.isEmpty(totalErrors.details)) {
             _.forEach(totalErrors.details, (error) => {
-                table.push([error.lines, colors.red('error'), error.message, error.docsLink]);
+                table.push([error.lines, colors.red('error'), error.message]);
+                documentationLinks.add(`Visit ${error.docsLink} for ${error.path} documentation\n`);
             });
             err.message = `${colors.red('\n')}`;
+            err.message += `${colors.red('Yaml validation errors:\n')}`;
             err.message +=  `\n${table.toString()}\n`;
+
+            err.summarize = colors.red(Validator._getSummarizeMessage());
         }
+        err.documentationLinks = '';
+        documentationLinks.forEach((documentationLink) => { err.documentationLinks += documentationLink; });
 
         throw err;
     }
