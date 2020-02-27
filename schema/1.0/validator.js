@@ -209,8 +209,7 @@ class Validator {
                 warningTable.push([warning.lines, colors.yellow('warning'), warning.message]);
                 documentationLinks.add(`Visit ${warning.docsLink} for ${warning.path} documentation\n`);
             });
-            err.warningMessage = `${colors.yellow('\n')}`;
-            err.warningMessage += `${colors.yellow('Yaml validation warnings:\n')}`;
+            err.warningMessage = `${colors.yellow('Yaml validation warnings:\n')}`;
             err.warningMessage += `\n${warningTable.toString()}\n`;
 
             err.summarize = colors.yellow(Validator._getSummarizeMessage());
@@ -221,8 +220,7 @@ class Validator {
                 table.push([error.lines, colors.red('error'), error.message]);
                 documentationLinks.add(`Visit ${error.docsLink} for ${error.path} documentation\n`);
             });
-            err.message = `${colors.red('\n')}`;
-            err.message += `${colors.red('Yaml validation errors:\n')}`;
+            err.message = `${colors.red('Yaml validation errors:\n')}`;
             err.message +=  `\n${table.toString()}\n`;
 
             err.summarize = colors.red(Validator._getSummarizeMessage());
