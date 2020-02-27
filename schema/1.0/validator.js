@@ -45,10 +45,6 @@ class Validator {
     static _throwValidationErrorAccordingToFormat(outputFormat) {
         Validator._sortErrorAccordingLineNumber();
         const err = new ValidatorError(totalErrors);
-        if (totalWarnings) {
-            Validator._sortWarningAccordingLineNumber();
-            err.warningDetails = totalWarnings.details;
-        }
         switch (outputFormat) {
             case 'printify':
                 Validator._printify(err);
@@ -64,6 +60,27 @@ class Validator {
         }
     }
 
+    static _throwValidationErrorAccordingToFormatWithWarnings(outputFormat) {
+        Validator._sortErrorAccordingLineNumber();
+        const err = new ValidatorError(totalErrors);
+        if (totalWarnings) {
+            Validator._sortWarningAccordingLineNumber();
+            err.warningDetails = totalWarnings.details;
+        }
+        switch (outputFormat) {
+            case 'printify':
+                Validator._printify(err);
+                break;
+            case 'message':
+                Validator._message(err);
+                break;
+            case 'lint':
+                Validator._lintWithWarnings(err);
+                break;
+            default:
+                throw err;
+        }
+    }
 
     static _addError(error) {
         totalErrors.details = _.concat(totalErrors.details, error.details);
@@ -173,6 +190,16 @@ class Validator {
     }
 
     static _lint(err) {
+        err.message = `${colors.red('\n')}`;
+        const table = Validator._createTable();
+        _.forEach(totalErrors.details, (error) => {
+            table.push([error.lines, colors.red('error'), error.message, error.docsLink]);
+        });
+        err.message +=  `\n${table.toString()}\n`;
+        throw err;
+    }
+
+    static _lintWithWarnings(err) {
         const table = Validator._createTable();
         const warningTable = Validator._createTable();
         const documentationLinks =  new Set();
@@ -527,7 +554,7 @@ class Validator {
         });
         if (_.size(totalErrors.details) > 0) {
             // throw error because when pipeline have a mix of tabs and spaces it not pass other validation
-            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 
@@ -578,7 +605,7 @@ class Validator {
         Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateContextStep(objectModel, yaml, context);
         if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
-            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 
