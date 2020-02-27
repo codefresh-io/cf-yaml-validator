@@ -69,7 +69,7 @@ class Deploy extends BaseSchema {
                         code: 301,
                         type: ErrorType.Warning,
                         docsLink: _.get(IntegrationLinks, 'variables'),
-                        errorPath,
+                        errorPath: 'variables',
                         key
                     }));
                 }

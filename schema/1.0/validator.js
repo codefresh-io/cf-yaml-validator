@@ -45,10 +45,6 @@ class Validator {
     static _throwValidationErrorAccordingToFormat(outputFormat) {
         Validator._sortErrorAccordingLineNumber();
         const err = new ValidatorError(totalErrors);
-        if (totalWarnings) {
-            Validator._sortWarningAccordingLineNumber();
-            err.warningDetails = totalWarnings.details;
-        }
         switch (outputFormat) {
             case 'printify':
                 Validator._printify(err);
@@ -64,6 +60,27 @@ class Validator {
         }
     }
 
+    static _throwValidationErrorAccordingToFormatWithWarnings(outputFormat) {
+        Validator._sortErrorAccordingLineNumber();
+        const err = new ValidatorError(totalErrors);
+        if (totalWarnings) {
+            Validator._sortWarningAccordingLineNumber();
+            err.warningDetails = totalWarnings.details;
+        }
+        switch (outputFormat) {
+            case 'printify':
+                Validator._printify(err);
+                break;
+            case 'message':
+                Validator._message(err);
+                break;
+            case 'lint':
+                Validator._lintWithWarnings(err);
+                break;
+            default:
+                throw err;
+        }
+    }
 
     static _addError(error) {
         totalErrors.details = _.concat(totalErrors.details, error.details);
@@ -121,9 +138,8 @@ class Validator {
         throw err;
     }
 
-    static _lint(err) {
-        err.message = `${colors.red('\n')}`;
-        const table = new Table({
+    static _createTable() {
+        return new Table({
             chars: {
                 'top': '',
                 'top-mid': '',
@@ -147,11 +163,71 @@ class Validator {
             colWidths: [5, 10, 80, 80],
             wordWrap: true,
         });
+    }
+
+    static _getSummarizeMessage() {
+        const warningCount = _.get(totalWarnings, 'details.length', 0);
+        const errorCount = _.get(totalErrors, 'details.length', 0);
+        const problemsCount = errorCount + warningCount;
+
+        let summarize = `✖ ${problemsCount}`;
+        if (problemsCount === 1) {
+            summarize += ' problem ';
+        } else {
+            summarize += ' problems ';
+        }
+        if (errorCount === 1) {
+            summarize += `(${errorCount} error, `;
+        } else {
+            summarize += `(${errorCount} errors, `;
+        }
+        if (warningCount === 1) {
+            summarize += `${warningCount} warning)`;
+        } else {
+            summarize += `${warningCount} warnings)`;
+        }
+        return summarize;
+    }
+
+    static _lint(err) {
+        err.message = `${colors.red('\n')}`;
+        const table = Validator._createTable();
         _.forEach(totalErrors.details, (error) => {
             table.push([error.lines, colors.red('error'), error.message, error.docsLink]);
         });
-
         err.message +=  `\n${table.toString()}\n`;
+        throw err;
+    }
+
+    static _lintWithWarnings(err) {
+        const table = Validator._createTable();
+        const warningTable = Validator._createTable();
+        const documentationLinks =  new Set();
+
+        if (totalWarnings && !_.isEmpty(totalWarnings.details)) {
+            _.forEach(totalWarnings.details, (warning) => {
+                warningTable.push([warning.lines, colors.yellow('warning'), warning.message]);
+                documentationLinks.add(`Visit ${warning.docsLink} for ${warning.path} documentation\n`);
+            });
+            err.warningMessage = `${colors.yellow('Yaml validation warnings:\n')}`;
+            err.warningMessage += `\n${warningTable.toString()}\n`;
+
+            err.summarize = colors.yellow(Validator._getSummarizeMessage());
+        }
+
+        if (!_.isEmpty(totalErrors.details)) {
+            _.forEach(totalErrors.details, (error) => {
+                table.push([error.lines, colors.red('error'), error.message]);
+                documentationLinks.add(`Visit ${error.docsLink} for ${error.path} documentation\n`);
+            });
+            err.message = `${colors.red('Yaml validation errors:\n')}`;
+            err.message +=  `\n${table.toString()}\n`;
+
+            err.summarize = colors.red(Validator._getSummarizeMessage());
+        }
+        err.documentationLinks = '';
+        documentationLinks.forEach((documentationLink) => { err.documentationLinks += documentationLink; });
+
         throw err;
     }
 
@@ -476,7 +552,7 @@ class Validator {
         });
         if (_.size(totalErrors.details) > 0) {
             // throw error because when pipeline have a mix of tabs and spaces it not pass other validation
-            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 
@@ -527,7 +603,7 @@ class Validator {
         Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateContextStep(objectModel, yaml, context);
         if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
-            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 

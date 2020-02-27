@@ -18,5 +18,4 @@ const IntegrationLinks = {
     'push': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
     'variables': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/'
 };
-
 module.exports = { docBaseUrl, DocumentationLinks, IntegrationLinks };
