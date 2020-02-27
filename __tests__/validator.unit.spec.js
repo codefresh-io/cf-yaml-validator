@@ -4447,7 +4447,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml with template', async (done) => {
+        it('validate yaml with 1 warning', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
