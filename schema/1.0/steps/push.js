@@ -43,7 +43,11 @@ class Push extends BaseSchema {
     }
 
     static validateStep(step, yaml, name, context) {
-        return registryValidation.validate(step, yaml, name, context);
+        return registryValidation.validate(step,
+            yaml,
+            name,
+            context,
+            { handleIfNoRegistriesOnAccount: true, handleIfNoRegistryExcplicitlyDefined: true });
     }
 }
 // Exported objects/methods

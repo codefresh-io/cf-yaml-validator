@@ -3,13 +3,17 @@ const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
 const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links');
 
-const validate = function (step, yaml, name, context) {
+const validate = function (step,
+    yaml,
+    name,
+    context,
+    { handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined }) {
     const errorPath = 'registry';
     const key = 'registry';
     const errors = [];
     const warnings = [];
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
-    if (_.isEmpty(context.registries)) {
+    if (_.isEmpty(context.registries) && handleIfNoRegistriesOnAccount) {
         errors.push(ErrorBuilder.buildError({
             message: 'You have not added your Registry integration.',
             name,
@@ -45,7 +49,7 @@ const validate = function (step, yaml, name, context) {
                 key
             }));
         }
-    } else if (!registry && context.registries.length > 1) {
+    } else if (!registry && context.registries.length > 1 && handleIfNoRegistryExcplicitlyDefined) {
         const defaultRegistryName = BaseSchema._getDefaultNameFromContext(context.registries, 'name', { default: true });
         warnings.push(ErrorBuilder.buildError({
             message: `You are using your default Registry Integration '${defaultRegistryName}'.`,
