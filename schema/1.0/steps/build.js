@@ -43,7 +43,8 @@ class Build extends BaseSchema {
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
             buildkit: Joi.boolean(),
-            registry: Joi.string()
+            registry: Joi.string(),
+            disablePush: Joi.boolean()
         };
         return this._createSchema(buildProperties);
     }
