@@ -44,7 +44,7 @@ class Build extends BaseSchema {
             progress: Joi.string(),
             buildkit: Joi.boolean(),
             registry: Joi.string(),
-            disablePush: Joi.boolean()
+            disable_push: Joi.boolean()
         };
         return this._createSchema(buildProperties);
     }
