@@ -1,3 +1,5 @@
+'use strict';
+
 const _ = require('lodash');
 const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
