@@ -50,7 +50,11 @@ class Build extends BaseSchema {
     }
 
     static validateStep(step, yaml, name, context) {
-        return registryValidation.validate(step, yaml, name, context);
+        return registryValidation.validate(step,
+            yaml,
+            name,
+            context,
+            { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false });
     }
 
     _applyStepCompatibility(schema) {
