@@ -24,6 +24,7 @@ const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
 const GitClone = require('./steps/git-clone');
 const Deploy = require('./steps/deploy');
 const Push = require('./steps/push');
+const Build = require('./steps/build');
 
 let totalErrors;
 let totalWarnings;
@@ -33,7 +34,8 @@ const MaxStepLength = 150;
 const StepValidator = {
     'git-clone': GitClone,
     'deploy': Deploy,
-    'push': Push
+    'push': Push,
+    'build': Build
 };
 
 class Validator {

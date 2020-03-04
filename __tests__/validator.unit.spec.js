@@ -1062,6 +1062,34 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"evaluate" is required', done);
             });
+
+            it('registry must be a string', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'build',
+                            'image_name': 'jim',
+                            'registry': true
+                        }
+                    }
+                }, '"registry" must be a string', done);
+            });
+
+            it('disablePush must be boolean', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            'type': 'build',
+                            'image_name': 'jim',
+                            'disable_push': 'val'
+                        }
+                    }
+                }, '"disable_push" must be a boolean', done);
+            });
         });
 
         describe('Push step attributes', () => {

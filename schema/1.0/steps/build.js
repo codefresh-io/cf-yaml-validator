@@ -10,6 +10,7 @@
 
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
+const registryValidation = require('../validations/registry');
 
 class Build extends BaseSchema {
 
@@ -42,8 +43,14 @@ class Build extends BaseSchema {
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
             buildkit: Joi.boolean(),
+            registry: Joi.string(),
+            disable_push: Joi.boolean()
         };
         return this._createSchema(buildProperties);
+    }
+
+    static validateStep(step, yaml, name, context) {
+        return registryValidation.validate(step, yaml, name, context);
     }
 
     _applyStepCompatibility(schema) {
