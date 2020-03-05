@@ -70,7 +70,7 @@ class GitClone extends BaseSchema {
                         key
                     }));
                 }
-            } else if (!_.some(context.git, (obj) => { return obj.metadata.name === git; })) {
+            } else if (git !== 'CF-default' && !_.some(context.git, (obj) => { return obj.metadata.name === git; })) {
                 errors.push(ErrorBuilder.buildError({
                     message: `Git '${git}' does not exist.`,
                     name,

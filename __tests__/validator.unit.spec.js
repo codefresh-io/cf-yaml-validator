@@ -4405,6 +4405,74 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
+        it('CF-default git context must be valid', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    main_clone: {
+                        type: 'git-clone',
+                        description: 'Cloning main repository...',
+                        repo: 'codefresh/test',
+                        revision: '${{CF_BRANCH}}',
+                        arguments: {
+                            git: 'CF-default'
+                        }
+                    },
+                    push: {
+                        title: 'Pushing image to cfcr',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        arguments: {
+                            registry: 'cfcr'
+                        },
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                    deploy: {
+                        title: 'deploying to cluster',
+                        type: 'deploy',
+                        kind: 'kubernetes',
+                        service: 'kubernetes',
+                        cluster: 'test-cluster',
+                        namespace: 'default',
+                        arguments: {
+                            image: '${{build}}',
+                            registry: 'cfcr',
+                            commands:
+                                ['cf-deploy-kubernetes deployment.yml']
+                        }
+                    }
+                }
+            };
+            const expectedMessage = {
+                message: `${colors.red('Yaml validation errors:\n')}`
+                    + '\n'
+                    + ` 15   ${colors.red('error')}     Registry 'cfcr' does not exist.                                                \n`
+                    + ` 25   ${colors.red('error')}     Cluster 'test-cluster' does not exist.                                         \n`,
+                warningMessage: undefined,
+                summarize: `${colors.red('✖ 2 problems (2 errors, 0 warnings)')}`,
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/docker-registries/external-docker-registries/ for registry documentation\n'
+                    + 'Visit https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/ for cluster documentation\n'
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: true }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: []
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
+        });
+
         it('validate yaml when pipeline have arguments', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
