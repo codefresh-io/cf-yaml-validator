@@ -44,7 +44,7 @@ class Deploy extends BaseSchema {
         return this._createSchema(deployProperties).unknown();
     }
 
-    static validateStep(step, yaml, name, context, { handleFromInitStep }) {
+    static validateStep(step, yaml, name, context, { ignoreValidationFromInitStep }) {
         const errorPath = 'cluster';
         const key = 'cluster';
         const errors = [];
@@ -85,7 +85,7 @@ class Deploy extends BaseSchema {
                     key
                 }));
             }
-        } else if (!step.cluster && context.clusters.length > 1 && !handleFromInitStep) {
+        } else if (!step.cluster && context.clusters.length > 1 && !ignoreValidationFromInitStep) {
             warnings.push(ErrorBuilder.buildError({
                 message: `You are using your default Cluster Integration.`,
                 name,

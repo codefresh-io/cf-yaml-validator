@@ -4654,7 +4654,7 @@ describe('Validate Codefresh YAML with context', () => {
                 ],
                 variables: []
             };
-            validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { handleFromInitStep: true });
+            validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { ignoreValidationFromInitStep: true });
         });
     });
 

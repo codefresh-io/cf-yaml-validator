@@ -511,12 +511,12 @@ class Validator {
 
 
     static _validateContextStep(objectModel, yaml, context, opts) {
-        const handleFromInitStep = _.get(opts, 'handleFromInitStep', false);
+        const ignoreValidationFromInitStep = _.get(opts, 'ignoreValidationFromInitStep', false);
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
             const validation = _.get(StepValidator, step.type);
             if (validation) {
-                const { errors, warnings } = validation.validateStep(step, yaml, name, context, { handleFromInitStep });
+                const { errors, warnings } = validation.validateStep(step, yaml, name, context, { ignoreValidationFromInitStep });
                 errors.forEach(error => Validator._addError(error));
                 warnings.forEach(warning => Validator._addWarning(warning));
             }
