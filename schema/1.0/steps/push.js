@@ -42,12 +42,12 @@ class Push extends BaseSchema {
         return this._createSchema(pushTagsProperties);
     }
 
-    static validateStep(step, yaml, name, context, { ignoreValidationFromInitStep }) {
+    static validateStep(step, yaml, name, context, { ignoreValidation }) {
         return registryValidation.validate(step,
             yaml,
             name,
             context,
-            { handleIfNoRegistriesOnAccount: true, handleIfNoRegistryExcplicitlyDefined: true, ignoreValidationFromInitStep });
+            { handleIfNoRegistriesOnAccount: true, handleIfNoRegistryExcplicitlyDefined: true, ignoreValidation });
     }
 }
 // Exported objects/methods

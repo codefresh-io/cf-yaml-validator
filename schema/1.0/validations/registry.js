@@ -9,7 +9,7 @@ const validate = function (step,
     yaml,
     name,
     context,
-    { handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidationFromInitStep }) {
+    { handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation }) {
     const errorPath = 'registry';
     const key = 'registry';
     const errors = [];
@@ -51,7 +51,7 @@ const validate = function (step,
                 key
             }));
         }
-    } else if (!registry && context.registries.length > 1 && handleIfNoRegistryExcplicitlyDefined && !ignoreValidationFromInitStep) {
+    } else if (!registry && context.registries.length > 1 && handleIfNoRegistryExcplicitlyDefined && !ignoreValidation) {
         const defaultRegistryName = BaseSchema._getDefaultNameFromContext(context.registries, 'name', { default: true });
         warnings.push(ErrorBuilder.buildError({
             message: `You are using your default Registry Integration '${defaultRegistryName}'.`,
