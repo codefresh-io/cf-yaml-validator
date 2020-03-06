@@ -20,13 +20,13 @@ function validate(model, outputFormat, yaml) {
     return Validator.validate(model, outputFormat, yaml);
 }
 
-function validateWithContext(model, outputFormat, yaml, context) {
-    return Validator.validateWithContext(model, outputFormat, yaml, context);
+function validateWithContext(model, outputFormat, yaml, context, opts) {
+    return Validator.validateWithContext(model, outputFormat, yaml, context, opts);
 }
 
-function validateForErrorWithContext(model, expectedError, done, outputFormat = 'message', yaml, context) {
+function validateForErrorWithContext(model, expectedError, done, outputFormat = 'message', yaml, context, opts) {
     try {
-        validateWithContext(model, outputFormat, yaml, context);
+        validateWithContext(model, outputFormat, yaml, context, opts);
     } catch (e) {
         if (outputFormat === 'message') {
             expect(e.details).to.deep.equal(expectedError.details);
@@ -4596,6 +4596,65 @@ describe('Validate Codefresh YAML with context', () => {
                 variables: { github: '', cfcr: '' }
             };
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
+        });
+
+        it('validate yaml when integrations is empty', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    main_clone: {
+                        type: 'git-clone',
+                        description: 'Cloning main repository...',
+                        repo: 'codefresh/test',
+                        revision: '${{CF_BRANCH}}'
+                    },
+                    push: {
+                        title: 'Pushing image to cfcr',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                    deploy: {
+                        title: 'deploying to cluster',
+                        type: 'deploy',
+                        kind: 'kubernetes',
+                        service: 'kubernetes',
+                        namespace: 'default',
+                        arguments: {
+                            image: '${{build}}',
+                            registry: 'cfcr',
+                            commands:
+                                ['cf-deploy-kubernetes deployment.yml']
+                        }
+                    }
+                }
+            };
+            const expectedMessage = {
+                message: `${colors.red('Yaml validation errors:\n')}`
+                    + '\n'
+                    + ` 16   ${colors.red('error')}     "cluster" is required                                                          \n`,
+                warningMessage: undefined,
+                summarize: `${colors.red('✖ 1 problem (1 error, 0 warnings)')}`,
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/ for steps documentation\n'
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: true }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: []
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { handleFromInitStep: true });
         });
     });
 

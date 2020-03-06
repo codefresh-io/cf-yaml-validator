@@ -40,7 +40,7 @@ class GitClone extends BaseSchema {
         return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true });
     }
 
-    static validateStep(step, yaml, name, context) {
+    static validateStep(step, yaml, name, context, { handleFromInitStep }) {
         const errorPath = 'git';
         const key = 'git';
         const errors = [];
@@ -82,7 +82,7 @@ class GitClone extends BaseSchema {
                     key
                 }));
             }
-        } else if (!git && context.git.length > 1) {
+        } else if (!git && context.git.length > 1 && !handleFromInitStep) {
             const defaultGitName = BaseSchema._getDefaultNameFromContext(context.git, 'metadata.name', { metadata: { default: true } });
             warnings.push(ErrorBuilder.buildError({
                 message: `You are using your default Git Integration '${defaultGitName}'.`,
