@@ -3854,6 +3854,68 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
+
+        it('validate yaml with registry url at template', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    push: {
+                        title: 'Pushing image to cfcr',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        registry: '${{AWS_API_REGISTRY}}',
+                        accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
+                        secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
+                        region: '${{AWS_REGION}}',
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                }
+            };
+            const context = {
+                git: [],
+                registries: [{ name: 'reg' }, { name: 'reg2', default: true }],
+                clusters: [],
+                variables: { AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web' }
+            };
+            validateWithContext(model, 'message', yaml, context);
+            done();
+        });
+
+        it('validate yaml with registry url', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    push: {
+                        title: 'Pushing image to cfcr',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        registry: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web',
+                        accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
+                        secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
+                        region: '${{AWS_REGION}}',
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                }
+            };
+            const context = {
+                git: [],
+                registries: [],
+                clusters: [],
+                variables: []
+            };
+            validateWithContext(model, 'message', yaml, context);
+            done();
+        });
+
+
         it('validate yaml when integrations not found', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/default-yaml.yml'), 'utf8');
             const model = {
