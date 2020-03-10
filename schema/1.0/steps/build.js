@@ -54,7 +54,7 @@ class Build extends BaseSchema {
             yaml,
             name,
             context,
-            { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false });
+            { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false, handleCFCRRemovalUseCase: true });
     }
 
     _applyStepCompatibility(schema) {

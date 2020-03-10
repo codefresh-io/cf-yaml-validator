@@ -23,12 +23,27 @@ const validate = function (step,
     yaml,
     name,
     context,
-    { handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation }) {
+    {
+        handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation, handleCFCRRemovalUseCase
+    }) {
     const errorPath = 'registry';
     const key = 'registry';
     const errors = [];
     const warnings = [];
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
+
+    if (handleCFCRRemovalUseCase && !registry && !step.disable_push && !context.autoPush) {
+        errors.push(ErrorBuilder.buildError({
+            message: `'registry' is required`,
+            name,
+            yaml,
+            type: ErrorType.Error,
+            code: 204,
+            docsLink: _.get(IntegrationLinks, step.type),
+            errorPath
+        }));
+    }
+
     if (isWebUri(registry)) {
         // Skips validation when registry field contains url.
         // Example of this pipeline located at __tests__/test-yamls/yaml-with-registry-url.yml.
