@@ -5,6 +5,14 @@ const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
 const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links');
 
+const isWebUri = function (s) {
+    if (s) {
+        const res = s.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/g);
+        return (res !== null);
+    }
+    return false;
+};
+
 const validate = function (step,
     yaml,
     name,
@@ -15,6 +23,11 @@ const validate = function (step,
     const errors = [];
     const warnings = [];
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
+    if (isWebUri(registry)) {
+        // Skips validation when registry field contains url.
+        // Example of this pipeline located at __tests__/test-yamls/yaml-with-registry-url.yml.
+        return { errors, warnings };
+    }
     if (_.isEmpty(context.registries) && handleIfNoRegistriesOnAccount) {
         errors.push(ErrorBuilder.buildError({
             message: 'You have not added your Registry integration.',
