@@ -1,0 +1,14 @@
+version: "1.0"
+steps:
+  push:
+    title: "Pushing image to cfcr"
+    type: "push"
+    image_name: "codefresh/test"
+    registry: "${{AWS_API_REGISTRY}}"
+    candidate: "${{build}}"
+    accessKeyId: "${{AWS_ACCESS_KEY_ID}}"
+    secretAccessKey: "${{AWS_SECRET_ACCESS_KEY}}"
+    region: "${{AWS_REGION}}"
+    tags:
+      - "${{CF_BRANCH_TAG_NORMALIZED}}"
+      - "${{CF_REVISION}}"
