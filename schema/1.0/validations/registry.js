@@ -24,6 +24,8 @@ const validate = function (step,
     const warnings = [];
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
     if (isWebUri(registry)) {
+        // Skips validation when registry field contains url.
+        // Example of this pipeline located at __tests__/test-yamls/yaml-with-registry-url.yml.
         return { errors, warnings };
     }
     if (_.isEmpty(context.registries) && handleIfNoRegistriesOnAccount) {
