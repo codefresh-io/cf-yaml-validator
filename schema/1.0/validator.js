@@ -510,17 +510,18 @@ class Validator {
     }
 
 
-    static _validateContextStep(objectModel, yaml, context) {
+    static _validateContextStep(objectModel, yaml, context, opts) {
+        const ignoreValidation = _.get(opts, 'ignoreValidation', false);
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
             const validation = _.get(StepValidator, step.type);
             if (validation) {
-                const { errors, warnings } = validation.validateStep(step, yaml, name, context);
+                const { errors, warnings } = validation.validateStep(step, yaml, name, context, { ignoreValidation });
                 errors.forEach(error => Validator._addError(error));
                 warnings.forEach(warning => Validator._addWarning(warning));
             }
             if (step.type === 'parallel' || step.steps) {
-                this._validateContextStep(step, yaml, context);
+                this._validateContextStep(step, yaml, context, opts);
             }
 
         });
@@ -603,7 +604,7 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
-        Validator._validateContextStep(objectModel, yaml, context);
+        Validator._validateContextStep(objectModel, yaml, context, opts);
         if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
             Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }

@@ -7,8 +7,14 @@ const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../docum
 
 const isWebUri = function (s) {
     if (s) {
-        const res = s.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)/g);
-        return (res !== null);
+        const pattern = new RegExp('^((ft|htt)ps?:\\/\\/)?' // protocol
+            + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' // domain name and extension
+            + '((\\d{1,3}\\.){3}\\d{1,3}))' // OR ip (v4) address
+            + '(\\:\\d+)?' // port
+            + '(\\/[-a-z\\d%@_.~+&:]*)*' // path
+            + '(\\?[;&a-z\\d%@_.,~+&:=-]*)?' // query string
+            + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+        return !!pattern.test(s);
     }
     return false;
 };
@@ -17,7 +23,7 @@ const validate = function (step,
     yaml,
     name,
     context,
-    { handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined }) {
+    { handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation }) {
     const errorPath = 'registry';
     const key = 'registry';
     const errors = [];
@@ -64,7 +70,7 @@ const validate = function (step,
                 key
             }));
         }
-    } else if (!registry && context.registries.length > 1 && handleIfNoRegistryExcplicitlyDefined) {
+    } else if (!registry && context.registries.length > 1 && handleIfNoRegistryExcplicitlyDefined && !ignoreValidation) {
         const defaultRegistryName = BaseSchema._getDefaultNameFromContext(context.registries, 'name', { default: true });
         warnings.push(ErrorBuilder.buildError({
             message: `You are using your default Registry Integration '${defaultRegistryName}'.`,
