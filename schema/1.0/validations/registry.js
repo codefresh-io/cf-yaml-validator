@@ -44,6 +44,19 @@ const validate = function (step,
         }));
     }
 
+    const hasDefaultRegistry = _.find(context.registries, reg => reg.default);
+    if (handleCFCRRemovalUseCase && context.autoPush && !registry && !hasDefaultRegistry) {
+        warnings.push(ErrorBuilder.buildError({
+            message: `The image that will be built will not be pushed`,
+            name,
+            yaml,
+            type: ErrorType.Warning,
+            code: 205,
+            docsLink: _.get(IntegrationLinks, step.type),
+            errorPath
+        }));
+    }
+
     if (isWebUri(registry)) {
         // Skips validation when registry field contains url.
         // Example of this pipeline located at __tests__/test-yamls/yaml-with-registry-url.yml.
