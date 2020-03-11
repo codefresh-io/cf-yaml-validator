@@ -4395,6 +4395,112 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
+        it('should fail in case registry was not passed and autoPush is not part of the context', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    BuildingDockerImage: {
+                        title: 'Building Docker Image',
+                        type: 'build',
+                        image_name: 'codefresh/itai-15',
+                        working_directory: './',
+                        tag: 'master',
+                        dockerfile: {
+                            content: 'From alpine:latest'
+                        }
+                    }
+                }
+            };
+            const expectedMessage = {
+                details: [
+                    {
+                        'code': 204,
+                        'context': {
+                            'key': undefined
+                        },
+                        'level': 'workflow',
+                        'lines': 3,
+                        'message': `'registry' is required`,
+                        'path': 'registry',
+                        'stepName': 'BuildingDockerImage',
+                        'type': 'Error',
+                        'actionItems': undefined,
+                        'docsLink': undefined,
+                    }
+                ],
+                warningDetails: []
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: true }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: [],
+                autoPush: false
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
+        });
+
+        it('should throw warning in case auto push is enabled but there is no default regsitry', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    BuildingDockerImage: {
+                        title: 'Building Docker Image',
+                        type: 'build',
+                        image_name: 'codefresh/itai-15',
+                        working_directory: './',
+                        tag: 'master',
+                        dockerfile: {
+                            content: 'From alpine:latest'
+                        }
+                    }
+                }
+            };
+            const expectedMessage = {
+                details: [],
+                warningDetails: [
+                    {
+                        'code': 205,
+                        'context': {
+                            'key': undefined
+                        },
+                        'level': 'workflow',
+                        'lines': 3,
+                        'message': `The image that will be built will not be pushed`,
+                        'path': 'registry',
+                        'stepName': 'BuildingDockerImage',
+                        'type': 'Warning',
+                        'actionItems': undefined,
+                        'docsLink': undefined,
+                    }
+                ]
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: false }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: [],
+                autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
+        });
+
     });
 
     describe('lint mode', () => {
