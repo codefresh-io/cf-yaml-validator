@@ -8,7 +8,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const Joi        = require('joi');
+const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
 
@@ -44,9 +44,27 @@ class Build extends BaseSchema {
             progress: Joi.string(),
             buildkit: Joi.boolean(),
             registry: Joi.string(),
-            disable_push: Joi.boolean()
+            disable_push: Joi.boolean(),
+            provider: Build._getProviderSchema()
         };
         return this._createSchema(buildProperties);
+    }
+
+    static _getProviderSchema() {
+        const providersList = ['gcb'];
+        return Joi.object({
+            type: Joi.string().valid(providersList),
+            arguments: Joi.when('type', {
+                is: 'gcb',
+                then: Joi.object({
+                    google_app_creds: Joi.string().required(),
+                    timeout: Joi.number(),
+                    machine_type: Joi.string(), // To DO: make this enumerable
+                    diskSizeGb: Joi.number(),
+                    logsBucket: Joi.string()
+                })
+            })
+        });
     }
 
     static validateStep(step, yaml, name, context) {
