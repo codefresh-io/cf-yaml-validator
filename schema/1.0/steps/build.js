@@ -62,7 +62,7 @@ class Build extends BaseSchema {
                         cache_repo: Joi.string(),
                         cache_ttl: Joi.string()
                       }),
-                    timeout: Joi.number(),
+                    timeout: Joi.string(),
                     machineType: Joi.string().valid(
                         "UNSPECIFIED",
                         "N1_HIGHCPU_8",
