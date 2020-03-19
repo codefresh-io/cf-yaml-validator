@@ -58,12 +58,16 @@ class Build extends BaseSchema {
                 is: 'gcb',
                 then: Joi.object({
                     google_app_creds: Joi.string().required(),
+                    cache_params: Joi.object({
+                        cache_repo: Joi.string(),
+                        cache_ttl: Joi.string()
+                      }),
                     timeout: Joi.number(),
                     machineType: Joi.string().valid(
                         "UNSPECIFIED",
                         "N1_HIGHCPU_8",
                         "N1_HIGHCPU_32"
-                    ), 
+                    ),
                     diskSizeGb: Joi.number(),
                     logsBucket: Joi.string()
                 })
