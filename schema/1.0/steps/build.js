@@ -59,7 +59,11 @@ class Build extends BaseSchema {
                 then: Joi.object({
                     google_app_creds: Joi.string().required(),
                     timeout: Joi.number(),
-                    machine_type: Joi.string(), // To DO: make this enumerable
+                    machineType: Joi.string().valid(
+                        "UNSPECIFIED",
+                        "N1_HIGHCPU_8",
+                        "N1_HIGHCPU_32"
+                    ), 
                     diskSizeGb: Joi.number(),
                     logsBucket: Joi.string()
                 })
