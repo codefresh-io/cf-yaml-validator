@@ -4501,6 +4501,170 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
+        it('validate yaml with new line to space converter', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-new-line-to-space-converter.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    assume_role_dev: {
+                        title: 'Assume Role',
+                        image: 'chu-docker-local.jfrog.io/aws-cli:latest',
+                        commands: []
+                    }
+                }
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: false }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: [],
+                autoPush: true
+            };
+            const expectedMessage = {
+                details: [],
+                warningDetails: [
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 12,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 13,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 16,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 17,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 18,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 30,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 31,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 34,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 35,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 36,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    }
+                ]
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
+        });
+
     });
 
     describe('lint mode', () => {
