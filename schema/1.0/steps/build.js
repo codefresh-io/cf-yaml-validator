@@ -51,7 +51,7 @@ class Build extends BaseSchema {
     }
 
     static _getProviderSchema() {
-        const providersList = ['gcb'];
+        const providersList = ['cf','gcb'];
         return Joi.object({
             type: Joi.string().valid(providersList),
             arguments: Joi.when('type', {
