@@ -64,9 +64,9 @@ class Build extends BaseSchema {
                     }).required(),
                     timeout: Joi.string(),
                     machineType: Joi.string().valid(
-                        "UNSPECIFIED",
-                        "N1_HIGHCPU_8",
-                        "N1_HIGHCPU_32"
+                        'UNSPECIFIED',
+                        'N1_HIGHCPU_8',
+                        'N1_HIGHCPU_32'
                     ),
                     diskSizeGb: Joi.number(),
                     logsBucket: Joi.string()
