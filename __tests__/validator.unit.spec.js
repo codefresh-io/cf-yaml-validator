@@ -4342,6 +4342,60 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
+        it('validate build step yaml with gcb provider full spec', async (done) => {
+            validate({
+                version: '1.0',
+                steps: {
+                    GCBuild: {
+                        type: 'build',
+                        image_name: 'test/image',
+                        tag: 'test4',
+                        dockerfile: 'Dockerfile',
+                        provider: {
+                            type: 'gcb',
+                            arguments: {
+                                google_app_creds: '${{G_CREDS}}',
+                                cache: {
+                                    repo: 'alexcodefresh/kaniko-cache',
+                                    ttl: '10h'
+                                },
+                                timeout: '100s',
+                                machineType: 'UNSPECIFIED',
+                                diskSizeGb: 10,
+                                logsBucket: 'test-logs-bucket'
+                            }
+                        }
+                    }
+                }
+            });
+            done();
+        });
+
+        it('validate build step yaml with gcb provider only required fields', async (done) => {
+            validate({
+                version: '1.0',
+                steps: {
+                    GCBuild: {
+                        type: 'build',
+                        image_name: 'test/image',
+                        tag: 'test4',
+                        dockerfile: 'Dockerfile',
+                        provider: {
+                            type: 'gcb',
+                            arguments: {
+                                google_app_creds: '${{G_CREDS}}',
+                                cache: {
+                                    repo: 'alexcodefresh/kaniko-cache',
+                                    ttl: '10h'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            done();
+        });
+
         it('should fail in case registry was not passed and autoPush is not part of the context', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build.yml'), 'utf8');
             const model = {
