@@ -68,4 +68,3 @@ class Build extends BaseSchema {
 // Exported objects/methods
 Build.BUILD_VERSION = BUILD_VERSION;
 module.exports = Build;
-
