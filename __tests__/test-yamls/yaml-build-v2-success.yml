@@ -1,0 +1,18 @@
+version: "1.0"
+steps:
+  BuildingDockerImage:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/itai-15
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    registry: reg
+    disable_push: true
+    dockerfile:
+      content: |-
+        FROM ubuntu:latest
+
+        COPY . /usr/src/myapp
+        WORKDIR /usr/src/myapp
