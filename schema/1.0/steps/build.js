@@ -12,8 +12,9 @@ const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
 
-class Build extends BaseSchema {
+const BUILD_VERSION = 'V2';
 
+class Build extends BaseSchema {
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
@@ -34,6 +35,7 @@ class Build extends BaseSchema {
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
             tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
+            ...(opts.buildVersion === BUILD_VERSION && { tags: Joi.array().items(Joi.string()) }),
             metadata: Joi.object({
                 set: BaseSchema._getMetadataAnnotationSetSchema()
             }),
@@ -43,8 +45,8 @@ class Build extends BaseSchema {
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
             buildkit: Joi.boolean(),
-            registry: Joi.string(),
-            disable_push: Joi.boolean()
+            ...(opts.buildVersion === BUILD_VERSION && { registry: Joi.string() }),
+            ...(opts.buildVersion === BUILD_VERSION && { disable_push: Joi.boolean() }),
         };
         return this._createSchema(buildProperties);
     }
@@ -64,4 +66,5 @@ class Build extends BaseSchema {
     }
 }
 // Exported objects/methods
+Build.BUILD_VERSION = BUILD_VERSION;
 module.exports = Build;

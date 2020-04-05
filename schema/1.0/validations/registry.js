@@ -32,6 +32,10 @@ const validate = function (step,
     const warnings = [];
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
 
+    if (registry && !_.isString(registry)) {
+        return { errors, warnings };
+    }
+
     if (handleCFCRRemovalUseCase && !registry && !step.disable_push && !context.autoPush) {
         errors.push(ErrorBuilder.buildError({
             message: `'registry' is required`,
