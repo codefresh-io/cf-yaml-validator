@@ -48,19 +48,20 @@ class GitClone extends BaseSchema {
         const git = BaseSchema._getFieldFromStep(step, 'git');
         if (_.isEmpty(context.git)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Git integration.',
+                message: 'You have not added a Git integration.',
                 name,
                 yaml,
                 code: 100,
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
+                actionItems: 'Add one in your account settings to continue.',
             }));
         } else if (git) {
             if (BaseSchema.isRuntimeVariable(git)) {
                 if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, git)) {
                     warnings.push(ErrorBuilder.buildError({
-                        message: 'Your Git Integration uses a variable that is not configured and will fail without defining it.',
+                        message: 'Your Git integration uses a variable that is not configured and will fail without defining it.',
                         name,
                         yaml,
                         code: 101,
@@ -79,13 +80,14 @@ class GitClone extends BaseSchema {
                     type: ErrorType.Error,
                     docsLink: _.get(IntegrationLinks, step.type),
                     errorPath,
-                    key
+                    key,
+                    actionItems: 'Please check the spelling or add a new Git integration in your account settings.',
                 }));
             }
         } else if (!git && context.git.length > 1 && !ignoreValidation) {
             const defaultGitName = BaseSchema._getDefaultNameFromContext(context.git, 'metadata.name', { metadata: { default: true } });
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Git Integration '${defaultGitName}'.`,
+                message: `You are using the default Git integration '${defaultGitName}'.`,
                 name,
                 yaml,
                 code: 103,

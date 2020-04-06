@@ -68,26 +68,27 @@ const validate = function (step,
     }
     if (_.isEmpty(context.registries) && handleIfNoRegistriesOnAccount) {
         errors.push(ErrorBuilder.buildError({
-            message: 'You have not added your Registry integration.',
+            message: 'You have not added a registry integration.',
             name,
             yaml,
             type: ErrorType.Error,
             code: 200,
             docsLink: _.get(IntegrationLinks, step.type),
             errorPath,
+            actionItems: 'Add one in your account settings to continue.',
         }));
     } else if (registry) {
         if (BaseSchema.isRuntimeVariable(registry)) {
             if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, registry)) {
                 warnings.push(ErrorBuilder.buildError({
-                    message: 'Your Registry Integration uses a variable that is not configured and will fail without defining it.',
+                    message: 'Your registry integration uses a variable that is not configured and will fail without defining it.',
                     name,
                     yaml,
                     code: 201,
                     type: ErrorType.Warning,
                     docsLink: _.get(IntegrationLinks, 'variables'),
                     errorPath: 'variables',
-                    key
+                    key,
                 }));
             }
         } else if (!_.some(context.registries, (obj) => { return obj.name ===  registry; })) {
@@ -99,13 +100,14 @@ const validate = function (step,
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
-                key
+                key,
+                actionItems: 'Please check the spelling or add a new registry in your account settings.',
             }));
         }
     } else if (!registry && context.registries.length > 1 && handleIfNoRegistryExcplicitlyDefined && !ignoreValidation) {
         const defaultRegistryName = BaseSchema._getDefaultNameFromContext(context.registries, 'name', { default: true });
         warnings.push(ErrorBuilder.buildError({
-            message: `You are using your default Registry Integration '${defaultRegistryName}'.`,
+            message: `You are using the default registry integration '${defaultRegistryName}'.`,
             name,
             yaml,
             code: 203,

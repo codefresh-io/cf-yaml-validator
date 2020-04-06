@@ -51,19 +51,20 @@ class Deploy extends BaseSchema {
         const warnings = [];
         if (_.isEmpty(context.clusters)) {
             errors.push(ErrorBuilder.buildError({
-                message: 'You have not added your Cluster integration.',
+                message: 'You have not added a Kubernetes cluster.',
                 name,
                 yaml,
                 code: 300,
                 type: ErrorType.Error,
                 docsLink: _.get(IntegrationLinks, step.type),
                 errorPath,
+                actionItems: 'Add one in your account settings to continue.',
             }));
         } else if (step.cluster) {
             if (BaseSchema.isRuntimeVariable(step.cluster)) {
                 if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.cluster)) {
                     warnings.push(ErrorBuilder.buildError({
-                        message: 'Your Cluster Integration uses a variable that is not configured and will fail without defining it.',
+                        message: 'Your cluster integration uses a variable that is not configured and will fail without defining it.',
                         name,
                         yaml,
                         code: 301,
@@ -82,12 +83,13 @@ class Deploy extends BaseSchema {
                     type: ErrorType.Error,
                     docsLink: _.get(IntegrationLinks, step.type),
                     errorPath,
-                    key
+                    key,
+                    actionItems: 'Please check the spelling or add a new cluster in your account settings.',
                 }));
             }
         } else if (!step.cluster && context.clusters.length > 1 && !ignoreValidation) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using your default Cluster Integration.`,
+                message: `You are using the default cluster integration.`,
                 name,
                 yaml,
                 code: 303,

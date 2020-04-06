@@ -546,7 +546,7 @@ class Validator {
                         level: 'workflow',
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                         lines: number,
-                        actionItems: 'Please remove all tabs with spaces.'
+                        actionItems: 'Please replace all tabs with spaces.'
                     },
                 ];
                 Validator._addError(error);
@@ -582,7 +582,7 @@ class Validator {
                     error.isJoi = true;
                     error.details = [
                         {
-                            message: `Your YAML contains bad indention after characters '>-'.`,
+                            message: `Your YAML contains invalid indentation after characters '>-'.`,
                             type: ErrorType.Warning,
                             path: 'indention',
                             code: 500,
