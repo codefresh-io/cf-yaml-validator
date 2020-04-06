@@ -559,6 +559,49 @@ class Validator {
         }
     }
 
+    static _validateNewLineToSpaceConverter(yaml) {
+        const yamlArray = yaml.split('\n');
+        let validation = false;
+        let prevSpaceCount = 0;
+        for (const number in yamlArray) { // eslint-disable-line
+            const line = yamlArray[number];
+            if (line.includes('- >-')) {
+                validation = true;
+                const nextNumber = Number(number) + 1;
+                if ((nextNumber) < (yamlArray.length - 1)) {
+                    prevSpaceCount = yamlArray[nextNumber].search(/\S/);
+                }
+            } else if (validation) {
+                const spaceCount = line.search(/\S/);
+                if (line.includes('- ')
+                    || (spaceCount < prevSpaceCount && line.match('^((?!-|\'|"|`).)*(([a-zA-Z/-\\\\]:\\s*[a-zA-Z-/-\\\\\'".]*))$'))) {
+                    validation = false;
+                } else if (spaceCount > prevSpaceCount) {
+                    const error = new Error('Bad indention in commands step');
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: `Your YAML contains bad indention after characters '>-'.`,
+                            type: ErrorType.Warning,
+                            path: 'indention',
+                            code: 500,
+                            context: {
+                                key: 'indention',
+                            },
+                            level: 'workflow',
+                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                            lines: Number(number) + 1,
+                            actionItems: `Align the indent to the first line after characters '>-'.`
+                        },
+                    ];
+                    Validator._addWarning(error);
+                }
+            }
+
+        }
+    }
+
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
@@ -600,6 +643,7 @@ class Validator {
             details: [],
         };
         Validator._validateIndention(yaml, outputFormat);
+        Validator._validateNewLineToSpaceConverter(yaml);
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);

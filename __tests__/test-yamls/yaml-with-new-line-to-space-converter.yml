@@ -1,0 +1,38 @@
+version: "1.0"
+steps:
+  test_dev:
+    title: Test
+    image: test
+    commands:
+      - echo ${{ID}}
+      - echo ${{KEY}}
+      - echo ${TOKEN}}
+      - >-
+        mvn run --profile ${{D_profile}}
+             --r test
+             > /tmp/test.tmp
+      - >-
+         custom_app -c ".Creds | {
+             ID: .Id,
+             KEY: .Key,
+             TOKEN: .Token
+         } | grep | test"
+         >/tmp/test.tmp
+  codefresh-run:
+    title: Test
+    image: test
+    commands:
+      - echo ${{ID}}
+      - echo ${{KEY}}
+      - echo ${TOKEN}}
+      - >-
+        mvn run --profile ${{D_profile}}
+             --r test
+             > /tmp/test.tmp
+      - >-
+        custom_app -c ".Creds | {
+            ID: .Id,
+            KEY: .Key,
+            TOKEN: .Token
+        } | grep | test"
+        >/tmp/test.tmp

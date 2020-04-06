@@ -27,6 +27,7 @@ function validateWithContext(model, outputFormat, yaml, context, opts) {
 function validateForErrorWithContext(model, expectedError, done, outputFormat = 'message', yaml, context, opts) {
     try {
         validateWithContext(model, outputFormat, yaml, context, opts);
+        done(new Error('should have failed'));
     } catch (e) {
         if (outputFormat === 'message') {
             expect(e.details).to.deep.equal(expectedError.details);
@@ -62,6 +63,8 @@ function validateForError(model, expectedMessage, done, outputFormat = 'message'
         done();
     }
 }
+
+const currentPath = './__tests__/';
 
 describe('Validate Codefresh YAML', () => {
 
@@ -914,6 +917,207 @@ describe('Validate Codefresh YAML', () => {
 
         describe('Build step attributes', () => {
 
+            describe('negative', () => {
+
+                it('registry is not supported in case image version is not V2', (done) => {
+
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            jim: {
+                                'type': 'build',
+                                'image_name': 'jim',
+                                'registry': 'reg'
+                            }
+                        }
+                    }, '"registry" is not allowed', done);
+                });
+
+                it('disable_push is not supported in case image version is not V2', (done) => {
+
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            jim: {
+                                'type': 'build',
+                                'image_name': 'jim',
+                                'disable_push': true
+                            }
+                        }
+                    }, '"disable_push" is not allowed', done);
+                });
+
+                it('tags is not supported in case image version is not V2', (done) => {
+
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            jim: {
+                                'type': 'build',
+                                'image_name': 'jim',
+                                'tags': [
+                                    'tag1',
+                                    'tag2'
+                                ]
+                            }
+                        }
+                    }, '"tags" is not allowed', done);
+                });
+
+                it('registry must be a string', (done) => {
+
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-failure.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage: {
+                                title: 'Building Docker Image',
+                                type: 'build',
+                                image_name: 'codefresh/itai-15',
+                                working_directory: './',
+                                tag: 'master',
+                                dockerfile: {
+                                    content: 'From alpine:latest'
+                                },
+                                registry: 1,
+                                disable_push: 'hello',
+                                tags: [
+                                    1,
+                                    2
+                                ]
+                            }
+                        }
+                    };
+                    const expectedMessage = {
+                        details: [
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'level': 'step',
+                                'lines': 3,
+                                'message': '"0" must be a string. Current value: 1 ',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            },
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'level': 'step',
+                                'lines': 3,
+                                'message': '"1" must be a string. Current value: 2 ',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            },
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'level': 'step',
+                                'lines': 12,
+                                'message': '"registry" must be a string. Current value: 1 ',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            },
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'level': 'step',
+                                'lines': 13,
+                                'message': '"disable_push" must be a boolean. Current value: hello ',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            }
+                        ],
+                        warningDetails: []
+                    };
+                    const context = {
+                        git: [
+                            { metadata: { name: 'git' } },
+                            { metadata: { name: 'git2', default: true } }
+                        ],
+                        registries: [
+                            { name: 'reg' }, { name: 'reg2', default: false }
+                        ],
+                        clusters: [
+                            { selector: 'cluster' }, { selector: 'cluster2' }
+                        ],
+                        variables: [],
+                        autoPush: true
+                    };
+                    const opts = {
+                        build: {
+                            buildVersion: 'V2'
+                        }
+                    };
+                    validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
+                });
+
+            });
+
+            describe('positive', () => {
+                it('registry must be a string', (done) => {
+
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-success.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage: {
+                                title: 'Building Docker Image',
+                                type: 'build',
+                                image_name: 'codefresh/itai-15',
+                                working_directory: './',
+                                dockerfile: {
+                                    content: 'From alpine:latest'
+                                },
+                                registry: 'reg',
+                                disable_push: true,
+                                tags: [
+                                    'tag1',
+                                    'tag2'
+                                ]
+                            }
+                        }
+                    };
+
+                    const context = {
+                        git: [
+                            { metadata: { name: 'git' } },
+                            { metadata: { name: 'git2', default: true } }
+                        ],
+                        registries: [
+                            { name: 'reg' }, { name: 'reg2', default: false }
+                        ],
+                        clusters: [
+                            { selector: 'cluster' }, { selector: 'cluster2' }
+                        ],
+                        variables: [],
+                        autoPush: true
+                    };
+                    const opts = {
+                        build: {
+                            buildVersion: 'V2'
+                        }
+                    };
+                    validateWithContext(model, 'message', yaml, context, opts);
+                    done();
+                });
+            });
+
             it('Non-existing image name', (done) => {
 
                 validateForError({
@@ -1063,33 +1267,6 @@ describe('Validate Codefresh YAML', () => {
                 }, '"evaluate" is required', done);
             });
 
-            it('registry must be a string', (done) => {
-
-                validateForError({
-                    version: '1.0',
-                    steps: {
-                        jim: {
-                            'type': 'build',
-                            'image_name': 'jim',
-                            'registry': true
-                        }
-                    }
-                }, '"registry" must be a string', done);
-            });
-
-            it('disablePush must be boolean', (done) => {
-
-                validateForError({
-                    version: '1.0',
-                    steps: {
-                        jim: {
-                            'type': 'build',
-                            'image_name': 'jim',
-                            'disable_push': 'val'
-                        }
-                    }
-                }, '"disable_push" must be a boolean', done);
-            });
         });
 
         describe('Push step attributes', () => {
@@ -3756,7 +3933,6 @@ describe('Validate Codefresh YAML', () => {
 });
 
 describe('Validate Codefresh YAML with context', () => {
-    const currentPath = './__tests__/';
 
     describe('message mode', () => {
 
@@ -4551,6 +4727,170 @@ describe('Validate Codefresh YAML with context', () => {
                 ],
                 variables: [],
                 autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
+        });
+
+        it('validate yaml with new line to space converter', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-new-line-to-space-converter.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    assume_role_dev: {
+                        title: 'Assume Role',
+                        image: 'chu-docker-local.jfrog.io/aws-cli:latest',
+                        commands: []
+                    }
+                }
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: false }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: [],
+                autoPush: true
+            };
+            const expectedMessage = {
+                details: [],
+                warningDetails: [
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 12,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 13,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 16,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 17,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 18,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 30,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 31,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 34,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 35,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    },
+                    {
+                        'actionItems': 'Align the indent to the first line after characters \'>-\'.',
+                        'code': 500,
+                        'context': {
+                            'key': 'indention'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                        'level': 'workflow',
+                        'lines': 36,
+                        'message': 'Your YAML contains bad indention after characters \'>-\'.',
+                        'path': 'indention',
+                        'type': 'Warning'
+                    }
+                ]
             };
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
