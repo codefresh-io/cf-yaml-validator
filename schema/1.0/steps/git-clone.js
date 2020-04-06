@@ -60,8 +60,9 @@ class GitClone extends BaseSchema {
         } else if (git) {
             if (BaseSchema.isRuntimeVariable(git)) {
                 if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, git)) {
+                    const variableName = BaseSchema.getVariableNameFromStep(git);
                     warnings.push(ErrorBuilder.buildError({
-                        message: 'Your Git integration uses a variable that is not configured and will fail without defining it.',
+                        message: `Your Git integration uses a variable '${variableName}' that is not configured and will fail without defining it.`,
                         name,
                         yaml,
                         code: 101,

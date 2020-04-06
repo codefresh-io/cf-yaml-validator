@@ -80,8 +80,9 @@ const validate = function (step,
     } else if (registry) {
         if (BaseSchema.isRuntimeVariable(registry)) {
             if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, registry)) {
+                const variableName = BaseSchema.getVariableNameFromStep(registry);
                 warnings.push(ErrorBuilder.buildError({
-                    message: 'Your registry integration uses a variable that is not configured and will fail without defining it.',
+                    message: `Your registry integration uses a variable '${variableName}' that is not configured and will fail without defining it.`,
                     name,
                     yaml,
                     code: 201,

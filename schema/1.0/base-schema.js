@@ -312,8 +312,12 @@ class BaseSchema {
         return step.match('^(\\$\\{\\{).*(\\}\\})');
     }
 
+    static getVariableNameFromStep(step) {
+        return step.substring(3, step.length - 2);
+    }
+
     static isRuntimeVariablesNotContainsStepVariable(variables, step) {
-        return !_.isUndefined(variables) && !_.has(variables, step.substring(3, step.length - 2));
+        return !_.isUndefined(variables) && !_.has(variables, BaseSchema.getVariableNameFromStep(step));
     }
 
     static _getFieldFromStep(step, field) {

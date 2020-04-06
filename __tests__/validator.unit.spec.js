@@ -3986,7 +3986,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/',
                         'level': 'workflow',
                         'lines': 8,
-                        'message': 'Your Git integration uses a variable that is not configured and will fail without defining it.',
+                        'message': 'Your Git integration uses a variable \'github\' that is not configured and will fail without defining it.',
                         'path': 'variables',
                         'stepName': 'main_clone',
                         'type': 'Warning'
@@ -4000,7 +4000,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/',
                         'level': 'workflow',
                         'lines': 13,
-                        'message': 'Your registry integration uses a variable that is not configured and will fail without defining it.',
+                        'message': 'Your registry integration uses a variable \'cfcr\' that is not configured and will fail without defining it.',
                         'path': 'variables',
                         'stepName': 'push',
                         'type': 'Warning'
@@ -4014,7 +4014,8 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/',
                         'level': 'workflow',
                         'lines': 23,
-                        'message': 'Your cluster integration uses a variable that is not configured and will fail without defining it.',
+                        'message': 'Your cluster integration uses a variable \'test-cluster\' that is not configured'
+                            + ' and will fail without defining it.',
                         'path': 'variables',
                         'stepName': 'deploy',
                         'type': 'Warning'
@@ -5005,12 +5006,12 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedMessage = {
                 message: '',
                 warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
-                    + ` 8    ${colors.yellow('warning')}   Your Git integration uses a variable that is not configured and will fail      \n`
-                    + '                without defining it.                                                           \n'
-                    + ` 13   ${colors.yellow('warning')}   Your registry integration uses a variable that is not configured and will fail \n`
-                    + '                without defining it.                                                           \n'
-                    + ` 23   ${colors.yellow('warning')}   Your cluster integration uses a variable that is not configured and will fail  \n`
-                    + '                without defining it.                                                           \n',
+                    + ` 8    ${colors.yellow('warning')}   Your Git integration uses a variable 'github' that is not configured and will  \n`
+                    + '                fail without defining it.                                                      \n'
+                    + ` 13   ${colors.yellow('warning')}   Your registry integration uses a variable 'cfcr' that is not configured and    \n`
+                    + '                will fail without defining it.                                                 \n'
+                    + ` 23   ${colors.yellow('warning')}   Your cluster integration uses a variable 'test-cluster' that is not configured \n`
+                    + '                and will fail without defining it.                                             \n',
                 summarize: `${colors.yellow('✖ 3 problems (0 errors, 3 warnings)')}`,
                 documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/variables/ for variables documentation\n'
             };
@@ -5202,8 +5203,8 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedMessage = {
                 message: '',
                 warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
-                    + ` 23   ${colors.yellow('warning')}   Your cluster integration uses a variable that is not configured and will fail  \n`
-                    + `                without defining it.                                                           \n`,
+                    + ` 23   ${colors.yellow('warning')}   Your cluster integration uses a variable 'test-cluster' that is not configured \n`
+                    + `                and will fail without defining it.                                             \n`,
                 summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
                 documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/variables/ for variables documentation\n'
             };

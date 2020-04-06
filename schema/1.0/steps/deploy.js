@@ -63,8 +63,10 @@ class Deploy extends BaseSchema {
         } else if (step.cluster) {
             if (BaseSchema.isRuntimeVariable(step.cluster)) {
                 if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, step.cluster)) {
+                    const variableName = BaseSchema.getVariableNameFromStep(step.cluster);
                     warnings.push(ErrorBuilder.buildError({
-                        message: 'Your cluster integration uses a variable that is not configured and will fail without defining it.',
+                        message: `Your cluster integration uses a variable '${variableName}' that is not configured and`
+                            + ` will fail without defining it.`,
                         name,
                         yaml,
                         code: 301,
