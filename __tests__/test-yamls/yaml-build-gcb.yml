@@ -1,0 +1,12 @@
+version: "1.0"
+steps:
+  GCBuild:
+      type: 'build',
+      image_name: 'test/image',
+      tag: 'test4',
+      dockerfile: 'Dockerfile',
+      provider: {
+        type: 'gcb',
+        arguments:
+          cache:
+            repo: 'alexcodefresh/kaniko-cache'

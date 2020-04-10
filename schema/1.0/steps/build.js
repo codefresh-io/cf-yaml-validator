@@ -13,6 +13,7 @@ const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
 
 const BUILD_VERSION = 'V2';
+const PROVIDERS = ['cf', 'gcb'];
 
 class Build extends BaseSchema {
     //------------------------------------------------------------------------------
@@ -53,13 +54,12 @@ class Build extends BaseSchema {
     }
 
     static _getProviderSchema() {
-        const providersList = ['cf', 'gcb'];
         return Joi.object({
-            type: Joi.string().valid(providersList),
+            type: Joi.string().valid(PROVIDERS),
             arguments: Joi.when('type', {
                 is: 'gcb',
                 then: Joi.object({
-                    google_app_creds: Joi.string().required(),
+                    google_app_creds: Joi.string(),
                     cache: Joi.object({
                         repo: Joi.string().required(),
                         ttl: Joi.string()
@@ -93,4 +93,5 @@ class Build extends BaseSchema {
 }
 // Exported objects/methods
 Build.BUILD_VERSION = BUILD_VERSION;
+Build.PROVIDERS = PROVIDERS;
 module.exports = Build;

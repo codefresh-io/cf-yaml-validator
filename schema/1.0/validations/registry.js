@@ -118,6 +118,25 @@ const validate = function (step,
             actionItems: 'You have additional integrations configured which can be used if defined explicitly.'
         }));
     }
+
+    const provider = _.get(step, 'provider', _.get(step, 'arguments.provider', {}));
+
+    if (_.get(provider, 'type', 'cf') === 'gcb') {
+        if (!_.get(provider, 'arguments.google_app_creds') && !_.some(context.registries, (obj) => { return obj.kind ===  'google'; })) {
+            errors.push(ErrorBuilder.buildError({
+                message: `provider.arguments.google_app_creds is required`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'Add google container registry as an integration or provide an explicit credentials key',
+            }));
+        }
+    }
+
     return { errors, warnings };
 };
 
