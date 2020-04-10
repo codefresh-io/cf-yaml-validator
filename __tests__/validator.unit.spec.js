@@ -4896,6 +4896,106 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
+        it('validate build step yaml with gcb without google_app_creds and without google registry', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    GCBuild: {
+                        type: 'build',
+                        image_name: 'test/image',
+                        tag: 'test4',
+                        dockerfile: 'Dockerfile',
+                        provider: {
+                            type: 'gcb',
+                            arguments: {
+                                cache: {
+                                    repo: 'alexcodefresh/kaniko-cache'
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg' }, { name: 'reg2', default: true }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: [],
+                autoPush: true
+            };
+
+            const expectedMessage = {
+                details: [
+                    {
+                        'actionItems': 'Add google container registry as an integration or provide an explicit credentials key',
+                        'code': 206,
+                        'context': {
+                            'key': 'registry'
+                        },
+                        'level': 'workflow',
+                        'lines': 3,
+                        'message': 'provider.arguments.google_app_creds is required',
+                        'path': 'registry',
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'stepName': 'GCBuild',
+                        'type': 'Error'
+                    }
+                ],
+                warningDetails: []
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
+        });
+
+        it('validate build step yaml with gcb without google_app_creds and with google registry', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    GCBuild: {
+                        type: 'build',
+                        image_name: 'test/image',
+                        tag: 'test4',
+                        dockerfile: 'Dockerfile',
+                        provider: {
+                            type: 'gcb',
+                            arguments: {
+                                cache: {
+                                    repo: 'alexcodefresh/kaniko-cache'
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                    { metadata: { name: 'git2', default: true } }
+                ],
+                registries: [
+                    { name: 'reg', kind: 'google' }, { name: 'reg2', default: true }
+                ],
+                clusters: [
+                    { selector: 'cluster' }, { selector: 'cluster2' }
+                ],
+                variables: [],
+                autoPush: true
+            };
+
+            validateWithContext(model, 'message', yaml, context, { ignoreValidation: true });
+            done();
+        });
+
     });
 
     describe('lint mode', () => {
@@ -5276,6 +5376,7 @@ describe('Validate Codefresh YAML with context', () => {
             };
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { ignoreValidation: true });
         });
+
     });
 
 });
