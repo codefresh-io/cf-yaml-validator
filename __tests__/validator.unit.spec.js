@@ -110,6 +110,25 @@ describe('Validate Codefresh YAML', () => {
                 }
             }, 'Current version: 0.1 is invalid. please change version to 1.0', done);
         });
+
+        it('incorrect build_version', (done) => {
+
+            validateForError({
+                version: '1.0',
+                build_version: 'v3',
+                steps: {}
+            }, '"build_version" must be one of', done);
+        });
+
+        it('valid build_version', (done) => {
+
+            validate({
+                version: '1.0',
+                build_version: 'v2',
+                steps: {}
+            });
+            done();
+        });
     });
 
     describe('Steps', () => {
