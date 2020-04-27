@@ -43,6 +43,7 @@ class Freestyle extends BaseSchema {
             shell: Joi.string().valid('sh', 'bash'),
             services: Joi.alternatives().try(Joi.object(), Joi.array()),
             debug: Freestyle._getDebugSchema(),
+            registry_context: Joi.string(),
         };
         return this._createSchema(freestyleProperties)
             .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional
