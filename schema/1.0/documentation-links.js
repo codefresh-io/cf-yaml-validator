@@ -10,6 +10,7 @@ const DocumentationLinks = {
     'git-clone': `${docBaseUrl}/git-clone/`,
     'launch-composition': `${docBaseUrl}/launch-composition/`,
     'pending-approval': `${docBaseUrl}/approval/`,
+    'composition': `${docBaseUrl}/composition/`,
 };
 
 const IntegrationLinks = {

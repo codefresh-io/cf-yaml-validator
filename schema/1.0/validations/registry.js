@@ -19,6 +19,69 @@ const isWebUri = function (s) {
     return false;
 };
 
+const validateRegistryContext = function (step,
+    yaml,
+    name,
+    context) {
+    const errors = [];
+    const warnings = [];
+    const errorPath = 'registry_contexts';
+    const key = 'registry_contexts';
+    const registryContext = BaseSchema._getFieldFromStep(step, 'registry_context');
+    const registryContexts = BaseSchema._getFieldFromStep(step, 'registry_contexts');
+    if (registryContexts) {
+        const domains = [];
+        let hasDomainError = false;
+        registryContexts.forEach((registryCtx) => {
+            const registry = _.find(context.registries, { name: registryCtx });
+            if (!registry) {
+                errors.push(ErrorBuilder.buildError({
+                    message: `Registry '${registryCtx}' does not exist.`,
+                    name,
+                    yaml,
+                    code: 202,
+                    type: ErrorType.Error,
+                    docsLink: _.get(IntegrationLinks, step.type),
+                    errorPath,
+                    key,
+                    actionItems: 'Please check the spelling or add a new registry in your account settings.',
+                }));
+            } else {
+                if (_.includes(domains, registry.domain) && !hasDomainError) {
+                    hasDomainError = true;
+                    errors.push(ErrorBuilder.buildError({
+                        message: `Registry contexts contains registries with same domain '${registry.domain}'`,
+                        name,
+                        yaml,
+                        code: 207,
+                        type: ErrorType.Error,
+                        docsLink: _.get(IntegrationLinks, step.type),
+                        errorPath,
+                        key,
+                        actionItems: 'Please remove registry with duplicated domain.',
+                    }));
+                }
+                domains.push(registry.domain);
+            }
+        });
+    }
+
+    if (registryContext && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
+        errors.push(ErrorBuilder.buildError({
+            message: `Registry '${registryContext}' does not exist.`,
+            name,
+            yaml,
+            code: 202,
+            type: ErrorType.Error,
+            docsLink: _.get(IntegrationLinks, step.type),
+            errorPath,
+            key: 'registry_context',
+            actionItems: 'Please check the spelling or add a new registry in your account settings.',
+        }));
+    }
+    return { errors, warnings };
+};
+
 const validate = function (step,
     yaml,
     name,
@@ -28,8 +91,7 @@ const validate = function (step,
     }) {
     const errorPath = 'registry';
     const key = 'registry';
-    const errors = [];
-    const warnings = [];
+    const { errors, warnings } = validateRegistryContext(step, yaml, name, context);
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
 
     if (registry && !_.isString(registry)) {
@@ -141,5 +203,6 @@ const validate = function (step,
 };
 
 module.exports = {
-    validate
+    validate,
+    validateRegistryContext
 };

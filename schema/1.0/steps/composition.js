@@ -10,6 +10,7 @@
 
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
+const registryValidation = require('../validations/registry');
 
 class Composition extends BaseSchema {
 
@@ -39,6 +40,10 @@ class Composition extends BaseSchema {
         return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true })
             .rename('composition-candidates', 'composition_candidates', { ignoreUndefined: true })
             .rename('composition-variables', 'composition_variables', { ignoreUndefined: true });
+    }
+
+    static validateStep(step, yaml, name, context) {
+        return registryValidation.validateRegistryContext(step, yaml, name, context);
     }
 }
 // Exported objects/methods
