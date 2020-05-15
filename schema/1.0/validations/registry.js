@@ -29,6 +29,7 @@ const validateRegistryContext = function (step,
     const key = 'registry_contexts';
     const registryContext = BaseSchema._getFieldFromStep(step, 'registry_context');
     const registryContexts = BaseSchema._getFieldFromStep(step, 'registry_contexts');
+    const stepType = _.get(step, 'type', 'freestyle');
     if (registryContexts) {
         const domains = [];
         let hasDomainError = false;
@@ -41,7 +42,7 @@ const validateRegistryContext = function (step,
                     yaml,
                     code: 202,
                     type: ErrorType.Error,
-                    docsLink: _.get(IntegrationLinks, step.type),
+                    docsLink: _.get(IntegrationLinks, stepType),
                     errorPath,
                     key,
                     actionItems: 'Please check the spelling or add a new registry in your account settings.',
@@ -55,10 +56,10 @@ const validateRegistryContext = function (step,
                         yaml,
                         code: 207,
                         type: ErrorType.Error,
-                        docsLink: _.get(IntegrationLinks, step.type),
+                        docsLink: _.get(DocumentationLinks, stepType),
                         errorPath,
                         key,
-                        actionItems: 'Please remove registry with duplicated domain.',
+                        actionItems: 'Please remove registry with same domain.',
                     }));
                 }
                 domains.push(registry.domain);
@@ -73,7 +74,7 @@ const validateRegistryContext = function (step,
             yaml,
             code: 202,
             type: ErrorType.Error,
-            docsLink: _.get(IntegrationLinks, step.type),
+            docsLink: _.get(IntegrationLinks, stepType),
             errorPath,
             key: 'registry_context',
             actionItems: 'Please check the spelling or add a new registry in your account settings.',
