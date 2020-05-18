@@ -34,6 +34,9 @@ const validateRegistryContext = function (step,
         const domains = [];
         let hasDomainError = false;
         registryContexts.forEach((registryCtx) => {
+            if (BaseSchema.isRuntimeVariable(registryCtx)) {
+                return;
+            }
             const registry = _.find(context.registries, { name: registryCtx });
             if (!registry) {
                 errors.push(ErrorBuilder.buildError({
@@ -67,7 +70,8 @@ const validateRegistryContext = function (step,
         });
     }
 
-    if (registryContext && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
+    if (registryContext && !BaseSchema.isRuntimeVariable(registryContext)
+        && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
         errors.push(ErrorBuilder.buildError({
             message: `Registry '${registryContext}' does not exist.`,
             name,
