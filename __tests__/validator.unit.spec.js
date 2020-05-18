@@ -4623,7 +4623,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'BuildingDockerImage',
                         'type': 'Error',
                         'actionItems': undefined,
-                        'docsLink': undefined,
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                     }
                 ],
                 warningDetails: []
@@ -4676,7 +4676,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'BuildingDockerImage',
                         'type': 'Error',
                         'actionItems': undefined,
-                        'docsLink': undefined,
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                     }
                 ],
                 warningDetails: []
@@ -4730,7 +4730,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'BuildingDockerImage',
                         'type': 'Warning',
                         'actionItems': undefined,
-                        'docsLink': undefined,
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                     }
                 ]
             };
