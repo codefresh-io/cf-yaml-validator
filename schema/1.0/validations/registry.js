@@ -106,7 +106,6 @@ const validate = function (step,
             yaml,
             type: ErrorType.Error,
             code: 204,
-            docsLink: _.get(IntegrationLinks, step.type),
             errorPath
         }));
     }
@@ -119,7 +118,6 @@ const validate = function (step,
             yaml,
             type: ErrorType.Warning,
             code: 205,
-            docsLink: _.get(IntegrationLinks, step.type),
             errorPath
         }));
     }
