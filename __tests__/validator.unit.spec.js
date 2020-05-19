@@ -5015,6 +5015,280 @@ describe('Validate Codefresh YAML with context', () => {
             done();
         });
 
+        it('validate yaml when registry context not found', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-context.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    'clone': {
+                        'type': 'git-clone',
+                        'description': 'Cloning main repository...',
+                        'repo': 'codefresh/test',
+                        'revision': 'master'
+                    },
+                    'build': {
+                        'title': 'Building Docker Image',
+                        'type': 'build',
+                        'image_name': 'codefresh/test',
+                        'working_directory': '${{clone}}',
+                        'dockerfile': 'Dockerfile',
+                        'registry': 'reg',
+                        'registry_contexts': [
+                            'docker',
+                            'gcr'
+                        ],
+                        'tag': 'latest'
+                    },
+                    'push': {
+                        'title': 'Pushing image to gcr',
+                        'type': 'push',
+                        'image_name': 'codefresh/test',
+                        'registry': 'reg',
+                        'registry_context': 'gcr',
+                        'candidate': '${{build}}',
+                    },
+                    'composition': {
+                        'type': 'composition',
+                        'title': 'Composition Step Title',
+                        'description': 'Free text description',
+                        'working_directory': '${{clone}}',
+                        'registry_context': 'gcr',
+                        'composition': {
+                            'version': '3',
+                            'services': {
+                                'db': {
+                                    'image': 'postgres'
+                                }
+                            }
+                        },
+                        'composition_candidates': {
+                            'test_service': {
+                                'image': 'us.gcr.io/test-123123/codefresh/test-codefresh/test',
+                                'command': 'echo test',
+                                'working_dir': '/app',
+                                'environment': [
+                                    'key=value'
+                                ]
+                            }
+                        },
+                        'composition_variables': [
+                            'key=value'
+                        ]
+                    },
+                    'freestyle': {
+                        'image': 'us.gcr.io/test-123123/codefresh/test-codefresh/test',
+                        'registry_context': 'gcr2',
+                        'commands': [
+                            'echo hello'
+                        ]
+                    }
+                }
+            };
+
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                ],
+                registries: [
+                    { name: 'reg', kind: 'google' }, { name: 'reg2', default: true }
+                ],
+                variables: []
+            };
+
+            const expectedMessage = {
+                details: [
+                    {
+                        'actionItems': 'Please make sure you have all the required fields and valid values',
+                        'context': {
+                            'key': 'steps'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'level': 'step',
+                        'lines': 14,
+                        'message': '"registry" is not allowed. Current value: reg ',
+                        'path': 'steps',
+                        'stepName': 'build',
+                        'type': 'Validation'
+                    },
+                    {
+                        'actionItems': 'Please check the spelling or add a new registry in your account settings.',
+                        'code': 202,
+                        'context': {
+                            'key': 'registry_contexts'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        'level': 'workflow',
+                        'lines': 15,
+                        'message': 'Registry \'docker\' does not exist.',
+                        'path': 'registry_contexts',
+                        'stepName': 'build',
+                        'type': 'Error'
+                    },
+                    {
+                        'actionItems': 'Please check the spelling or add a new registry in your account settings.',
+                        'code': 202,
+                        'context': {
+                            'key': 'registry_contexts'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        'level': 'workflow',
+                        'lines': 15,
+                        'message': 'Registry \'gcr\' does not exist.',
+                        'path': 'registry_contexts',
+                        'stepName': 'build',
+                        'type': 'Error'
+                    },
+                    {
+                        'actionItems': 'Please check the spelling or add a new registry in your account settings.',
+                        'code': 202,
+                        'context': {
+                            'key': 'registry_context'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        'level': 'workflow',
+                        'lines': 25,
+                        'message': 'Registry \'gcr\' does not exist.',
+                        'path': 'registry_contexts',
+                        'stepName': 'push',
+                        'type': 'Error'
+                    },
+                    {
+                        'actionItems': 'Please check the spelling or add a new registry in your account settings.',
+                        'code': 202,
+                        'context': {
+                            'key': 'registry_context'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        'level': 'workflow',
+                        'lines': 33,
+                        'message': 'Registry \'gcr\' does not exist.',
+                        'path': 'registry_contexts',
+                        'stepName': 'composition',
+                        'type': 'Error'
+                    },
+                    {
+                        'actionItems': 'Please check the spelling or add a new registry in your account settings.',
+                        'code': 202,
+                        'context': {
+                            'key': 'registry_context'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        'level': 'workflow',
+                        'lines': 51,
+                        'message': 'Registry \'gcr2\' does not exist.',
+                        'path': 'registry_contexts',
+                        'stepName': 'freestyle',
+                        'type': 'Error'
+                    }
+                ],
+                warningDetails: [],
+                autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
+        });
+
+        it('validate yaml when registry context contains runtime variable', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-context.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    'clone': {
+                        'type': 'git-clone',
+                        'description': 'Cloning main repository...',
+                        'repo': 'codefresh/test',
+                        'revision': 'master'
+                    },
+                    'build': {
+                        'title': 'Building Docker Image',
+                        'type': 'build',
+                        'image_name': 'codefresh/test',
+                        'working_directory': '${{clone}}',
+                        'dockerfile': 'Dockerfile',
+                        'registry': 'reg',
+                        'registry_contexts': [
+                            '${{docker}}',
+                            '${{gcr}}'
+                        ],
+                        'tag': 'latest'
+                    },
+                    'push': {
+                        'title': 'Pushing image to gcr',
+                        'type': 'push',
+                        'image_name': 'codefresh/test',
+                        'registry': 'reg',
+                        'registry_context': '${{gcr}}',
+                        'candidate': '${{build}}',
+                    },
+                    'composition': {
+                        'type': 'composition',
+                        'title': 'Composition Step Title',
+                        'description': 'Free text description',
+                        'working_directory': '${{clone}}',
+                        'registry_context': '${{gcr}}',
+                        'composition': {
+                            'version': '3',
+                            'services': {
+                                'db': {
+                                    'image': 'postgres'
+                                }
+                            }
+                        },
+                        'composition_candidates': {
+                            'test_service': {
+                                'image': 'us.gcr.io/test-123123/codefresh/test-codefresh/test',
+                                'command': 'echo test',
+                                'working_dir': '/app',
+                                'environment': [
+                                    'key=value'
+                                ]
+                            }
+                        },
+                        'composition_variables': [
+                            'key=value'
+                        ]
+                    },
+                    'freestyle': {
+                        'image': 'us.gcr.io/test-123123/codefresh/test-codefresh/test',
+                        'registry_context': '${{gcr2}}',
+                        'commands': [
+                            'echo hello'
+                        ]
+                    }
+                }
+            };
+
+            const context = {
+                git: [
+                    { metadata: { name: 'git' } },
+                ],
+                registries: [
+                    { name: 'reg', kind: 'google' }, { name: 'reg2', default: true }
+                ],
+                variables: []
+            };
+
+            const expectedMessage = {
+                details: [
+                    {
+                        'actionItems': 'Please make sure you have all the required fields and valid values',
+                        'context': {
+                            'key': 'steps'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'level': 'step',
+                        'lines': 14,
+                        'message': '"registry" is not allowed. Current value: reg ',
+                        'path': 'steps',
+                        'stepName': 'build',
+                        'type': 'Validation'
+                    },
+                ],
+                warningDetails: [],
+                autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
+        });
+
     });
 
     describe('lint mode', () => {

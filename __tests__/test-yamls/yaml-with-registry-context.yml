@@ -1,0 +1,53 @@
+version: "1.0"
+steps:
+  clone:
+    type: "git-clone"
+    description: "Cloning main repository..."
+    repo: "codefresh/test"
+    revision: "master"
+  build:
+    title: "Building Docker Image"
+    type: "build"
+    image_name: "codefresh/test"
+    working_directory: "${{clone}}"
+    dockerfile: "Dockerfile"
+    registry: "reg"
+    registry_contexts:
+      - dockerhub
+      - gcr
+    tag: "latest"
+
+  push:
+    title: "Pushing image to gcr"
+    type: "push"
+    image_name: "codefresh/test"
+    registry: "reg"
+    registry_context: "gcr"
+    candidate: "${{build}}"
+
+  composition:
+    type: composition
+    title: Composition Step Title
+    description: Free text description
+    working_directory: ${{clone}}
+    registry_context: gcr
+    composition:
+      version: '3'
+      services:
+        db:
+          image: postgres
+    composition_candidates:
+      test_service:
+        image: "us.gcr.io/test-123123/codefresh/test-codefresh/test"
+        command: echo test
+        working_dir: /app
+        environment:
+          - key=value
+    composition_variables:
+      - key=value
+
+  freestyle:
+    image: "us.gcr.io/test-123123/codefresh/test-codefresh/test"
+    registry_context: gcr
+    commands:
+      - echo hello
