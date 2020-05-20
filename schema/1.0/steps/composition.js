@@ -31,7 +31,8 @@ class Composition extends BaseSchema {
             'composition_candidates': Joi.object().pattern(/^/, Joi.object().keys({
                 working_directory: Joi.any().forbidden()
             }).unknown()).required(),
-            'composition_variables': Joi.array().items(Joi.string())
+            'composition_variables': Joi.array().items(Joi.string()),
+            'registry_contexts': Joi.array().items(Joi.string())
         };
         return this._createSchema(compositionProperties).unknown();
     }

@@ -70,7 +70,7 @@ const validateRegistryContext = function (step,
         });
     }
 
-    if (registryContext && !BaseSchema.isRuntimeVariable(registryContext)
+    if (registryContext && !_.isArray(registryContext) && !BaseSchema.isRuntimeVariable(registryContext)
         && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
         errors.push(ErrorBuilder.buildError({
             message: `Registry '${registryContext}' does not exist.`,
