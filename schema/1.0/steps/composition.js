@@ -11,6 +11,7 @@
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
+const { ErrorBuilder } = require('./../error-builder');
 
 class Composition extends BaseSchema {
 
@@ -32,7 +33,11 @@ class Composition extends BaseSchema {
                 working_directory: Joi.any().forbidden()
             }).unknown()).required(),
             'composition_variables': Joi.array().items(Joi.string()),
-            'registry_contexts': Joi.array().items(Joi.string())
+            'registry_contexts': Joi.array().items(Joi.string()),
+            'registry_context': Joi.object().disallow().error(ErrorBuilder.buildJoiError({
+                message: `'registry_context' not allowed`,
+                path: 'registry_context'
+            })),
         };
         return this._createSchema(compositionProperties).unknown();
     }

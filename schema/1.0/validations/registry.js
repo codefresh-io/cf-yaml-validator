@@ -30,11 +30,11 @@ const validateRegistryContext = function (step,
     const registryContext = BaseSchema._getFieldFromStep(step, 'registry_context');
     const registryContexts = BaseSchema._getFieldFromStep(step, 'registry_contexts');
     const stepType = _.get(step, 'type', 'freestyle');
-    if (registryContexts) {
+    if (registryContexts && _.isArray(registryContexts)) {
         const domains = [];
         let hasDomainError = false;
         registryContexts.forEach((registryCtx) => {
-            if (BaseSchema.isRuntimeVariable(registryCtx)) {
+            if (!registryCtx || BaseSchema.isRuntimeVariable(registryCtx)) {
                 return;
             }
             const registry = _.find(context.registries, { name: registryCtx });

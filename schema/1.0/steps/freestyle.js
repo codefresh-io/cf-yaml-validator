@@ -11,6 +11,7 @@
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
+const { ErrorBuilder } = require('./../error-builder');
 
 class Freestyle extends BaseSchema {
 
@@ -45,6 +46,10 @@ class Freestyle extends BaseSchema {
             services: Joi.alternatives().try(Joi.object(), Joi.array()),
             debug: Freestyle._getDebugSchema(),
             registry_context: Joi.string(),
+            registry_contexts: Joi.object().disallow().error(ErrorBuilder.buildJoiError({
+                message: `'registry_contexts' not allowed`,
+                path: 'registry_contexts'
+            })),
         };
         return this._createSchema(freestyleProperties)
             .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional

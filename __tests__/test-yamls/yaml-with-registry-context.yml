@@ -30,7 +30,9 @@ steps:
     title: Composition Step Title
     description: Free text description
     working_directory: ${{clone}}
-    registry_context: gcr
+    registry_contexts:
+      - dockerhub
+      - gcr
     composition:
       version: '3'
       services:

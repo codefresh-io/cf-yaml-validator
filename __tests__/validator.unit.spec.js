@@ -5052,7 +5052,9 @@ describe('Validate Codefresh YAML with context', () => {
                         'title': 'Composition Step Title',
                         'description': 'Free text description',
                         'working_directory': '${{clone}}',
-                        'registry_context': 'gcr',
+                        'registry_contexts': [
+                            'gcr'
+                        ],
                         'composition': {
                             'version': '3',
                             'services': {
@@ -5156,7 +5158,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'actionItems': 'Please check the spelling or add a new registry in your account settings.',
                         'code': 202,
                         'context': {
-                            'key': 'registry_context'
+                            'key': 'registry_contexts'
                         },
                         'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                         'level': 'workflow',
@@ -5174,7 +5176,7 @@ describe('Validate Codefresh YAML with context', () => {
                         },
                         'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
                         'level': 'workflow',
-                        'lines': 51,
+                        'lines': 53,
                         'message': 'Registry \'gcr2\' does not exist.',
                         'path': 'registry_contexts',
                         'stepName': 'freestyle',
@@ -5224,7 +5226,10 @@ describe('Validate Codefresh YAML with context', () => {
                         'title': 'Composition Step Title',
                         'description': 'Free text description',
                         'working_directory': '${{clone}}',
-                        'registry_context': '${{gcr}}',
+                        'registry_contexts': [
+                            '${{docker}}',
+                            '${{gcr}}'
+                        ],
                         'composition': {
                             'version': '3',
                             'services': {
