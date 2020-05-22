@@ -62,7 +62,7 @@ const validateRegistryContext = function (step,
                         docsLink: _.get(DocumentationLinks, stepType),
                         errorPath,
                         key,
-                        actionItems: 'Please remove registry with same domain.',
+                        actionItems: 'Please make sure that there is no more than one registry from the same domain',
                     }));
                 }
                 domains.push(registry.domain);
