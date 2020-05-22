@@ -5107,7 +5107,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                         'level': 'step',
                         'lines': 14,
-                        'message': '"registry" is not allowed. Current value: reg ',
+                        'message': '"registry" is not allowed',
                         'path': 'steps',
                         'stepName': 'build',
                         'type': 'Validation'
@@ -5282,7 +5282,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                         'level': 'step',
                         'lines': 14,
-                        'message': '"registry" is not allowed. Current value: reg ',
+                        'message': '"registry" is not allowed',
                         'path': 'steps',
                         'stepName': 'build',
                         'type': 'Validation'

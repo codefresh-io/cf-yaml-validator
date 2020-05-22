@@ -486,7 +486,8 @@ class Validator {
                     });
 
                     const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-                    const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+                    const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
+                        ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
                     const error = new Error();
                     error.name = 'ValidationError';
                     error.isJoi = true;
