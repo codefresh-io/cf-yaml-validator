@@ -521,7 +521,7 @@ class Validator {
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
             const stepType = _.get(step, 'type', 'freestyle');
-            const validation = _.get(StepValidator, stepType, stepType);
+            const validation = _.get(StepValidator, stepType);
             if (validation) {
                 const { errors, warnings } = validation.validateStep(step, yaml, name, context, { ignoreValidation });
                 errors.forEach(error => Validator._addError(error));

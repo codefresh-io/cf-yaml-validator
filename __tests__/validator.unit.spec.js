@@ -5429,6 +5429,177 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
+        it('validate yaml with pending approval', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                stages: [
+                    'clone',
+                    'build',
+                    'push',
+                    'integration'
+                ],
+                steps: {
+                    'main_clone': {
+                        'type': 'git-clone',
+                        'description': 'Cloning main repository...',
+                        'repo': 'vadim-kharin-codefresh/test',
+                        'revision': '${{CF_BRANCH}}',
+                        'git': 'github',
+                        'stage': 'clone'
+                    },
+                    'build': {
+                        'title': 'Building Docker Image',
+                        'type': 'build',
+                        'image_name': 'vadim-kharin-codefresh/test',
+                        'tag': '${{CF_BRANCH_TAG_NORMALIZED}}',
+                        'dockerfile': 'Dockerfile',
+                        'stage': 'build'
+                    },
+                    'approval_for_push': {
+                        'type': 'pending-approval',
+                        'title': 'Should we run push',
+                        'when': {
+                            'branch': {
+                                'only': [
+                                    'master'
+                                ]
+                            }
+                        },
+                        'stage': 'push'
+                    },
+                    'parallel_push': {
+                        'type': 'parallel',
+                        'steps': {
+                            'annotate_build': {
+                                'title': 'Annotating Build',
+                                'image': '${{build}}',
+                                'working_directory': 'IMAGE_WORK_DIR',
+                                'commands': [
+                                    'echo Annotating Build...'
+                                ],
+                                'on_success': {
+                                    'metadata': {
+                                        'set': [
+                                            {
+                                                '${{build.imageId}}': [
+                                                    {
+                                                        'CF_QUALITY': true
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                },
+                                'on_error': {
+                                    'metadata': {
+                                        'set': [
+                                            {
+                                                '${{build.imageId}}': [
+                                                    {
+                                                        'CF_QUALITY': false
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            'push': {
+                                'title': 'Pushing image to cfcr',
+                                'type': 'push',
+                                'image_name': 'vadim-kharin-codefresh/test',
+                                'registry': 'cfcr',
+                                'candidate': '${{build}}',
+                                'tags': [
+                                    '${{CF_BRANCH_TAG_NORMALIZED}}',
+                                    '${{CF_REVISION}}'
+                                ]
+                            },
+                            'deploy': {
+                                'title': 'deploying to cluster',
+                                'type': 'deploy',
+                                'kind': 'kubernetes',
+                                'service': 'kubernetes',
+                                'cluster': 'gke_savvy-badge-103912_us-central1-a_saas-3731-test-cluster',
+                                'namespace': 'default',
+                                'arguments': {
+                                    'image': '${{build}}',
+                                    'registry': 'cfcr',
+                                    'commands': [
+                                        '/cf-deploy-kubernetes deployment.yml'
+                                    ]
+                                }
+                            }
+                        },
+                        'stage': 'push'
+                    }
+                }
+            };
+
+            const context = {
+                git: [
+                ],
+                registries: [
+                ],
+                variables: []
+            };
+            const expectedMessage = {
+                details: [
+                    {
+                        'code': 204,
+                        'context': {
+                            'key': undefined
+                        },
+                        'level': 'workflow',
+                        'lines': 0,
+                        'message': `'registry' is required`,
+                        'path': 'registry',
+                        'stepName': 'build',
+                        'type': 'Error',
+                        'actionItems': undefined,
+                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                    },
+                    {
+                        'actionItems': 'Add one in your account settings to continue.',
+                        'message': 'You have not added a Git integration.',
+                        'type': 'Error',
+                        'path': 'git',
+                        'context': { 'key': undefined },
+                        'level': 'workflow',
+                        'code': 100,
+                        'stepName': 'main_clone',
+                        'docsLink': 'https://codefresh.io/docs/docs/integrations/git-providers/',
+                        'lines': 3,
+                    }, {
+                        'actionItems': 'Add one in your account settings to continue.',
+                        'message': 'You have not added a registry integration.',
+                        'type': 'Error',
+                        'path': 'registry',
+                        'context': { 'key': undefined },
+                        'level': 'workflow',
+                        'code': 200,
+                        'stepName': 'push',
+                        'docsLink': 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        'lines': 9,
+                    }, {
+                        'actionItems': 'Add one in your account settings to continue.',
+                        'message': 'You have not added a Kubernetes cluster.',
+                        'type': 'Error',
+                        'path': 'cluster',
+                        'context': { 'key': undefined },
+                        'level': 'workflow',
+                        'code': 300,
+                        'stepName': 'deploy',
+                        'docsLink': 'https://codefresh.io/docs/docs/deploy-to-kubernetes/add-kubernetes-cluster/',
+                        'lines': 18,
+                    }],
+                warningDetails: [],
+                autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
+        });
+
     });
 
     describe('lint mode', () => {
