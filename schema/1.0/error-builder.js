@@ -64,6 +64,18 @@ class ErrorBuilder {
         ];
         return error;
     }
+
+    static buildJoiError({ message, path }) {
+        const error = new Error();
+        error.name = 'ValidationError';
+        error.details = [
+            {
+                message,
+                path
+            },
+        ];
+        return error;
+    }
 }
 
 module.exports = { ErrorType, ErrorBuilder };

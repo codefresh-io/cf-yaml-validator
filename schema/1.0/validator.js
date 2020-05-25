@@ -25,6 +25,8 @@ const GitClone = require('./steps/git-clone');
 const Deploy = require('./steps/deploy');
 const Push = require('./steps/push');
 const Build = require('./steps/build');
+const Freestyle = require('./steps/freestyle');
+const Composition = require('./steps/composition');
 
 let totalErrors;
 let totalWarnings;
@@ -35,7 +37,9 @@ const StepValidator = {
     'git-clone': GitClone,
     'deploy': Deploy,
     'push': Push,
-    'build': Build
+    'build': Build,
+    'freestyle': Freestyle,
+    'composition': Composition
 };
 
 class Validator {
@@ -482,7 +486,8 @@ class Validator {
                     });
 
                     const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-                    const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+                    const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
+                        ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
                     const error = new Error();
                     error.name = 'ValidationError';
                     error.isJoi = true;
@@ -515,7 +520,8 @@ class Validator {
         const ignoreValidation = _.get(opts, 'ignoreValidation', false);
         _.forEach(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
-            const validation = _.get(StepValidator, step.type);
+            const stepType = _.get(step, 'type', 'freestyle');
+            const validation = _.get(StepValidator, stepType, stepType);
             if (validation) {
                 const { errors, warnings } = validation.validateStep(step, yaml, name, context, { ignoreValidation });
                 errors.forEach(error => Validator._addError(error));

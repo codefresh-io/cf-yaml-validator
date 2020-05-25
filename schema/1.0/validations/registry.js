@@ -19,6 +19,74 @@ const isWebUri = function (s) {
     return false;
 };
 
+const validateRegistryContext = function (step,
+    yaml,
+    name,
+    context) {
+    const errors = [];
+    const warnings = [];
+    const errorPath = 'registry_contexts';
+    const key = 'registry_contexts';
+    const registryContext = BaseSchema._getFieldFromStep(step, 'registry_context');
+    const registryContexts = BaseSchema._getFieldFromStep(step, 'registry_contexts');
+    const stepType = _.get(step, 'type', 'freestyle');
+    if (registryContexts && _.isArray(registryContexts)) {
+        const domains = [];
+        let hasDomainError = false;
+        registryContexts.forEach((registryCtx) => {
+            if (!registryCtx || BaseSchema.isRuntimeVariable(registryCtx)) {
+                return;
+            }
+            const registry = _.find(context.registries, { name: registryCtx });
+            if (!registry) {
+                errors.push(ErrorBuilder.buildError({
+                    message: `Registry '${registryCtx}' does not exist.`,
+                    name,
+                    yaml,
+                    code: 202,
+                    type: ErrorType.Error,
+                    docsLink: _.get(IntegrationLinks, stepType),
+                    errorPath,
+                    key,
+                    actionItems: 'Please check the spelling or add a new registry in your account settings.',
+                }));
+            } else {
+                if (_.includes(domains, registry.domain) && !hasDomainError) {
+                    hasDomainError = true;
+                    errors.push(ErrorBuilder.buildError({
+                        message: `Registry contexts contains registries with same domain '${registry.domain}'`,
+                        name,
+                        yaml,
+                        code: 207,
+                        type: ErrorType.Error,
+                        docsLink: _.get(DocumentationLinks, stepType),
+                        errorPath,
+                        key,
+                        actionItems: 'Please make sure that there is no more than one registry from the same domain',
+                    }));
+                }
+                domains.push(registry.domain);
+            }
+        });
+    }
+
+    if (registryContext && !_.isArray(registryContext) && !BaseSchema.isRuntimeVariable(registryContext)
+        && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
+        errors.push(ErrorBuilder.buildError({
+            message: `Registry '${registryContext}' does not exist.`,
+            name,
+            yaml,
+            code: 202,
+            type: ErrorType.Error,
+            docsLink: _.get(IntegrationLinks, stepType),
+            errorPath,
+            key: 'registry_context',
+            actionItems: 'Please check the spelling or add a new registry in your account settings.',
+        }));
+    }
+    return { errors, warnings };
+};
+
 const validate = function (step,
     yaml,
     name,
@@ -28,8 +96,7 @@ const validate = function (step,
     }) {
     const errorPath = 'registry';
     const key = 'registry';
-    const errors = [];
-    const warnings = [];
+    const { errors, warnings } = validateRegistryContext(step, yaml, name, context);
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
 
     if (registry && !_.isString(registry)) {
@@ -43,7 +110,7 @@ const validate = function (step,
             yaml,
             type: ErrorType.Error,
             code: 204,
-            docsLink: _.get(IntegrationLinks, step.type),
+            docsLink: _.get(DocumentationLinks, step.type),
             errorPath
         }));
     }
@@ -56,7 +123,7 @@ const validate = function (step,
             yaml,
             type: ErrorType.Warning,
             code: 205,
-            docsLink: _.get(IntegrationLinks, step.type),
+            docsLink: _.get(DocumentationLinks, step.type),
             errorPath
         }));
     }
@@ -141,5 +208,6 @@ const validate = function (step,
 };
 
 module.exports = {
-    validate
+    validate,
+    validateRegistryContext
 };

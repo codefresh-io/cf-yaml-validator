@@ -10,6 +10,8 @@
 
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
+const registryValidation = require('../validations/registry');
+const { ErrorBuilder } = require('./../error-builder');
 
 class Composition extends BaseSchema {
 
@@ -30,7 +32,12 @@ class Composition extends BaseSchema {
             'composition_candidates': Joi.object().pattern(/^/, Joi.object().keys({
                 working_directory: Joi.any().forbidden()
             }).unknown()).required(),
-            'composition_variables': Joi.array().items(Joi.string())
+            'composition_variables': Joi.array().items(Joi.string()),
+            'registry_contexts': Joi.array().items(Joi.string()),
+            'registry_context': Joi.object().disallow().error(ErrorBuilder.buildJoiError({
+                message: `'registry_context' not allowed`,
+                path: 'registry_context'
+            })),
         };
         return this._createSchema(compositionProperties).unknown();
     }
@@ -39,6 +46,10 @@ class Composition extends BaseSchema {
         return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true })
             .rename('composition-candidates', 'composition_candidates', { ignoreUndefined: true })
             .rename('composition-variables', 'composition_variables', { ignoreUndefined: true });
+    }
+
+    static validateStep(step, yaml, name, context) {
+        return registryValidation.validateRegistryContext(step, yaml, name, context);
     }
 }
 // Exported objects/methods

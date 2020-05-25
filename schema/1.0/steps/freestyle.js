@@ -10,6 +10,8 @@
 
 const Joi        = require('joi');
 const BaseSchema = require('./../base-schema');
+const registryValidation = require('../validations/registry');
+const { ErrorBuilder } = require('./../error-builder');
 
 class Freestyle extends BaseSchema {
 
@@ -43,6 +45,11 @@ class Freestyle extends BaseSchema {
             shell: Joi.string().valid('sh', 'bash'),
             services: Joi.alternatives().try(Joi.object(), Joi.array()),
             debug: Freestyle._getDebugSchema(),
+            registry_context: Joi.string(),
+            registry_contexts: Joi.object().disallow().error(ErrorBuilder.buildJoiError({
+                message: `'registry_contexts' not allowed`,
+                path: 'registry_contexts'
+            })),
         };
         return this._createSchema(freestyleProperties)
             .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional
@@ -52,6 +59,10 @@ class Freestyle extends BaseSchema {
 
     _applyStepCompatibility(schema) {
         return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true });
+    }
+
+    static validateStep(step, yaml, name, context) {
+        return registryValidation.validateRegistryContext(step, yaml, name, context);
     }
 }
 // Exported objects/methods
