@@ -103,7 +103,7 @@ const validate = function (step,
         return { errors, warnings };
     }
 
-    if (handleCFCRRemovalUseCase && !registry && !step.disable_push && !context.autoPush) {
+    if (handleCFCRRemovalUseCase && !registry && !step.disable_push && !context.autoPush && !context.disablePush) {
         errors.push(ErrorBuilder.buildError({
             message: `'registry' is required`,
             name,

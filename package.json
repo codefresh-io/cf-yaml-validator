@@ -17,7 +17,7 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.19.1",
+  "version": "0.20.0",
   "main": "./validator.js",
   "scripts": {
     "test": "jest --coverage --runInBand",
