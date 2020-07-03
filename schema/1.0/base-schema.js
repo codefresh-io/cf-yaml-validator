@@ -11,6 +11,7 @@
 const _ = require('lodash');
 const Joi = require('joi');
 const convert = require('joi-to-json-schema');
+// const FreestyleSchema = require('./steps/freestyle')
 
 class BaseSchema {
 
@@ -101,7 +102,8 @@ class BaseSchema {
             'stage': Joi.string().valid(...(this._objectModel.stages || [])).optional(),
             'retry': BaseSchema._getRetrySchema(),
             'debug': BaseSchema._getDebugSchema(),
-            'env': BaseSchema._getEnvSchema()
+            'env': BaseSchema._getEnvSchema(),
+            'hooks': BaseSchema._getBaseHooksSchema(),
         }, schemaProperties);
     }
 
@@ -235,17 +237,21 @@ class BaseSchema {
 
     _applyMetadataAnnotationSchemaProperties(schemaProperties) {
         const metadataAnnotationSchema = Joi.object({
-            metadata: Joi.object({
-                set: Joi.array().items(
-                    Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
-                )
-            }),
+            metadata: BaseSchema._getMetadataSchema(),
             annotations: BaseSchema._getAnnotationsSchema(),
         });
         return Object.assign(schemaProperties, {
             'on_success': metadataAnnotationSchema,
             'on_fail': metadataAnnotationSchema,
             'on_finish': metadataAnnotationSchema,
+        });
+    }
+
+    static _getMetadataSchema() {
+        return Joi.object({
+            set: Joi.array().items(
+                Joi.object().pattern(/^.+$/, BaseSchema._getMetadataAnnotationSetSchema())
+            )
         });
     }
 
@@ -305,6 +311,27 @@ class BaseSchema {
                 Joi.array().items(Joi.string())
             ],
             condition: BaseSchema.getConditionSchema(),
+        });
+    }
+
+    static _getBaseHooksSchema() {
+        const hookSchema = Joi.alternatives([
+            Joi.array().items(Joi.string()),
+            Joi.object(),
+            Joi.object({
+                exec: Joi.alternatives([
+                    Joi.array().items(Joi.string()),
+                    Joi.object(),
+                ]),
+                metadata: BaseSchema._getMetadataSchema(),
+                annotation: BaseSchema._getAnnotationsSchema(),
+            })
+        ])
+        return Joi.object({
+            on_elected: hookSchema,
+            on_finish: hookSchema,
+            on_success: hookSchema,
+            on_fail: hookSchema,
         });
     }
 
