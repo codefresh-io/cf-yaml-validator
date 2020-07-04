@@ -326,7 +326,7 @@ class BaseSchema {
                 metadata: BaseSchema._getMetadataSchema(),
                 annotation: BaseSchema._getAnnotationsSchema(),
             })
-        ])
+        ]);
         return Joi.object({
             on_elected: hookSchema,
             on_finish: hookSchema,

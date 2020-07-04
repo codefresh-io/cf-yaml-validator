@@ -366,7 +366,7 @@ class Validator {
                 level: 'workflow',
                 docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
                 actionItems: `Please make sure you have all the required fields`,
-                lines: ErrorBuilder.getErrorLineNumber({yaml, key: err.path}),
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, key: err.path }),
             },
         ];
 
@@ -516,7 +516,7 @@ class Validator {
                 stepName,
                 docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
                 actionItems: `Please make sure you have all the required fields and valid values`,
-                lines: ErrorBuilder.getErrorLineNumber({yaml, stepName, key: err.path}),
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
             },
         ];
 
@@ -619,37 +619,37 @@ class Validator {
     static _validateHooksSchema(objectModel, yaml, opts) {
         if (objectModel.hooks) {
             _.forEach(objectModel.hooks, (hook) => {
-                const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts)
+                const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
                 if (validationResult.error) {
                     _.forEach(validationResult.error.details, (err) => {
                         Validator._processRootSchemaError(err, validationResult, yaml);
                     });
                 }
-            })
+            });
         }
         _.forEach(objectModel.steps, (step, stepName) => {
             if (step.hooks) {
                 _.forEach(step.hooks, (hook) => {
-                    const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts)
+                    const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
                     if (validationResult.error) {
                         _.forEach(validationResult.error.details, (err) => {
                             Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
                         });
                     }
-                })
+                });
             }
-        })
+        });
     }
 
     static _validateSingleHookSchema(objectModel, hook, opts) {
         if (_.isArray(hook)) {
-            return {}
+            return {};
         }
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
-        const freestyleSchema = stepsSchemas['freestyle'];
+        const freestyleSchema = stepsSchemas.freestyle;
 
         if (!hook.metadata && !hook.annotations && !hook.exec) {
-            return Joi.validate(hook, freestyleSchema, {abortEarly: false});
+            return Joi.validate(hook, freestyleSchema, { abortEarly: false });
         }
 
         let execSchema = Joi.alternatives([
@@ -658,7 +658,7 @@ class Validator {
         ]);
         if (hook.exec) {
             if (_.isArray(hook.exec)) {
-                execSchema = Joi.array().items(Joi.string())
+                execSchema = Joi.array().items(Joi.string());
             } else {
                 execSchema = freestyleSchema;
             }
@@ -668,8 +668,8 @@ class Validator {
             exec: execSchema,
             metadata: BaseSchema._getMetadataSchema(),
             annotations: BaseSchema._getAnnotationsSchema(),
-        })
-        return Joi.validate(hook, hookSchema, {abortEarly: false});
+        });
+        return Joi.validate(hook, hookSchema, { abortEarly: false });
     }
 
     //------------------------------------------------------------------------------
