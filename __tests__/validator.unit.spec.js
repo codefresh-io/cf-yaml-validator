@@ -129,6 +129,107 @@ describe('Validate Codefresh YAML', () => {
             });
             done();
         });
+
+        describe('Hooks', () => {
+            it('valid hooks', (done) => {
+                validate({
+                    version: '1.0',
+                    steps: {},
+                    hooks: {
+                        on_elected: ['echo test'],
+                        on_success: {
+                            exec: ['echo test'],
+                        },
+                        on_finish: {
+                            image: 'alpine',
+                            commands: ['echo test'],
+                        },
+                        on_fail: {
+                            exec: {
+                                image: 'alpine',
+                                commands: ['echo test'],
+                            },
+                            metadata: {
+                                set: [
+                                    {
+                                        test: [
+                                            {
+                                                test: 'test'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            annotations: {
+                                set: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: [{ test: 'test' }]
+                                    }
+                                ],
+                                unset: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: ['test']
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                });
+                done();
+            });
+            it('invalid hooks', (done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: {},
+                    hooks: {
+                        on_elected: ['echo test'],
+                        on_success: {
+                            exec: ['echo test'],
+                        },
+                        on_finish: {
+                            image: 'alpine',
+                            commands: ['echo test'],
+                        },
+                        on_fail: {
+                            exec: {
+                                image: 'alpine',
+                                commands: ['echo test'],
+                            },
+                            metadata: {
+                                set: [
+                                    {
+                                        test: [
+                                            {
+                                                test: 'test'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            annotations: {
+                                set: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: [{ test: 'test' }]
+                                    }
+                                ],
+                                unset: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: ['test']
+                                    }
+                                ]
+                            }
+                        },
+                        on_something: {
+                            image: 'alpine'
+                        }
+                    }
+                }, '"on_something" is not allowed', done);
+            });
+        });
     });
 
     describe('Steps', () => {
@@ -3834,6 +3935,187 @@ describe('Validate Codefresh YAML', () => {
                         },
                     }
                 }, '"delay" must be a number', done);
+            });
+        });
+
+        describe('Hooks', () => {
+            describe('positive', () => {
+                it('valid hooks', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                    },
+                                    on_fail: {
+                                        exec: {
+                                            image: 'alpine',
+                                            commands: ['echo test'],
+                                        },
+                                        metadata: {
+                                            set: [
+                                                {
+                                                    test: [
+                                                        {
+                                                            test: 'test'
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        annotations: {
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test' }]
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test']
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
+
+                it('should allow shortcuts', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
+            });
+            describe('negative', () => {
+                it('should not allow debug', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                        debug: {
+                                            phases: {
+                                                before: true,
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }, '"debug" is not allowed', done);
+                });
+                it('should not allow hooks', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                        hooks: {
+                                            on_elected: ['echo test'],
+                                        }
+                                    }
+                                },
+                            }
+                        },
+                    }, '"hooks" is not allowed', done);
+                });
+                it('should not allow old hooks', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                    }
+                                },
+                                on_finish: {
+                                    metadata: {
+                                        set: [{ test: [{ test: 'test' }] }]
+                                    }
+                                },
+                            }
+                        },
+                    }, 'Either old "on_success/on_fail/on_finish"', done);
+                });
+                it('should not allow other then on_success/on_finish/on_fail/on_elected', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                    },
+                                    on_fail: {
+                                        image: 'alpine',
+                                        commands: ['echo test'],
+                                    },
+                                    on_something: {
+                                        image: 'alpine',
+                                    }
+                                },
+                            }
+                        },
+                    }, '"on_something" is not allowed', done);
+                });
             });
         });
     });

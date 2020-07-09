@@ -321,6 +321,7 @@ class Validator {
             steps: Joi.object().pattern(/^.+$/, Joi.object()).required(),
             stages: Joi.array().items(Joi.string()),
             mode: Joi.string().valid('sequential', 'parallel'),
+            hooks: BaseSchema._getBaseHooksSchema(),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
             success_criteria: BaseSchema.getSuccessCriteriaSchema(),
             indicators: Joi.array(),
@@ -330,42 +331,46 @@ class Validator {
         const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
-                // regex to split joi's error path so that we can use lodah's _.get
-                // we make sure split first ${{}} annotations before splitting by dots (.)
-                const joiPathSplitted = err.path
-                    .split(/(\$\{\{[^}]*}})|([^.]+)/g);
-
-                // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-                const originalPath = [];
-                _.forEach(joiPathSplitted, (keyPath) => {
-                    if (keyPath && keyPath !== '.') {
-                        originalPath.push(keyPath);
-                    }
-                });
-
-                const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-                const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
-                const error = new Error();
-                error.name = 'ValidationError';
-                error.isJoi = true;
-                error.details = [
-                    {
-                        message,
-                        type: 'Validation',
-                        path: 'workflow',
-                        context: {
-                            key: 'workflow',
-                        },
-                        level: 'workflow',
-                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                        actionItems: `Please make sure you have all the required fields`,
-                        lines: ErrorBuilder.getErrorLineNumber({ yaml, key: err.path }),
-                    },
-                ];
-
-                Validator._addError(error);
+                Validator._processRootSchemaError(err, validationResult, yaml);
             });
         }
+    }
+
+    static _processRootSchemaError(err, validationResult, yaml) {
+        // regex to split joi's error path so that we can use lodah's _.get
+        // we make sure split first ${{}} annotations before splitting by dots (.)
+        const joiPathSplitted = err.path
+            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
+
+        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
+        const originalPath = [];
+        _.forEach(joiPathSplitted, (keyPath) => {
+            if (keyPath && keyPath !== '.') {
+                originalPath.push(keyPath);
+            }
+        });
+
+        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+        const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+        const error = new Error();
+        error.name = 'ValidationError';
+        error.isJoi = true;
+        error.details = [
+            {
+                message,
+                type: 'Validation',
+                path: 'workflow',
+                context: {
+                    key: 'workflow',
+                },
+                level: 'workflow',
+                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                actionItems: `Please make sure you have all the required fields`,
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, key: err.path }),
+            },
+        ];
+
+        Validator._addError(error);
     }
 
     static _resolveStepsModules() {
@@ -472,49 +477,51 @@ class Validator {
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
-                    // regex to split joi's error path so that we can use lodah's _.get
-                    // we make sure split first ${{}} annotations before splitting by dots (.)
-                    const joiPathSplitted = err.path
-                        .split(/(\$\{\{[^}]*}})|([^.]+)/g);
-
-                    // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-                    const originalPath = [];
-                    _.forEach(joiPathSplitted, (keyPath) => {
-                        if (keyPath && keyPath !== '.') {
-                            originalPath.push(keyPath);
-                        }
-                    });
-
-                    const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-                    const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
-                        ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
-                    const error = new Error();
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message,
-                            type: 'Validation',
-                            path: 'steps',
-                            context: {
-                                key: 'steps',
-                            },
-                            level: 'step',
-                            stepName,
-                            docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                            actionItems: `Please make sure you have all the required fields and valid values`,
-                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
-                        },
-                    ];
-
-                    Validator._addError(error);
+                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
                 });
-
-
             }
         }
     }
 
+
+    static _processStepSchemaError(err, validationResult, stepName, type, yaml) {
+        // regex to split joi's error path so that we can use lodah's _.get
+        // we make sure split first ${{}} annotations before splitting by dots (.)
+        const joiPathSplitted = err.path
+            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
+
+        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
+        const originalPath = [];
+        _.forEach(joiPathSplitted, (keyPath) => {
+            if (keyPath && keyPath !== '.') {
+                originalPath.push(keyPath);
+            }
+        });
+
+        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+        const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
+            ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+        const error = new Error();
+        error.name = 'ValidationError';
+        error.isJoi = true;
+        error.details = [
+            {
+                message,
+                type: 'Validation',
+                path: 'steps',
+                context: {
+                    key: 'steps',
+                },
+                level: 'step',
+                stepName,
+                docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                actionItems: `Please make sure you have all the required fields and valid values`,
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+            },
+        ];
+
+        Validator._addError(error);
+    }
 
     static _validateContextStep(objectModel, yaml, context, opts) {
         const ignoreValidation = _.get(opts, 'ignoreValidation', false);
@@ -609,6 +616,89 @@ class Validator {
         }
     }
 
+    static _validateHooksSchema(objectModel, yaml, opts) {
+        if (objectModel.hooks) {
+            _.forEach(objectModel.hooks, (hook) => {
+                const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
+                if (validationResult.error) {
+                    _.forEach(validationResult.error.details, (err) => {
+                        Validator._processRootSchemaError(err, validationResult, yaml);
+                    });
+                }
+            });
+        }
+        _.forEach(objectModel.steps, (step, stepName) => {
+            if (step.hooks) {
+                _.forEach(step.hooks, (hook) => {
+                    const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
+                    if (validationResult.error) {
+                        _.forEach(validationResult.error.details, (err) => {
+                            Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
+                        });
+                    }
+                });
+                const validationResult = Validator._validateDisallowOldHooks(step);
+                delete validationResult.value;
+                if (validationResult.error) {
+                    _.forEach(validationResult.error.details, (err) => {
+                        Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
+                    });
+                }
+            }
+        });
+    }
+
+    static _validateSingleHookSchema(objectModel, hook, opts) {
+        if (_.isArray(hook)) {
+            return {};
+        }
+        const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
+        const freestyleSchema = stepsSchemas.freestyle.keys({
+            debug: Joi.forbidden(),
+            on_start: Joi.forbidden(),
+            on_finish: Joi.forbidden(),
+            on_fail: Joi.forbidden(),
+            hooks: Joi.forbidden(),
+        });
+
+        if (!hook.metadata && !hook.annotations && !hook.exec) {
+            return Joi.validate(hook, freestyleSchema, { abortEarly: false });
+        }
+
+        let execSchema = Joi.alternatives([
+            Joi.array().items(Joi.string()),
+            Joi.object()
+        ]);
+        if (hook.exec) {
+            if (_.isArray(hook.exec)) {
+                execSchema = Joi.array().items(Joi.string());
+            } else {
+                execSchema = freestyleSchema;
+            }
+        }
+
+        const hookSchema = Joi.object({
+            exec: execSchema,
+            metadata: BaseSchema._getMetadataSchema(),
+            annotations: BaseSchema._getAnnotationsSchema(),
+        });
+        return Joi.validate(hook, hookSchema, { abortEarly: false });
+    }
+
+    static _validateDisallowOldHooks(step) {
+        const { hooks } = step;
+        if (hooks && (hooks.on_success || hooks.on_finish || hooks.on_fail)) {
+            const message = 'Either old "on_success/on_fail/on_finish" or new "hooks" should be used';
+            const schema = Joi.object({
+                on_success: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_success' })),
+                on_finish: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_finish' })),
+                on_fail: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_fail' })),
+            }).unknown(true);
+            return Joi.validate(step, schema, { abortEarly: false });
+        }
+        return {};
+    }
+
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
@@ -628,6 +718,7 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateHooksSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
         }
@@ -655,6 +746,7 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateHooksSchema(objectModel, yaml);
         Validator._validateContextStep(objectModel, yaml, context, opts);
         if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
             Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
