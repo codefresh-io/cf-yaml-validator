@@ -637,6 +637,12 @@ class Validator {
                         });
                     }
                 });
+                const validationResult = Validator._validateDisallowOldHooks(step);
+                if (validationResult.error) {
+                    _.forEach(validationResult.error.details, (err) => {
+                        Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
+                    });
+                }
             }
         });
     }
@@ -646,7 +652,13 @@ class Validator {
             return {};
         }
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
-        const freestyleSchema = stepsSchemas.freestyle;
+        const freestyleSchema = stepsSchemas.freestyle.keys({
+            debug: Joi.forbidden(),
+            on_start: Joi.forbidden(),
+            on_finish: Joi.forbidden(),
+            on_fail: Joi.forbidden(),
+            hooks: Joi.forbidden(),
+        });
 
         if (!hook.metadata && !hook.annotations && !hook.exec) {
             return Joi.validate(hook, freestyleSchema, { abortEarly: false });
@@ -670,6 +682,20 @@ class Validator {
             annotations: BaseSchema._getAnnotationsSchema(),
         });
         return Joi.validate(hook, hookSchema, { abortEarly: false });
+    }
+
+    static _validateDisallowOldHooks(step) {
+        const hooks = step.hooks;
+        if (hooks && (hooks.on_success || hooks.on_finish || hooks.on_fail)) {
+            const message = 'Either old "on_success/on_fail/on_finish" or new "hooks" should be used'
+            let schema = Joi.object({
+                on_success: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_success' })),
+                on_finish: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_finish' })),
+                on_fail: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_fail' })),
+            }).unknown(true);
+            return Joi.validate(step, schema,{ abortEarly: false });
+        }
+        return {};
     }
 
     //------------------------------------------------------------------------------
