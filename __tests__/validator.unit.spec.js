@@ -130,7 +130,7 @@ describe('Validate Codefresh YAML', () => {
             done();
         });
 
-        describe('Hooks', function () {
+        describe('Hooks', () => {
             it('valid hooks', (done) => {
                 validate({
                     version: '1.0',
@@ -3940,7 +3940,7 @@ describe('Validate Codefresh YAML', () => {
 
         describe('Hooks', () => {
             describe('positive', () => {
-                it('valid hooks', function (done) {
+                it('valid hooks', (done) => {
                     validate({
                         version: '1.0',
                         steps: {
