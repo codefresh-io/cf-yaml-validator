@@ -686,15 +686,15 @@ class Validator {
     }
 
     static _validateDisallowOldHooks(step) {
-        const hooks = step.hooks;
+        const { hooks } = step;
         if (hooks && (hooks.on_success || hooks.on_finish || hooks.on_fail)) {
-            const message = 'Either old "on_success/on_fail/on_finish" or new "hooks" should be used'
-            let schema = Joi.object({
+            const message = 'Either old "on_success/on_fail/on_finish" or new "hooks" should be used';
+            const schema = Joi.object({
                 on_success: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_success' })),
                 on_finish: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_finish' })),
                 on_fail: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_fail' })),
             }).unknown(true);
-            return Joi.validate(step, schema,{ abortEarly: false });
+            return Joi.validate(step, schema, { abortEarly: false });
         }
         return {};
     }
