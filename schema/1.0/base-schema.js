@@ -11,7 +11,6 @@
 const _ = require('lodash');
 const Joi = require('joi');
 const convert = require('joi-to-json-schema');
-// const FreestyleSchema = require('./steps/freestyle')
 
 class BaseSchema {
 
