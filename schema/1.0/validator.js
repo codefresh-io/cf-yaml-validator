@@ -638,6 +638,7 @@ class Validator {
                     }
                 });
                 const validationResult = Validator._validateDisallowOldHooks(step);
+                delete validationResult.value;
                 if (validationResult.error) {
                     _.forEach(validationResult.error.details, (err) => {
                         Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
