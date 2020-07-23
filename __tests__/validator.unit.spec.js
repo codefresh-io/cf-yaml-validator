@@ -4007,6 +4007,71 @@ describe('Validate Codefresh YAML', () => {
                                     on_finish: {
                                         image: 'alpine',
                                         commands: ['echo test'],
+                                    },
+                                    on_fail: {
+                                        mode: 'parallel',
+                                        fail_fast: false,
+                                        steps: {
+                                            first: {
+                                                image: 'alpine',
+                                                commands: ['echo first']
+                                            },
+                                            second: {
+                                                image: 'alpine',
+                                                commands: ['echo second']
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
+
+                it('should allow freestyle', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        exec: {
+                                            image: 'alpine',
+                                            fail_fast: false,
+                                            commands: ['echo test']
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
+
+                it('should allow multiple steps', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        exec: {
+                                            mode: 'parallel',
+                                            fail_fast: false,
+                                            steps: {
+                                                first: {
+                                                    image: 'alpine',
+                                                    commands: ['echo first']
+                                                },
+                                                second: {
+                                                    image: 'alpine',
+                                                    commands: ['echo second']
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -4115,6 +4180,35 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     }, '"on_something" is not allowed', done);
+                });
+                it('should not allow other keys on multiple steps', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        exec: {
+                                            type: 'build',
+                                            mode: 'parallel',
+                                            fail_fast: false,
+                                            steps: {
+                                                first: {
+                                                    image: 'alpine',
+                                                    commands: ['echo first']
+                                                },
+                                                second: {
+                                                    image: 'alpine',
+                                                    commands: ['echo second']
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }, '"type" is not allowed', done);
                 });
             });
         });
