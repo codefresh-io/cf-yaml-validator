@@ -660,9 +660,15 @@ class Validator {
             on_fail: Joi.forbidden(),
             hooks: Joi.forbidden(),
         });
+        const multipleStepsSchema = Joi.object({
+            mode: Joi.string().valid('sequential', 'parallel'),
+            fail_fast: Joi.boolean(),
+            steps: Joi.object().pattern(/.+/, freestyleSchema),
+        });
 
         if (!hook.metadata && !hook.annotations && !hook.exec) {
-            return Joi.validate(hook, freestyleSchema, { abortEarly: false });
+            const schema = hook.steps ? multipleStepsSchema : freestyleSchema;
+            return Joi.validate(hook, schema, { abortEarly: false });
         }
 
         let execSchema = Joi.alternatives([
@@ -672,6 +678,8 @@ class Validator {
         if (hook.exec) {
             if (_.isArray(hook.exec)) {
                 execSchema = Joi.array().items(Joi.string());
+            } else if (hook.exec.steps) {
+                execSchema = multipleStepsSchema;
             } else {
                 execSchema = freestyleSchema;
             }
