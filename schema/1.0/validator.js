@@ -402,7 +402,7 @@ class Validator {
         return joiSchemas;
     }
 
-    static _validateStepSchema(objectModel, yaml, opts) {
+    static _validateStepSchema(objectModel, yaml, opts, outputFormat) {
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (s, name) => {
@@ -481,7 +481,7 @@ class Validator {
 
                 _.forEach(_.keys(step), (key) => {
                     if (!stepSchemeProperties.includes(key)) {
-                        Validator._processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties);
+                        Validator._processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties, outputFormat);
                     }
                 });
             }
@@ -533,7 +533,7 @@ class Validator {
     }
 
 
-    static _processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties) {
+    static _processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties, outputFormat) {
         const nearestValue = Validator._getNearestMatchingProperty(stepSchemeProperties, key);
 
         if (nearestValue) {
@@ -542,21 +542,25 @@ class Validator {
             error.isJoi = true;
             error.details = [
                 {
-                    message: `The specified value ("${key}") is not valid. Did you mean "${nearestValue}"?`,
+                    message: `"${key}" is not allowed. Did you mean "${nearestValue}"?`,
                     type: 'Validation',
-                    path: 'steps',
+                    path: nearestValue,
                     context: {
-                        key: 'steps',
+                        key: nearestValue,
                     },
                     level: 'step',
                     stepName,
                     docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                    actionItems: `Please make sure you have all the valid values`,
+                    actionItems: 'Please make sure you have all the valid values',
                     lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key }),
                 },
             ];
 
             Validator._addError(error);
+        }
+
+        if (nearestValue === 'type') {
+            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 
@@ -802,7 +806,7 @@ class Validator {
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
-        Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateStepSchema(objectModel, yaml, opts, outputFormat);
         Validator._validateHooksSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
