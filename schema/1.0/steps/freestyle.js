@@ -35,6 +35,7 @@ class Freestyle extends BaseSchema {
 
     getSchema() {
         const freestyleProperties = {
+            type: Joi.string().valid(Freestyle.getType()),
             working_directory: Joi.string(),
             image: Joi.string().required(),
             commands: Joi.array().items(Joi.string()),

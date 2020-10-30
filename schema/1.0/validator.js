@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const colors = require('colors');
+const levenshtein = require('js-levenshtein');
 const Table = require('cli-table3');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
@@ -474,12 +475,88 @@ class Validator {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue; // eslint-disable-line no-continue
             }
+
+            if (type === Freestyle.getType()) {
+                const stepSchemeProperties = Validator._getStepSchemeProperties(stepSchema);
+
+                _.forEach(_.keys(step), (key) => {
+                    if (!stepSchemeProperties.includes(key)) {
+                        Validator._processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties);
+                    }
+                })
+            }
+
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
                     Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
                 });
             }
+        }
+    }
+
+
+    static _getStepSchemeProperties(stepSchema) {
+        const { children } = stepSchema.describe();
+
+        return _.keys(children)
+    }
+
+
+    static _getNearestMatchingProperty(stepProperties, wrongKey) {
+        const threshold = Validator._getThreshold(wrongKey);
+        const possibleProperties = stepProperties.filter((property) => Math.abs(property.length - wrongKey.length) < threshold);
+        Validator._sortByDistances(wrongKey, possibleProperties);
+
+        return possibleProperties[0];
+    }
+
+
+    static _getThreshold(propertyName) {
+        return propertyName.length < 5 ? 3 : 5;
+    }
+
+
+    static _sortByDistances(typoPropertyName, properties) {
+        const propNameDistance = {};
+    
+        properties.sort((a, b) => {
+          if (!_.has(propNameDistance, a)) {
+            propNameDistance[a] = levenshtein(a, typoPropertyName);
+          }
+          if (!_.has(propNameDistance, b)) {
+            propNameDistance[b] = levenshtein(b, typoPropertyName);
+          }
+    
+          return propNameDistance[a] - propNameDistance[b];
+        });
+    }
+
+
+    static _processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties) {
+        const nearestValue = Validator._getNearestMatchingProperty(stepSchemeProperties, key);
+
+        if (nearestValue) {
+            const error = new Error();
+            error.name = 'ValidationError';
+            error.isJoi = true;
+            error.details = [
+                {
+                    message: `The specified value ("${key}") is not valid. Did you mean "${nearestValue}"?`,
+                    type: 'Validation',
+                    path: 'steps',
+                    context: {
+                        key: 'steps',
+                    },
+                    level: 'step',
+                    stepName,
+                    docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                    actionItems: `Please make sure you have all the valid values`,
+                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key }),
+                },
+            ];
+
+            Validator._addError(error);
         }
     }
 
