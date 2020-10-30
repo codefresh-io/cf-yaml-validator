@@ -483,7 +483,7 @@ class Validator {
                     if (!stepSchemeProperties.includes(key)) {
                         Validator._processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties);
                     }
-                })
+                });
             }
 
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
@@ -499,13 +499,13 @@ class Validator {
     static _getStepSchemeProperties(stepSchema) {
         const { children } = stepSchema.describe();
 
-        return _.keys(children)
+        return _.keys(children);
     }
 
 
     static _getNearestMatchingProperty(stepProperties, wrongKey) {
         const threshold = Validator._getThreshold(wrongKey);
-        const possibleProperties = stepProperties.filter((property) => Math.abs(property.length - wrongKey.length) < threshold);
+        const possibleProperties = stepProperties.filter(property => Math.abs(property.length - wrongKey.length) < threshold);
         Validator._sortByDistances(wrongKey, possibleProperties);
 
         return possibleProperties[0];
@@ -519,16 +519,16 @@ class Validator {
 
     static _sortByDistances(typoPropertyName, properties) {
         const propNameDistance = {};
-    
+
         properties.sort((a, b) => {
-          if (!_.has(propNameDistance, a)) {
-            propNameDistance[a] = levenshtein(a, typoPropertyName);
-          }
-          if (!_.has(propNameDistance, b)) {
-            propNameDistance[b] = levenshtein(b, typoPropertyName);
-          }
-    
-          return propNameDistance[a] - propNameDistance[b];
+            if (!_.has(propNameDistance, a)) {
+                propNameDistance[a] = levenshtein(a, typoPropertyName);
+            }
+            if (!_.has(propNameDistance, b)) {
+                propNameDistance[b] = levenshtein(b, typoPropertyName);
+            }
+
+            return propNameDistance[a] - propNameDistance[b];
         });
     }
 
