@@ -4258,7 +4258,7 @@ describe('Validate Codefresh YAML', () => {
 
 
     describe('Printify mode', () => {
-        
+
         it('validate all the required fields', (done) => {
             validateForError({
                 version: '1.0',

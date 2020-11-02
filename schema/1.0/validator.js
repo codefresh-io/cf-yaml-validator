@@ -561,6 +561,7 @@ class Validator {
         }
 
         if (nearestValue === 'type') {
+            // Throw an error because when type is not defined it should not pass other validation
             Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
