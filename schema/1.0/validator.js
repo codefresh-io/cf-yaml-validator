@@ -498,7 +498,7 @@ class Validator {
 
     static _getStepSchemeProperties(stepSchema) {
         const { children } = stepSchema.describe();
-        const renames = _.get(stepSchema, '_inner.renames', []).map(({ from }) => from)
+        const renames = _.get(stepSchema, '_inner.renames', []).map(({ from }) => from);
 
         return _.keys(children).concat(renames);
     }
