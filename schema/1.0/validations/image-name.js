@@ -19,14 +19,21 @@ class ImageNameValidation extends BaseArgument {
         const errors = [];
 
         if (this._isMissingAccountName(step)) {
-            warnings.push(ErrorBuilder.buildError({
-                message: `"${this.getName()}" format should be [account_name]/[image_name] on step: ${name}`,
-                name,
-                yaml,
-                type: ErrorType.Warning,
-                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                errorPath: this.getName()
-            }));
+            const error = new Error();
+            error.name = 'ValidationError';
+            error.isJoi = true;
+            error.details = [
+                {
+                    message: `"${this.getName()}" format should be [account_name]/[image_name] on step: ${name}`,
+                    name,
+                    yaml,
+                    type: ErrorType.Warning,
+                    docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                    errorPath: this.getName(),
+                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: this.getName() })
+                }
+            ];
+            warnings.push(error);
         }
 
         return {
@@ -38,7 +45,7 @@ class ImageNameValidation extends BaseArgument {
 
     static _isMissingAccountName(step) {
         const imageName = BaseSchema._getFieldFromStep(step, 'image_name');
-        const pattern = /\S+\/\S+/gi;
+        const pattern = /^[^\/\s]+\/[^\/\s]\S*$/gi;
 
         return _.isString(imageName) && !pattern.test(imageName);
     }

@@ -741,7 +741,6 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
-        Validator._validateStepArguments(objectModel, yaml, opts);
         Validator._validateHooksSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
@@ -770,9 +769,9 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
-        Validator._validateStepArguments(objectModel, yaml, opts);
         Validator._validateHooksSchema(objectModel, yaml);
         Validator._validateContextStep(objectModel, yaml, context, opts);
+        Validator._validateStepArguments(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
             Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
