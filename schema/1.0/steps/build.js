@@ -11,6 +11,7 @@
 const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
+const imageNameValidation = require('../validations/image-name');
 
 const BUILD_VERSION = 'V2';
 const PROVIDERS = ['cf', 'gcb'];
@@ -84,6 +85,19 @@ class Build extends BaseSchema {
             name,
             context,
             { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false, handleCFCRRemovalUseCase: true });
+    }
+
+    static validateArguments(step, yaml, name) {
+        const validations = [imageNameValidation];
+
+        return validations.reduce((acc, curr) => {
+            const { errors, warnings } = curr.validate(step, yaml, name);
+
+            return {
+                errors: acc.errors.concat(errors),
+                warnings: acc.warnings.concat(warnings)
+            };
+        }, { errors: [], warnings: [] });
     }
 
     _applyStepCompatibility(schema) {

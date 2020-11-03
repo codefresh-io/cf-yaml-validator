@@ -541,6 +541,22 @@ class Validator {
         });
     }
 
+    static _validateStepArguments(objectModel, yaml, opts) {
+        _.forEach(objectModel.steps, (step, name) => {
+            const stepType = _.get(step, 'type', 'freestyle');
+            const validation = _.get(StepValidator, stepType);
+            if (validation.getType() === 'build') {
+                const { errors, warnings } = validation.validateArguments(step, yaml, name);
+                errors.forEach(error => Validator._addError(error));
+                warnings.forEach(warning => Validator._addWarning(warning));
+            }
+            if (step.type === 'parallel' || step.steps) {
+                this._validateStepArguments(step, yaml, opts);
+            }
+
+        });
+    }
+
     static _validateIndention(yaml, outputFormat) {
         const yamlArray = yaml.split('\n');
         _.forEach(yamlArray, (line, number) => {
@@ -726,6 +742,7 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateStepArguments(objectModel, yaml, opts);
         Validator._validateHooksSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
@@ -754,6 +771,7 @@ class Validator {
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
+        Validator._validateStepArguments(objectModel, yaml, opts);
         Validator._validateHooksSchema(objectModel, yaml);
         Validator._validateContextStep(objectModel, yaml, context, opts);
         if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
