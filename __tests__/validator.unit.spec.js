@@ -1269,7 +1269,7 @@ describe('Validate Codefresh YAML', () => {
                     version: '1.0',
                     steps: {
                         jim: {
-                            type: 'build',
+                            'type': 'build',
                             'image_name': 'jim'
                         }
                     }
@@ -1305,27 +1305,27 @@ describe('Validate Codefresh YAML', () => {
                 });
 
                 it('Image name with leading slash', (done) => {
-                    model.steps.jim.image_name = '/image'
+                    model.steps.jim.image_name = '/image';
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
                 });
 
                 it('Image name with two leading slashes', (done) => {
-                    model.steps.jim.image_name = '//image'
+                    model.steps.jim.image_name = '//image';
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
                 });
 
                 it('Image name with trailing slash', (done) => {
-                    model.steps.jim.image_name = 'owner/'
+                    model.steps.jim.image_name = 'owner/';
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
                 });
 
                 it('Image name with trailing two slashes', (done) => {
-                    model.steps.jim.image_name = 'owner//'
+                    model.steps.jim.image_name = 'owner//';
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
                 });
 
                 it('Image name and account name separated by two slashes', (done) => {
-                    model.steps.jim.image_name = 'owner//jim'
+                    model.steps.jim.image_name = 'owner//jim';
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
                 });
             });

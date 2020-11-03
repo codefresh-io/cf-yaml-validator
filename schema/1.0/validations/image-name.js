@@ -45,7 +45,7 @@ class ImageNameValidation extends BaseArgument {
 
     static _isMissingAccountName(step) {
         const imageName = BaseSchema._getFieldFromStep(step, 'image_name');
-        const pattern = /^[^\/\s]+\/[^\/\s]\S*$/gi;
+        const pattern = /^[^/\s]+\/[^/\s]\S*$/gi;
 
         return _.isString(imageName) && !pattern.test(imageName);
     }
