@@ -267,7 +267,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'credentials': {
                                 username: 'jim',
                                 password: 'bob'
@@ -285,7 +285,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'no_cache': true
                         }
                     }
@@ -299,7 +299,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'no_cf_cache': true
                         }
                     }
@@ -313,7 +313,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'no_cache': 'please do sir'
                         }
                     }
@@ -327,7 +327,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'no_cf_cache': 'please do sir'
                         }
                     }
@@ -341,7 +341,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'squash': true
                         }
                     }
@@ -355,7 +355,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'squash': 'please do sir'
                         }
                     }
@@ -396,7 +396,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'description': {}
                         }
                     }
@@ -410,7 +410,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'title': {}
                         }
                     }
@@ -424,7 +424,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'docker_machine': 'google'
                         }
                     }
@@ -438,7 +438,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'fail_fast': {}
                         }
                     }
@@ -452,7 +452,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'tag': []
                         }
                     }
@@ -626,7 +626,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         build: {
                             type: 'build',
-                            image_name: 'name',
+                            image_name: 'owner/name',
                             annotations: {
                                 put: [
                                     {
@@ -695,7 +695,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         build: {
                             type: 'build',
-                            image_name: 'name',
+                            image_name: 'owner/name',
                             annotations: {
                                 set: {
                                     entity_type: 'image',
@@ -822,7 +822,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'image': 'bobson'
                         }
                     }
@@ -999,7 +999,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'repo': 'github.com/owner/repo'
                         }
                     }
@@ -1027,7 +1027,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jimb',
+                            'image_name': 'owner/jimb',
                             'revision': 'github.com/owner/repo'
                         }
                     }
@@ -1046,7 +1046,7 @@ describe('Validate Codefresh YAML', () => {
                         steps: {
                             jim: {
                                 'type': 'build',
-                                'image_name': 'jim',
+                                'image_name': 'owner/jim',
                                 'registry': 'reg'
                             }
                         }
@@ -1060,7 +1060,7 @@ describe('Validate Codefresh YAML', () => {
                         steps: {
                             jim: {
                                 'type': 'build',
-                                'image_name': 'jim',
+                                'image_name': 'owner/jim',
                                 'disable_push': true
                             }
                         }
@@ -1074,7 +1074,7 @@ describe('Validate Codefresh YAML', () => {
                         steps: {
                             jim: {
                                 'type': 'build',
-                                'image_name': 'jim',
+                                'image_name': 'owner/jim',
                                 'tags': [
                                     'tag1',
                                     'tag2'
@@ -1284,7 +1284,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'dockerfile': []
                         }
                     }
@@ -1312,7 +1312,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'build_arguments': ''
                         }
                     }
@@ -1326,7 +1326,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'build_arguments': [{}, 'asdasd']
                         }
                     }
@@ -1340,7 +1340,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'metadata': {
                                 'unset': [{ qa: 'pending' }]
                             }
@@ -1356,7 +1356,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'metadata': {
                                 'set': [{ 'qa.bob': 'pending' }]
                             }
@@ -1372,7 +1372,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'metadata': {
                                 'set': [
                                     {
@@ -1423,7 +1423,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'candidate': 'github.com/owner/repo'
                         }
                     }
@@ -1451,7 +1451,7 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         jim: {
                             'type': 'build',
-                            'image_name': 'jim',
+                            'image_name': 'owner/jim',
                             'candidate': 'wowwww'
                         }
                     }
@@ -3286,7 +3286,7 @@ describe('Validate Codefresh YAML', () => {
                     },
                     build: {
                         'type': 'build',
-                        'image_name': 'teh-image'
+                        'image_name': 'owner/teh-image'
                     },
                     push: {
                         type: 'push',
@@ -3471,7 +3471,7 @@ describe('Validate Codefresh YAML', () => {
                         'dockerfile': 'path/to/dockerfile',
                         'no_cache': false,
                         'no_cf_cache': true,
-                        'image_name': 'teh-image',
+                        'image_name': 'owner/teh-image',
                         'tag': 'develop',
                         'target': 'stage1',
                         'build_arguments': ['jim=bob'],
@@ -3491,7 +3491,7 @@ describe('Validate Codefresh YAML', () => {
                         'dockerfile': { content: 'jimson' },
                         'no_cache': false,
                         'no_cf_cache': true,
-                        'image_name': 'teh-image',
+                        'image_name': 'owner/teh-image',
                         'tag': 'develop',
                         'target': 'stage1',
                         'build_arguments': ['jim=bob'],

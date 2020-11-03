@@ -40,7 +40,7 @@ class ImageNameValidation extends BaseArgument {
         const imageName = BaseSchema._getFieldFromStep(step, 'image_name');
         const pattern = /\S+\/\S+/gi;
 
-        return imageName && !pattern.test(imageName);
+        return _.isString(imageName) && !pattern.test(imageName);
     }
 }
 

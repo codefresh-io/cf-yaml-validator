@@ -545,7 +545,7 @@ class Validator {
         _.forEach(objectModel.steps, (step, name) => {
             const stepType = _.get(step, 'type', 'freestyle');
             const validation = _.get(StepValidator, stepType);
-            if (validation.getType() === 'build') {
+            if (validation && validation.getType() === 'build') {
                 const { errors, warnings } = validation.validateArguments(step, yaml, name);
                 errors.forEach(error => Validator._addError(error));
                 warnings.forEach(warning => Validator._addWarning(warning));
@@ -553,7 +553,6 @@ class Validator {
             if (step.type === 'parallel' || step.steps) {
                 this._validateStepArguments(step, yaml, opts);
             }
-
         });
     }
 
