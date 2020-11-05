@@ -15,33 +15,18 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const colors = require('colors');
-const levenshtein = require('js-levenshtein');
 const Table = require('cli-table3');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
-const GitClone = require('./steps/git-clone');
-const Deploy = require('./steps/deploy');
-const Push = require('./steps/push');
-const Build = require('./steps/build');
-const Freestyle = require('./steps/freestyle');
-const Composition = require('./steps/composition');
+const StepValidator = require('./constants/step-validator');
 
 let totalErrors;
 let totalWarnings;
 
 const MaxStepLength = 150;
-
-const StepValidator = {
-    'git-clone': GitClone,
-    'deploy': Deploy,
-    'push': Push,
-    'build': Build,
-    'freestyle': Freestyle,
-    'composition': Composition
-};
 
 class Validator {
 
@@ -402,7 +387,7 @@ class Validator {
         return joiSchemas;
     }
 
-    static _validateStepSchema(objectModel, yaml, opts, outputFormat) {
+    static _validateStepSchema(objectModel, yaml, opts) {
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (s, name) => {
@@ -476,93 +461,12 @@ class Validator {
                 continue; // eslint-disable-line no-continue
             }
 
-            if (type === Freestyle.getType()) {
-                const stepSchemeProperties = Validator._getStepSchemeProperties(stepSchema);
-
-                _.forEach(_.keys(step), (key) => {
-                    if (!stepSchemeProperties.includes(key)) {
-                        Validator._processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties, outputFormat);
-                    }
-                });
-            }
-
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
                     Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
                 });
             }
-        }
-    }
-
-
-    static _getStepSchemeProperties(stepSchema) {
-        const { children } = stepSchema.describe();
-        const renames = _.get(stepSchema, '_inner.renames', []).map(({ from }) => from);
-
-        return _.keys(children).concat(renames);
-    }
-
-
-    static _getNearestMatchingProperty(stepProperties, wrongKey) {
-        const threshold = Validator._getThreshold(wrongKey);
-        const possibleProperties = stepProperties.filter(property => Math.abs(property.length - wrongKey.length) < threshold);
-        Validator._sortByDistances(wrongKey, possibleProperties);
-
-        return possibleProperties[0];
-    }
-
-
-    static _getThreshold(propertyName) {
-        return propertyName.length < 5 ? 3 : 5;
-    }
-
-
-    static _sortByDistances(typoPropertyName, properties) {
-        const propNameDistance = {};
-
-        properties.sort((a, b) => {
-            if (!_.has(propNameDistance, a)) {
-                propNameDistance[a] = levenshtein(a, typoPropertyName);
-            }
-            if (!_.has(propNameDistance, b)) {
-                propNameDistance[b] = levenshtein(b, typoPropertyName);
-            }
-
-            return propNameDistance[a] - propNameDistance[b];
-        });
-    }
-
-
-    static _processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties, outputFormat) {
-        const nearestValue = Validator._getNearestMatchingProperty(stepSchemeProperties, key);
-
-        if (nearestValue) {
-            const error = new Error();
-            error.name = 'ValidationError';
-            error.isJoi = true;
-            error.details = [
-                {
-                    message: `"${key}" is not allowed. Did you mean "${nearestValue}"?`,
-                    type: 'Validation',
-                    path: nearestValue,
-                    context: {
-                        key: nearestValue,
-                    },
-                    level: 'step',
-                    stepName,
-                    docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                    actionItems: 'Please make sure you have all the valid values',
-                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key }),
-                },
-            ];
-
-            Validator._addError(error);
-        }
-
-        if (nearestValue === 'type') {
-            // Throw an error because when type is not defined it should not pass other validation
-            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 
@@ -808,7 +712,7 @@ class Validator {
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
-        Validator._validateStepSchema(objectModel, yaml, opts, outputFormat);
+        Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateHooksSchema(objectModel, yaml, opts);
         if (_.size(totalErrors.details) > 0) {
             Validator._throwValidationErrorAccordingToFormat(outputFormat);
