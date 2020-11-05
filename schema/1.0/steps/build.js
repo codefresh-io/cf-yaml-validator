@@ -7,10 +7,12 @@
 //------------------------------------------------------------------------------
 // Requirements
 //------------------------------------------------------------------------------
+const _ = require('lodash');
 
 const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
+const imageNameValidation = require('../validations/image-name');
 
 const BUILD_VERSION = 'V2';
 const PROVIDERS = ['cf', 'gcb'];
@@ -79,11 +81,32 @@ class Build extends BaseSchema {
     }
 
     static validateStep(step, yaml, name, context) {
-        return registryValidation.validate(step,
+        const registryValidationResult = registryValidation.validate(step,
             yaml,
             name,
             context,
             { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false, handleCFCRRemovalUseCase: true });
+        const argumentsValidationResult = this.validateArguments(step, yaml, name);
+
+        return _.mergeWith(registryValidationResult, argumentsValidationResult, this._mergeCustomizer);
+    }
+
+    static _mergeCustomizer(objValue, srcValue) {
+        if (_.isArray(objValue)) {
+            return objValue.concat(srcValue);
+        }
+
+        return objValue;
+    }
+
+    static validateArguments(step, yaml, name) {
+        const validations = [imageNameValidation];
+
+        return validations.reduce((acc, curr) => {
+            const result = curr.validate(step, yaml, name);
+
+            return _.mergeWith(acc, result, this._mergeCustomizer);
+        }, { errors: [], warnings: [] });
     }
 
     _applyStepCompatibility(schema) {
