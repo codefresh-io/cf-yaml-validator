@@ -17,6 +17,8 @@ class SuggestArgumentValidation {
 
 
     static suggest(schema, argument) {
+        if (!schema) return;
+        
         const stepSchemeProperties = this._getStepSchemeProperties(schema);
 
         return this._getNearestMatchingProperty(stepSchemeProperties, argument);

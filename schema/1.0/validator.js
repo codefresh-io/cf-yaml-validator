@@ -514,15 +514,15 @@ class Validator {
         const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
         const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
         const misspelledArgument = _.get(err, 'context.key', '');
+        const suggestion = SuggestArgumentValidation.suggest(stepSchema, misspelledArgument);
+        const canSuggest = !!(isNotAllowedArgumentError && misspelledArgument && stepSchema && suggestion);
 
-        if (originalFieldValue && isNotAllowedArgumentError && misspelledArgument) {
-            const suggestion = SuggestArgumentValidation.suggest(stepSchema, misspelledArgument);
-
+        if (canSuggest) {
             return `${err.message}. Did you mean "${suggestion}"?`;
         }
 
         if (originalFieldValue && !isNotAllowedArgumentError) {
-            return `${err.message}. Current value: ${originalFieldValue}`;
+            return `${err.message}. Current value: ${originalFieldValue} `;
         }
 
         return err.message;
