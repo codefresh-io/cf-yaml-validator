@@ -5,10 +5,6 @@ const levenshtein = require('js-levenshtein');
 
 
 const BaseArgument = require('./base-argument');
-const { ErrorBuilder } = require('../error-builder');
-const { docBaseUrl, DocumentationLinks } = require('../documentation-links');
-const Validator = require('../../../validator');
-const Freestyle = require('../steps/freestyle');
 
 
 class SuggestArgumentValidation extends BaseArgument {
@@ -16,41 +12,17 @@ class SuggestArgumentValidation extends BaseArgument {
     static get lengthThreshold() {
         return 3;
     }
+
+
     static get distanceThreshold() {
         return 5;
     }
 
 
-    static getName() {
-        return 'image_name';
-    }
+    static suggest(schema, argument) {
+        const stepSchemeProperties = this._getStepSchemeProperties(schema);
 
-    static validate(step, yaml, name, config = {}) {
-        const warnings = [];
-        const errors = [];
-
-        const type = step.type || Freestyle.getType();
-        const stepsSchemas = Validator.getJoiSchemas(config.version, config.options);
-        const stepSchema = stepsSchemas[type];
-        // if (!stepSchema) {
-        //     console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
-        //     continue; // eslint-disable-line no-continue
-        // }
-
-        const stepSchemeProperties = this._getStepSchemeProperties(stepSchema);
-
-        _.forEach(_.keys(step), (key) => {
-            if (!stepSchemeProperties.includes(key)) {
-                const result = this._processStepPropertyError(yaml, name, key, type, stepSchemeProperties);
-                warnings.push(...result.warnings);
-                errors.push(...result.errors);
-            }
-        });
-
-        return {
-            errors,
-            warnings
-        };
+        return this._getNearestMatchingProperty(stepSchemeProperties, argument);
     }
 
 
@@ -93,43 +65,6 @@ class SuggestArgumentValidation extends BaseArgument {
         props.sort((a, b) => propNameDistance[a] - propNameDistance[b]);
 
         return props;
-    }
-
-
-    static _processStepPropertyError(yaml, stepName, key, type, stepSchemeProperties) {
-        const nearestValue = this._getNearestMatchingProperty(stepSchemeProperties, key);
-        const errors = [];
-        const warnings = [];
-
-        if (nearestValue) {
-            const error = new Error();
-            error.name = 'ValidationError';
-            error.isJoi = true;
-            error.details = [
-                {
-                    message: `"${key}" is not allowed. Did you mean "${nearestValue}"?`,
-                    type: 'Validation',
-                    path: nearestValue,
-                    context: {
-                        key: nearestValue,
-                    },
-                    level: 'step',
-                    stepName,
-                    docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                    actionItems: 'Please make sure you have all the valid values',
-                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key }),
-                },
-            ];
-
-            warnings.push(error);
-        }
-
-        // if (nearestValue === 'type') {
-        //     // Throw an error because when type is not defined it should not pass other validation
-        //     Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
-        // }
-
-        return { errors, warnings };
     }
 }
 

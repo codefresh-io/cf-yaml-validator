@@ -22,6 +22,7 @@ const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
 const { StepValidator } = require('./constants/step-validator');
+const SuggestArgumentValidation = require('./validations/suggest-argument');
 
 let totalErrors;
 let totalWarnings;
@@ -464,30 +465,15 @@ class Validator {
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
-                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
+                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
                 });
             }
         }
     }
 
 
-    static _processStepSchemaError(err, validationResult, stepName, type, yaml) {
-        // regex to split joi's error path so that we can use lodah's _.get
-        // we make sure split first ${{}} annotations before splitting by dots (.)
-        const joiPathSplitted = err.path
-            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
-
-        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-        const originalPath = [];
-        _.forEach(joiPathSplitted, (keyPath) => {
-            if (keyPath && keyPath !== '.') {
-                originalPath.push(keyPath);
-            }
-        });
-
-        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-        const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
-            ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+    static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
+        const message = this._getStepSchemaErrorMessage(err, validationResult, stepSchema);
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;
@@ -508,6 +494,38 @@ class Validator {
         ];
 
         Validator._addError(error);
+    }
+
+
+    static _getStepSchemaErrorMessage(err, validationResult, stepSchema) {
+        // regex to split joi's error path so that we can use lodah's _.get
+        // we make sure split first ${{}} annotations before splitting by dots (.)
+        const joiPathSplitted = err.path
+            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
+
+        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
+        const originalPath = [];
+        _.forEach(joiPathSplitted, (keyPath) => {
+            if (keyPath && keyPath !== '.') {
+                originalPath.push(keyPath);
+            }
+        });
+
+        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed')
+        const misspelledArgument = _.get(err, 'context.key', '');
+
+        if (originalFieldValue && isNotAllowedArgumentError && misspelledArgument) {
+            const suggestion = SuggestArgumentValidation.suggest(stepSchema, misspelledArgument);
+
+            return `${err.message}. Did you mean "${suggestion}"?`;
+        }
+
+        if (originalFieldValue && !isNotAllowedArgumentError) {
+            return `${err.message}. Current value: ${originalFieldValue}`;
+        }
+
+        return err.message;
     }
 
     static _validateContextStep(objectModel, yaml, context, opts) {
