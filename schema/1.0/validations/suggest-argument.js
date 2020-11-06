@@ -4,10 +4,7 @@ const _ = require('lodash');
 const levenshtein = require('js-levenshtein');
 
 
-const BaseArgument = require('./base-argument');
-
-
-class SuggestArgumentValidation extends BaseArgument {
+class SuggestArgumentValidation {
 
     static get lengthThreshold() {
         return 3;

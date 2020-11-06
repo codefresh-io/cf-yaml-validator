@@ -3671,7 +3671,8 @@ describe('Validate Codefresh YAML', () => {
                         'commands': ['jim', 'bob'],
                         'environment': ['key=value', 'key1=value¡'],
                         'fail_fast': true,
-                        'when': { branch: { only: ['master'] } }
+                        'when': { branch: { only: ['master'] } },
+                        'create_file': 'yes'
                     },
                     composition: {
                         'type': 'composition',
@@ -4326,24 +4327,6 @@ describe('Validate Codefresh YAML', () => {
 
 
     describe('Printify mode', () => {
-
-        // it('validate all the required fields', (done) => {
-        //     validateForError({
-        //         version: '1.0',
-        //         steps: {
-        //             push: {
-        //                 'type': 'push'
-        //             },
-        //         },
-        //     }, {
-        //         message: '"candidate" is required',
-        //         type: 'Validation',
-        //         level: 'step',
-        //         stepName: 'push',
-        //         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
-        //         actionItems: `Please make sure you have all the required fields and valid values`,
-        //     }, done, 'printify');
-        // });
 
         it('validate all the required fields', (done) => {
             validateForError({
@@ -6007,19 +5990,6 @@ describe('Validate Codefresh YAML with context', () => {
             };
             const expectedMessage = {
                 details: [
-                    // {
-                    //     'message': '"on_error" is not allowed. Did you mean "on_fail"?',
-                    //     'type': 'Validation',
-                    //     'path': 'on_fail',
-                    //     'context': {
-                    //         'key': 'on_fail'
-                    //     },
-                    //     'level': 'step',
-                    //     'stepName': 'annotate_build',
-                    //     'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
-                    //     'actionItems': 'Please make sure you have all the valid values',
-                    //     'lines': 0
-                    // },
                     {
                         'code': 204,
                         'context': {
