@@ -19,4 +19,4 @@ const StepValidator = {
 
 module.exports = {
     StepValidator
-}
+};

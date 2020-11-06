@@ -21,7 +21,7 @@ const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
-const StepValidator = require('./constants/step-validator');
+const { StepValidator } = require('./constants/step-validator');
 
 let totalErrors;
 let totalWarnings;
