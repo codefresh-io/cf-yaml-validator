@@ -46,7 +46,7 @@ class SuggestArgumentValidation {
 
 
     static _filterByDistanceThreshold(propNameDistance) {
-        return _.pickBy(propNameDistance, value => value <= this.distanceThreshold);
+        return _.pickBy(propNameDistance, value => value < this.distanceThreshold);
     }
 
 
@@ -60,10 +60,7 @@ class SuggestArgumentValidation {
 
 
     static _sortByDistances(propNameDistance) {
-        const props = _.keys(propNameDistance);
-        props.sort((a, b) => propNameDistance[a] - propNameDistance[b]);
-
-        return props;
+        return _.keys(propNameDistance).sort((a, b) => propNameDistance[a] - propNameDistance[b]);
     }
 }
 
