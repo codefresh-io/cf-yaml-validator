@@ -512,7 +512,7 @@ class Validator {
         });
 
         const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed')
+        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
         const misspelledArgument = _.get(err, 'context.key', '');
 
         if (originalFieldValue && isNotAllowedArgumentError && misspelledArgument) {

@@ -44,7 +44,7 @@ class SuggestArgumentValidation {
 
 
     static _filterByDistanceThreshold(propNameDistance) {
-        return _.pickBy(propNameDistance, (value) => value <= this.distanceThreshold)
+        return _.pickBy(propNameDistance, value => value <= this.distanceThreshold);
     }
 
 
