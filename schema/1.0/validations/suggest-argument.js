@@ -34,6 +34,11 @@ class SuggestArgumentValidation {
 
 
     static _getNearestMatchingProperty(stepProperties, wrongKey) {
+        const propertiesStartedFromKey = stepProperties.filter((prop) => prop.startsWith(wrongKey));
+        if (propertiesStartedFromKey.length) {
+            return _.first(propertiesStartedFromKey.sort((a, b) => a.length - b.length));
+        }
+
         const possibleProperties = this._getPossibleProperties(stepProperties, wrongKey);
 
         return _.first(this._sortByDistances(this._filterByDistanceThreshold(this._getDistancesMap(wrongKey, possibleProperties))));
