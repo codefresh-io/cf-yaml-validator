@@ -992,6 +992,34 @@ describe('Validate Codefresh YAML', () => {
                 }, '"repo" must be a string', done);
             });
 
+            it('invalid repo owner/repo formatting', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            type: 'git-clone',
+                            repo: 'repo/'
+                        }
+                    }
+                    // eslint-disable-next-line max-len
+                }, `'repo' value is invalid, please enter a path of the repository without the domain name in the form of my_username/my_repo`, done);
+            });
+
+            it('invalid repo url', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            type: 'git-clone',
+                            repo: 'www.asd.com'
+                        }
+                    }
+                    // eslint-disable-next-line max-len
+                }, 'please enter valid url including https/http', done);
+            });
+
             it('Repo on non-git clone step', (done) => {
 
                 validateForError({

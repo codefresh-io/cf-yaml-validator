@@ -28,7 +28,7 @@ class GitClone extends BaseSchema {
         const gitCloneProperties = {
             'type': Joi.string().valid(GitClone.getType()),
             'working_directory': Joi.string(),
-            'repo': Joi.string().required(),
+            'repo': Joi.alternatives(Joi.string().required().uri(), Joi.string().required().regex(/.+\/.+/gm)),
             'revision': Joi.string(),
             'credentials': BaseSchema._getCredentialsSchema(),
             'git': Joi.string()

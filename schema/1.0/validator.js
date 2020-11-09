@@ -477,6 +477,14 @@ class Validator {
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
+                    if (type === 'git-clone' && err.message.includes('fails to match the required pattern: /.+\\/.+/')) {
+                        // eslint-disable-next-line max-len
+                        err.message = `'repo' value is invalid, please enter a path of the repository without the domain name in the form of my_username/my_repo`;
+                    }
+                    if (type === 'git-clone' && err.message.includes('"repo" must be a valid uri')) {
+                        // eslint-disable-next-line max-len
+                        err.message = `please enter valid url including https/http`;
+                    }
                     Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
                 });
             }
