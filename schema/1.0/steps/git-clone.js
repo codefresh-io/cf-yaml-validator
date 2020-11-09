@@ -28,7 +28,18 @@ class GitClone extends BaseSchema {
         const gitCloneProperties = {
             'type': Joi.string().valid(GitClone.getType()),
             'working_directory': Joi.string(),
-            'repo': Joi.alternatives(Joi.string().required().uri(), Joi.string().required().regex(/.+\/.+/gm)),
+            // todo: finish error messages
+            'repo': Joi.alternatives().try(
+                Joi.string().regex(/^\w+(\/\w+)+$/g),
+                Joi.string().regex(/^\${{.*}}/),
+                Joi.string().uri({ scheme: [/https?/, /ssh/] }),
+            )
+                .required()
+                .meta({ isWarning: true })
+                .error(ErrorBuilder.buildJoiError({
+                    message: `Please provide correct url or in format <owner>/<repo>`,
+                    path: 'repo'
+                })),
             'revision': Joi.string(),
             'credentials': BaseSchema._getCredentialsSchema(),
             'git': Joi.string()
@@ -45,6 +56,12 @@ class GitClone extends BaseSchema {
         const key = 'git';
         const errors = [];
         const warnings = [];
+        this._validateGitIntegration(step, context, errors, name, yaml, errorPath, warnings, key, ignoreValidation);
+        this._validateRepo(step, context, errors, name, yaml, errorPath, warnings, key);
+        return { errors, warnings };
+    }
+
+    static _validateGitIntegration(step, context, errors, name, yaml, errorPath, warnings, key, ignoreValidation) {
         const git = BaseSchema._getFieldFromStep(step, 'git');
         if (_.isEmpty(context.git)) {
             errors.push(ErrorBuilder.buildError({
@@ -98,7 +115,41 @@ class GitClone extends BaseSchema {
                 actionItems: 'You have additional integrations configured which can be used if defined explicitly.',
             }));
         }
-        return { errors, warnings };
+    }
+
+    static _validateRepo(step, context, errors, name, yaml, errorPath, warnings, key) {
+        const repoField = BaseSchema._getFieldFromStep(step, 'repo');
+
+        // todo: finish checking variables
+        if (BaseSchema.isRuntimeVariable(repoField)) {
+            if (BaseSchema.isRuntimeVariablesNotContainsStepVariable(context.variables, repoField)) {
+                const variableName = BaseSchema.getVariableNameFromStep(repoField);
+                warnings.push(ErrorBuilder.buildError({
+                    message: `Your Git integration uses a variable '${variableName}' that is not configured and will fail without defining it.`,
+                    name,
+                    yaml,
+                    code: 101,
+                    type: ErrorType.Warning,
+                    docsLink: _.get(IntegrationLinks, 'variables'),
+                    errorPath: 'variables',
+                    key
+                }));
+            } else {
+                const value = BaseSchema.getVariableValueFromStep(context.variables, repoField);
+                if (!_.includes(value, '/')) {
+                    warnings.push(ErrorBuilder.buildError({
+                        message: `Bad! no slash provided!`,
+                        name,
+                        yaml,
+                        code: 101,
+                        type: ErrorType.Warning,
+                        docsLink: _.get(IntegrationLinks, 'variables'),
+                        errorPath: 'variables',
+                        key
+                    }));
+                }
+            }
+        }
     }
 }
 // Exported objects/methods

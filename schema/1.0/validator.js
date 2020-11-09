@@ -477,22 +477,23 @@ class Validator {
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
-                    if (type === 'git-clone' && err.message.includes('fails to match the required pattern: /.+\\/.+/')) {
-                        // eslint-disable-next-line max-len
-                        err.message = `'repo' value is invalid, please enter a path of the repository without the domain name in the form of my_username/my_repo`;
-                    }
-                    if (type === 'git-clone' && err.message.includes('"repo" must be a valid uri')) {
-                        // eslint-disable-next-line max-len
-                        err.message = `please enter valid url including https/http`;
-                    }
-                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
+                    // todo: remove
+                    // if (type === 'git-clone' && err.message.includes('fails to match the required pattern: /.+\\/.+/')) {
+                    //     // eslint-disable-next-line max-len
+                    //     err.message = `'repo' value is invalid, please enter a path of the repository without the domain name in the form of my_username/my_repo`;
+                    // }
+                    // if (type === 'git-clone' && err.message.includes('"repo" must be a valid uri')) {
+                    //     // eslint-disable-next-line max-len
+                    //     err.message = `please enter valid url including https/http`;
+                    // }
+                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
                 });
             }
         }
     }
 
 
-    static _processStepSchemaError(err, validationResult, stepName, type, yaml) {
+    static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
         // regex to split joi's error path so that we can use lodah's _.get
         // we make sure split first ${{}} annotations before splitting by dots (.)
         const joiPathSplitted = err.path
@@ -509,26 +510,32 @@ class Validator {
         const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
         const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
             ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+
+        const fieldDescription = Validator._findFieldMeta(stepSchema, originalPath);
+        const [{ isWarning }] = fieldDescription.meta;
+
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;
-        error.details = [
-            {
-                message,
-                type: 'Validation',
-                path: 'steps',
-                context: {
-                    key: 'steps',
-                },
-                level: 'step',
-                stepName,
-                docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                actionItems: `Please make sure you have all the required fields and valid values`,
-                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+        error.details = [{
+            message,
+            type: 'Validation',
+            path: 'steps',
+            context: {
+                key: 'steps',
             },
-        ];
+            level: 'step',
+            stepName,
+            docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+            actionItems: `Please make sure you have all the required fields and valid values`,
+            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+        }];
 
-        Validator._addError(error);
+        if (isWarning === true) {
+            Validator._addWarning(error);
+        } else {
+            Validator._addError(error);
+        }
     }
 
     static _validateContextStep(objectModel, yaml, context, opts) {
@@ -730,6 +737,9 @@ class Validator {
         totalErrors = {
             details: [],
         };
+        totalWarnings = {
+            details: [],
+        };
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
@@ -781,6 +791,12 @@ class Validator {
         });
         this.jsonSchemas = jsonSchemas;
         return this.jsonSchemas;
+    }
+
+    // todo: finish resolving metadata
+    static _findFieldMeta(stepSchema, originalPath) {
+        const schemaDescription = stepSchema.describe();
+        return _.get(schemaDescription.children, originalPath, {});
     }
 }
 

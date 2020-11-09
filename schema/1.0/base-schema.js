@@ -342,6 +342,11 @@ class BaseSchema {
         return step.substring(3, step.length - 2);
     }
 
+    // todo: correctly resolve vars
+    static getVariableValueFromStep(variables, step) {
+        return !_.isUndefined(variables) && _.get(variables, BaseSchema.getVariableNameFromStep(step));
+    }
+
     static isRuntimeVariablesNotContainsStepVariable(variables, step) {
         return !_.isUndefined(variables) && !_.has(variables, BaseSchema.getVariableNameFromStep(step));
     }
