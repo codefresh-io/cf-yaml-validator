@@ -240,26 +240,6 @@ describe('Validate Codefresh YAML', () => {
 
 
         describe('Pending approval', () => {
-            // it('Should suggest candidate argument', (done) => {
-            //     validateForError(
-            //         {
-            //             version: '1.0',
-            //             steps: {
-            //                 pstep_name: {
-            //                     type: 'push',
-            //                     condidate: 'codefresh/cf-docker-tag-pusher',
-            //                 }
-
-            //             }
-            //         },
-            //         {
-            //             details: [
-            //                 '"candidate" is required',
-            //                 '"condidate" is not allowed. Did you mean "candidate"?'
-            //             ]
-            //         }, done);
-            // });
-
             it('Should suggest title when git argument written', (done) => {
                 validateForError(
                     {
@@ -298,7 +278,6 @@ describe('Validate Codefresh YAML', () => {
                     }, done);
             });
 
-
             it('Should suggest timeout when repo argument written', (done) => {
                 validateForError(
                     {
@@ -314,6 +293,92 @@ describe('Validate Codefresh YAML', () => {
                     {
                         details: [
                             '"repo" is not allowed. Did you mean "retry"?'
+                        ]
+                    }, done);
+            });
+
+            it('Should not suggest arguments from a first level', (done) => {
+                validateForError(
+                    {
+                        version: '1.0',
+                        steps: {
+                            pstep_name: {
+                                type: 'pending-approval',
+                                timeout: {
+                                    tit: 5
+                                }
+                            }
+
+                        }
+                    },
+                    {
+                        details: [
+                            '"tit" is not allowed'
+                        ]
+                    }, done);
+            });
+
+            it('Should suggest arguments from nested argument schema', (done) => {
+                validateForError(
+                    {
+                        version: '1.0',
+                        steps: {
+                            pstep_name: {
+                                type: 'pending-approval',
+                                timeout: {
+                                    duratin: 5
+                                }
+                            }
+
+                        }
+                    },
+                    {
+                        details: [
+                            '"duratin" is not allowed. Did you mean "duration"?'
+                        ]
+                    }, done);
+            });
+
+            it('Should suggest arguments from a first nested level argument schema', (done) => {
+                validateForError(
+                    {
+                        version: '1.0',
+                        steps: {
+                            pstep_name: {
+                                type: 'pending-approval',
+                                when: {
+                                    brunch: 'master'
+                                }
+                            }
+
+                        }
+                    },
+                    {
+                        details: [
+                            '"brunch" is not allowed. Did you mean "branch"?'
+                        ]
+                    }, done);
+            });
+
+            it('Should suggest arguments from a second nested level argument schema', (done) => {
+                validateForError(
+                    {
+                        version: '1.0',
+                        steps: {
+                            pstep_name: {
+                                type: 'pending-approval',
+                                when: {
+                                    branch: {
+                                        on: 'master'
+                                    }
+                                }
+                            }
+
+                        }
+                    },
+                    {
+                        details: [
+                            '"on" is not allowed. Did you mean "only"?'
                         ]
                     }, done);
             });
