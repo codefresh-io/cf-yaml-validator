@@ -17,7 +17,7 @@ class SuggestArgumentValidation {
 
 
     static suggest(schema, argument, path) {
-        if (!schema) return;
+        if (!schema) return '';
 
         const stepSchemeProperties = this._getStepSchemeProperties(schema, path);
 
@@ -40,7 +40,7 @@ class SuggestArgumentValidation {
 
 
     static _getNearestMatchingProperty(stepProperties, wrongKey) {
-        const propertiesStartedFromKey = stepProperties.filter((prop) => prop.startsWith(wrongKey));
+        const propertiesStartedFromKey = stepProperties.filter(prop => prop.startsWith(wrongKey));
         if (propertiesStartedFromKey.length) {
             return _.first(propertiesStartedFromKey.sort((a, b) => a.length - b.length));
         }

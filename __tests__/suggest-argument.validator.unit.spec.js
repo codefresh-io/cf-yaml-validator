@@ -51,7 +51,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"titl" is not allowed. Did you mean "title"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should not suggest title when argument longer then threshold', (done) => {
@@ -71,7 +72,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"titleaaa" is not allowed'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should not suggest when argument shorter then threshold', (done) => {
@@ -91,7 +93,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"ing_directory" is not allowed'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest when there are less errors than threshold', (done) => {
@@ -111,7 +114,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"warcing_derektory" is not allowed. Did you mean "working_directory"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should not suggest when there are more errors than threshold', (done) => {
@@ -131,7 +135,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"warcing_derektori" is not allowed'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest closest existing argument when it is a beginning part of known arguments', (done) => {
@@ -151,7 +156,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"working_dir" is not allowed. Did you mean "working_directory"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest image_name argument', (done) => {
@@ -171,7 +177,8 @@ describe('Validate Codefresh YAML', () => {
                             '"image_name" is required',
                             '"image_nam" is not allowed. Did you mean "image_name"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should not suggest candidate argument', (done) => {
@@ -191,7 +198,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"candidate" is not allowed'
                         ]
-                    }, done);
+                    }, done
+                );
             });
         });
 
@@ -214,7 +222,8 @@ describe('Validate Codefresh YAML', () => {
                             '"candidate" is required',
                             '"condidate" is not allowed. Did you mean "candidate"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should not suggest dockerfile argument', (done) => {
@@ -234,7 +243,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"dockerfile" is not allowed'
                         ]
-                    }, done);
+                    }, done
+                );
             });
         });
 
@@ -256,7 +266,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"git" is not allowed. Did you mean "title"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest retry when repo argument written', (done) => {
@@ -275,7 +286,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"repo" is not allowed. Did you mean "retry"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest timeout when repo argument written', (done) => {
@@ -294,7 +306,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"repo" is not allowed. Did you mean "retry"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should not suggest arguments from a first level', (done) => {
@@ -315,7 +328,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"tit" is not allowed'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest arguments from nested argument schema', (done) => {
@@ -336,7 +350,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"duratin" is not allowed. Did you mean "duration"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest arguments from a first nested level argument schema', (done) => {
@@ -357,7 +372,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"brunch" is not allowed. Did you mean "branch"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
 
             it('Should suggest arguments from a second nested level argument schema', (done) => {
@@ -380,7 +396,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"on" is not allowed. Did you mean "only"?'
                         ]
-                    }, done);
+                    }, done
+                );
             });
         });
     });
