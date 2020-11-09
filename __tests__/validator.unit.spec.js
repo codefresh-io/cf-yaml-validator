@@ -4343,7 +4343,7 @@ describe('Validate Codefresh YAML', () => {
                 level: 'step',
                 stepName: 'push',
                 docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
-                actionItems: `Please make sure you have all the required fields and valid values`,
+                actionItems: 'Please make sure you have all the required fields and valid values',
             }, done, 'printify');
         });
 
@@ -5551,7 +5551,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                         'level': 'step',
                         'lines': 14,
-                        'message': '"registry" is not allowed',
+                        'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
                         'path': 'steps',
                         'stepName': 'build',
                         'type': 'Validation'
@@ -5728,7 +5728,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                         'level': 'step',
                         'lines': 14,
-                        'message': '"registry" is not allowed',
+                        'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
                         'path': 'steps',
                         'stepName': 'build',
                         'type': 'Validation'
@@ -5861,7 +5861,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                         'level': 'step',
                         'lines': 14,
-                        'message': '"registry" is not allowed',
+                        'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
                         'path': 'steps',
                         'stepName': 'build',
                         'type': 'Validation'

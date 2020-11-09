@@ -21,26 +21,13 @@ const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
-const GitClone = require('./steps/git-clone');
-const Deploy = require('./steps/deploy');
-const Push = require('./steps/push');
-const Build = require('./steps/build');
-const Freestyle = require('./steps/freestyle');
-const Composition = require('./steps/composition');
+const { StepValidator } = require('./constants/step-validator');
+const SuggestArgumentValidation = require('./validations/suggest-argument');
 
 let totalErrors;
 let totalWarnings;
 
 const MaxStepLength = 150;
-
-const StepValidator = {
-    'git-clone': GitClone,
-    'deploy': Deploy,
-    'push': Push,
-    'build': Build,
-    'freestyle': Freestyle,
-    'composition': Composition
-};
 
 class Validator {
 
@@ -474,33 +461,19 @@ class Validator {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue; // eslint-disable-line no-continue
             }
+
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
-                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
+                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
                 });
             }
         }
     }
 
 
-    static _processStepSchemaError(err, validationResult, stepName, type, yaml) {
-        // regex to split joi's error path so that we can use lodah's _.get
-        // we make sure split first ${{}} annotations before splitting by dots (.)
-        const joiPathSplitted = err.path
-            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
-
-        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-        const originalPath = [];
-        _.forEach(joiPathSplitted, (keyPath) => {
-            if (keyPath && keyPath !== '.') {
-                originalPath.push(keyPath);
-            }
-        });
-
-        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
-        const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
-            ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+    static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
+        const message = this._getStepSchemaErrorMessage(err, validationResult, stepSchema);
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;
@@ -521,6 +494,38 @@ class Validator {
         ];
 
         Validator._addError(error);
+    }
+
+
+    static _getStepSchemaErrorMessage(err, validationResult, stepSchema) {
+        // regex to split joi's error path so that we can use lodah's _.get
+        // we make sure split first ${{}} annotations before splitting by dots (.)
+        const joiPathSplitted = err.path
+            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
+
+        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
+        const originalPath = [];
+        _.forEach(joiPathSplitted, (keyPath) => {
+            if (keyPath && keyPath !== '.') {
+                originalPath.push(keyPath);
+            }
+        });
+
+        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
+        const misspelledArgument = _.get(err, 'context.key', '');
+        const suggestion = SuggestArgumentValidation.suggest(stepSchema, misspelledArgument, originalPath.slice(0, originalPath.length - 1));
+        const canSuggest = !!(isNotAllowedArgumentError && misspelledArgument && stepSchema && suggestion);
+
+        if (canSuggest) {
+            return `${err.message}. Did you mean "${suggestion}"?`;
+        }
+
+        if (originalFieldValue && !isNotAllowedArgumentError) {
+            return `${err.message}. Current value: ${originalFieldValue} `;
+        }
+
+        return err.message;
     }
 
     static _validateContextStep(objectModel, yaml, context, opts) {
