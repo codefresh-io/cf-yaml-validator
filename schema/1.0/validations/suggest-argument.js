@@ -16,18 +16,24 @@ class SuggestArgumentValidation {
     }
 
 
-    static suggest(schema, argument) {
+    static suggest(schema, argument, path) {
         if (!schema) return;
-        
-        const stepSchemeProperties = this._getStepSchemeProperties(schema);
+
+        const stepSchemeProperties = this._getStepSchemeProperties(schema, path);
 
         return this._getNearestMatchingProperty(stepSchemeProperties, argument);
     }
 
 
-    static _getStepSchemeProperties(stepSchema) {
+    static _getStepSchemeProperties(stepSchema, path) {
         const { children } = stepSchema.describe();
         const renames = _.get(stepSchema, '_inner.renames', []).map(({ from }) => from);
+
+        if (path.length) {
+            const pathString = `${path.join('.children.')}.children`;
+
+            return _.keys(_.get(children, pathString, []));
+        }
 
         return _.keys(children).concat(renames);
     }

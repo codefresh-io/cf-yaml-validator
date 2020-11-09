@@ -240,6 +240,26 @@ describe('Validate Codefresh YAML', () => {
 
 
         describe('Pending approval', () => {
+            // it('Should suggest candidate argument', (done) => {
+            //     validateForError(
+            //         {
+            //             version: '1.0',
+            //             steps: {
+            //                 pstep_name: {
+            //                     type: 'push',
+            //                     condidate: 'codefresh/cf-docker-tag-pusher',
+            //                 }
+
+            //             }
+            //         },
+            //         {
+            //             details: [
+            //                 '"candidate" is required',
+            //                 '"condidate" is not allowed. Did you mean "candidate"?'
+            //             ]
+            //         }, done);
+            // });
+
             it('Should suggest title when git argument written', (done) => {
                 validateForError(
                     {
