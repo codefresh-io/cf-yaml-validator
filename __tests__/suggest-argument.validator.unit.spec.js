@@ -55,6 +55,27 @@ describe('Validate Codefresh YAML', () => {
                 );
             });
 
+            it('Should not suggest argument form old schema', (done) => {
+                validateForError(
+                    {
+                        version: '1.0',
+                        steps: {
+                            pstep_name: {
+                                'type': 'build',
+                                'image_name': 'codefresh/cf-docker-tag-pusher',
+                                'working-irectory': './'
+                            }
+
+                        }
+                    },
+                    {
+                        details: [
+                            '"working-irectory" is not allowed. Did you mean "working_directory"?'
+                        ]
+                    }, done
+                );
+            });
+
             it('Should not suggest title when argument longer then threshold', (done) => {
                 validateForError(
                     {

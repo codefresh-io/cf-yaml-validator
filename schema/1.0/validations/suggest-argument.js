@@ -17,7 +17,7 @@ class SuggestArgumentValidation {
 
 
     static suggest(schema, argument, path) {
-        if (!schema) return '';
+        if (!schema) return null;
 
         const stepSchemeProperties = this._getStepSchemeProperties(schema, path);
 
@@ -27,7 +27,6 @@ class SuggestArgumentValidation {
 
     static _getStepSchemeProperties(stepSchema, path) {
         const { children } = stepSchema.describe();
-        const renames = _.get(stepSchema, '_inner.renames', []).map(({ from }) => from);
 
         if (path.length) {
             const pathString = `${path.join('.children.')}.children`;
@@ -35,7 +34,7 @@ class SuggestArgumentValidation {
             return _.keys(_.get(children, pathString, []));
         }
 
-        return _.keys(children).concat(renames);
+        return _.keys(children);
     }
 
 
