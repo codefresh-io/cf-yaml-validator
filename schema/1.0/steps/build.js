@@ -12,7 +12,6 @@ const _ = require('lodash');
 const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
-const imageNameValidation = require('../validations/image-name');
 
 const BUILD_VERSION = 'V2';
 const PROVIDERS = ['cf', 'gcb'];
@@ -100,7 +99,7 @@ class Build extends BaseSchema {
     }
 
     static validateArguments(step, yaml, name) {
-        const validations = [imageNameValidation];
+        const validations = [];
 
         return validations.reduce((acc, curr) => {
             const result = curr.validate(step, yaml, name);
