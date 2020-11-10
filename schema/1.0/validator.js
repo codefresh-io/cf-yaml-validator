@@ -475,7 +475,7 @@ class Validator {
     static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
         const originalPath = this._getOriginalPath(err);
         const originalFieldValue = this._getOriginalFieldValue(originalPath, validationResult);
-        const suggestion = this._getArgumentSuggestion(err, originalPath, stepSchema)
+        const suggestion = this._getArgumentSuggestion(err, originalPath, stepSchema);
         const message = this._getStepSchemaErrorMessage(err, originalFieldValue, suggestion);
         const error = new Error();
         error.name = 'ValidationError';
