@@ -5487,7 +5487,8 @@ describe('Validate Codefresh YAML with context', () => {
                         'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
                         'path': 'steps',
                         'stepName': 'build',
-                        'type': 'Validation'
+                        'type': 'Validation',
+                        'suggestion': 'registry_contexts'
                     },
                     {
                         'actionItems': 'Please check the spelling or add a new registry in your account settings.',
@@ -5664,7 +5665,8 @@ describe('Validate Codefresh YAML with context', () => {
                         'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
                         'path': 'steps',
                         'stepName': 'build',
-                        'type': 'Validation'
+                        'type': 'Validation',
+                        'suggestion': 'registry_contexts'
                     },
                     {
                         'actionItems': 'Please make sure that there is no more than one registry from the same domain',
@@ -5797,7 +5799,8 @@ describe('Validate Codefresh YAML with context', () => {
                         'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
                         'path': 'steps',
                         'stepName': 'build',
-                        'type': 'Validation'
+                        'type': 'Validation',
+                        'suggestion': 'registry_contexts'
                     },
                 ],
                 warningDetails: [],

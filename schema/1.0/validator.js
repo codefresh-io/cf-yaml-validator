@@ -473,31 +473,34 @@ class Validator {
 
 
     static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
-        const message = this._getStepSchemaErrorMessage(err, validationResult, stepSchema);
+        const originalPath = Validator._getOriginalPath(err);
+        const originalFieldValue = Validator._getOriginalFieldValue(originalPath, validationResult);
+        const suggestion = Validator._getArgumentSuggestion(err, originalPath, stepSchema);
+        const message = Validator._getStepSchemaErrorMessage(err, originalFieldValue, suggestion);
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;
-        error.details = [
-            {
-                message,
-                type: 'Validation',
-                path: 'steps',
-                context: {
-                    key: 'steps',
-                },
-                level: 'step',
-                stepName,
-                docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-                actionItems: `Please make sure you have all the required fields and valid values`,
-                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+        const errorDetails = {
+            message,
+            type: 'Validation',
+            path: 'steps',
+            context: {
+                key: 'steps',
             },
-        ];
+            level: 'step',
+            stepName,
+            suggestion,
+            docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+            actionItems: `Please make sure you have all the required fields and valid values`,
+            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+        };
+        error.details = [_.pickBy(errorDetails, _.identity)];
 
         Validator._addError(error);
     }
 
 
-    static _getStepSchemaErrorMessage(err, validationResult, stepSchema) {
+    static _getOriginalPath(err) {
         // regex to split joi's error path so that we can use lodah's _.get
         // we make sure split first ${{}} annotations before splitting by dots (.)
         const joiPathSplitted = err.path
@@ -511,13 +514,29 @@ class Validator {
             }
         });
 
-        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+        return originalPath;
+    }
+
+
+    static _getOriginalFieldValue(originalPath, validationResult) {
+        return _.get(validationResult, ['value', ...originalPath]);
+    }
+
+
+    static _getArgumentSuggestion(err, originalPath, stepSchema) {
         const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
         const misspelledArgument = _.get(err, 'context.key', '');
         const suggestion = SuggestArgumentValidation.suggest(stepSchema, misspelledArgument, originalPath.slice(0, originalPath.length - 1));
         const canSuggest = !!(isNotAllowedArgumentError && misspelledArgument && stepSchema && suggestion);
 
-        if (canSuggest) {
+        return canSuggest ? suggestion : null;
+    }
+
+
+    static _getStepSchemaErrorMessage(err, originalFieldValue, suggestion) {
+        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
+
+        if (suggestion) {
             return `${err.message}. Did you mean "${suggestion}"?`;
         }
 
