@@ -85,9 +85,8 @@ class Build extends BaseSchema {
             name,
             context,
             { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false, handleCFCRRemovalUseCase: true });
-        const argumentsValidationResult = this.validateArguments(step, yaml, name);
 
-        return _.mergeWith(registryValidationResult, argumentsValidationResult, this._mergeCustomizer);
+        return registryValidationResult;
     }
 
     static _mergeCustomizer(objValue, srcValue) {
