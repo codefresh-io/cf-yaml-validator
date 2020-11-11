@@ -1478,6 +1478,31 @@ describe('Validate Codefresh YAML', () => {
                 });
             });
 
+            it('missing image_name', (done) => {
+                const context = {
+                    registries: [
+                        { name: 'test_registry' }, { name: 'reg2', default: true }
+                    ],
+                    disablePush: true
+                };
+                const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-lowercase-image-name.yml'), 'utf8');
+
+                const expectedMessage = {
+                    message: `${colors.red('Yaml validation errors:\n')}\n`
+                        + ` 6    ${colors.red('error')}     "image_name" is required                                                       \n`,
+                    summarize: `${colors.red('✖ 1 problem (1 error, 0 warnings)')}`,
+                    documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/build/ for steps documentation\n'
+                };
+                validateForErrorWithContext({
+                    version: '1.0',
+                    steps: {
+                        build: {
+                            type: 'build',
+                        },
+                    }
+                }, expectedMessage, done, 'lint', yaml, context, {});
+            });
+
             it('Lowercase image_name', (done) => {
                 const context = {
                     registries: [
@@ -1504,27 +1529,28 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, expectedMessage, done, 'lint', yaml, context, {});
             });
-        });
 
-        it('Lowercase image_name with vars', (done) => {
-            const context = {
-                registries: [
-                    { name: 'test_registry' }, { name: 'reg2', default: true }
-                ],
-                disablePush: true
-            };
-            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-lowercase-image-name.yml'), 'utf8');
 
-            validateWithContext({
-                version: '1.0',
-                steps: {
-                    build: {
-                        type: 'build',
-                        image_name: 'user/${{CF_REPO_NAME}}',
-                    },
-                }
-            }, 'lint', yaml, context, { ignoreValidation: true });
-            done();
+            it('Lowercase image_name with vars', (done) => {
+                const context = {
+                    registries: [
+                        { name: 'test_registry' }, { name: 'reg2', default: true }
+                    ],
+                    disablePush: true
+                };
+                const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-lowercase-image-name.yml'), 'utf8');
+
+                validateWithContext({
+                    version: '1.0',
+                    steps: {
+                        build: {
+                            type: 'build',
+                            image_name: 'user/${{CF_REPO_NAME}}',
+                        },
+                    }
+                }, 'lint', yaml, context, { ignoreValidation: true });
+                done();
+            });
         });
 
         describe('Composition step attributes', () => {

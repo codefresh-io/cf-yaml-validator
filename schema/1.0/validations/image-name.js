@@ -20,7 +20,7 @@ class ImageNameValidation extends BaseArgument {
         const errors = [];
 
 
-        if (!this._isLoweCaseValue(imageName)) {
+        if (imageName && !this._isLoweCaseValue(imageName)) {
             const error = new Error();
             error.name = 'ValidationError';
             error.isJoi = true;
