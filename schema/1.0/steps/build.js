@@ -12,6 +12,7 @@ const _ = require('lodash');
 const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
+const imageNameValidation = require('../validations/image-name');
 
 const BUILD_VERSION = 'V2';
 const PROVIDERS = ['cf', 'gcb'];
@@ -86,7 +87,8 @@ class Build extends BaseSchema {
             context,
             { handleIfNoRegistriesOnAccount: false, handleIfNoRegistryExcplicitlyDefined: false, handleCFCRRemovalUseCase: true });
 
-        return registryValidationResult;
+        const argumentsValidationResult = this.validateArguments(step, yaml, name);
+        return _.mergeWith(registryValidationResult, argumentsValidationResult, this._mergeCustomizer);
     }
 
     static _mergeCustomizer(objValue, srcValue) {
@@ -98,7 +100,7 @@ class Build extends BaseSchema {
     }
 
     static validateArguments(step, yaml, name) {
-        const validations = [];
+        const validations = [imageNameValidation];
 
         return validations.reduce((acc, curr) => {
             const result = curr.validate(step, yaml, name);
