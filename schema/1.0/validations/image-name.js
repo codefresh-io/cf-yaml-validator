@@ -19,7 +19,6 @@ class ImageNameValidation extends BaseArgument {
         const warnings = [];
         const errors = [];
 
-
         if (imageName && !this._isLoweCaseValue(imageName)) {
             const error = new Error();
             error.name = 'ValidationError';
@@ -39,24 +38,6 @@ class ImageNameValidation extends BaseArgument {
             }];
             warnings.push(error);
         }
-
-        // if (this._isMissingAccountName(step)) {
-        //     const error = new Error();
-        //     error.name = 'ValidationError';
-        //     error.isJoi = true;
-        //     error.details = [
-        //         {
-        //             message: `"${this.getName()}" format should be [account_name]/[image_name] on step: ${name}`,
-        //             name,
-        //             yaml,
-        //             type: ErrorType.Warning,
-        //             docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-        //             errorPath: this.getName(),
-        //             lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: this.getName() })
-        //         }
-        //     ];
-        //     warnings.push(error);
-        // }
 
         return {
             errors,

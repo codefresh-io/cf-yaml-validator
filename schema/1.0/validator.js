@@ -494,10 +494,8 @@ class Validator {
             lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
         };
         if (suggestion) {
-            const re = /^"(?<wrongArgument>\S+)"/g;
-            const { groups: { wrongArgument } } = re.exec(errorDetails.message);
             errorDetails.suggestion = {
-                from: wrongArgument,
+                from: err.context.key,
                 to: suggestion,
             };
         }
