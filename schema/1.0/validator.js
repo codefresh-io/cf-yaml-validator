@@ -489,11 +489,19 @@ class Validator {
             },
             level: 'step',
             stepName,
-            suggestion,
             docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
             actionItems: `Please make sure you have all the required fields and valid values`,
             lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
         };
+        if (suggestion) {
+            const re = /^"(?<wrongArgument>\S+)"/g;
+            const { groups: { wrongArgument } } = re.exec(errorDetails.message);
+            errorDetails.suggestion = {
+                from: wrongArgument,
+                to: suggestion,
+            };
+        }
+
         error.details = [_.pickBy(errorDetails, _.identity)];
 
         Validator._addError(error);

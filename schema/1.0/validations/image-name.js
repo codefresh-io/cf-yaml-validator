@@ -15,26 +15,48 @@ class ImageNameValidation extends BaseArgument {
     }
 
     static validate(step, yaml, name) {
+        const imageName = BaseSchema._getFieldFromStep(step, this.getName());
         const warnings = [];
         const errors = [];
 
-        if (this._isMissingAccountName(step)) {
+
+        if (!this._isLoweCaseValue(imageName)) {
             const error = new Error();
             error.name = 'ValidationError';
             error.isJoi = true;
-            error.details = [
-                {
-                    message: `"${this.getName()}" format should be [account_name]/[image_name] on step: ${name}`,
-                    name,
-                    yaml,
-                    type: ErrorType.Warning,
-                    docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                    errorPath: this.getName(),
-                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: this.getName() })
-                }
-            ];
+            error.details = [{
+                message: `"${this.getName()}" should be in lowercase.`,
+                name,
+                yaml,
+                type: ErrorType.Warning,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                path: this.getName(),
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: this.getName() }),
+                suggestion: {
+                    from: imageName,
+                    to: imageName.toLowerCase(),
+                },
+            }];
             warnings.push(error);
         }
+
+        // if (this._isMissingAccountName(step)) {
+        //     const error = new Error();
+        //     error.name = 'ValidationError';
+        //     error.isJoi = true;
+        //     error.details = [
+        //         {
+        //             message: `"${this.getName()}" format should be [account_name]/[image_name] on step: ${name}`,
+        //             name,
+        //             yaml,
+        //             type: ErrorType.Warning,
+        //             docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+        //             errorPath: this.getName(),
+        //             lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName: this.getName() })
+        //         }
+        //     ];
+        //     warnings.push(error);
+        // }
 
         return {
             errors,
@@ -42,6 +64,10 @@ class ImageNameValidation extends BaseArgument {
         };
     }
 
+    static _isLoweCaseValue(str) {
+        const withoutVars = str.replace(/\${{.*}}/, '');  //  remove CF vars
+        return withoutVars.toLowerCase() === withoutVars;
+    }
 
     static _isMissingAccountName(step) {
         const imageName = BaseSchema._getFieldFromStep(step, 'image_name');

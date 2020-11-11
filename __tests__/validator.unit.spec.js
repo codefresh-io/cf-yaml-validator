@@ -1477,6 +1477,54 @@ describe('Validate Codefresh YAML', () => {
                     }
                 });
             });
+
+            it('Lowercase image_name', (done) => {
+                const context = {
+                    registries: [
+                        { name: 'test_registry' }, { name: 'reg2', default: true }
+                    ],
+                    disablePush: true
+                };
+                const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-lowercase-image-name.yml'), 'utf8');
+
+                const expectedMessage = {
+                    message: '',
+                    warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
+                        + ` 6    ${colors.yellow('warning')}   "image_name" should be in lowercase.                                           \n`,
+                    summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
+                    documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/build/ for image_name documentation\n'
+                };
+                validateForErrorWithContext({
+                    version: '1.0',
+                    steps: {
+                        build: {
+                            type: 'build',
+                            image_name: 'UpperCase/ImageName',
+                        },
+                    }
+                }, expectedMessage, done, 'lint', yaml, context, {});
+            });
+        });
+
+        it('Lowercase image_name with vars', (done) => {
+            const context = {
+                registries: [
+                    { name: 'test_registry' }, { name: 'reg2', default: true }
+                ],
+                disablePush: true
+            };
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-lowercase-image-name.yml'), 'utf8');
+
+            validateWithContext({
+                version: '1.0',
+                steps: {
+                    build: {
+                        type: 'build',
+                        image_name: 'user/${{CF_REPO_NAME}}',
+                    },
+                }
+            }, 'lint', yaml, context, { ignoreValidation: true });
+            done();
         });
 
         describe('Composition step attributes', () => {
