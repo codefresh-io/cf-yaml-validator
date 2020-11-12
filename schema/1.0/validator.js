@@ -21,13 +21,26 @@ const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
-const { StepValidator } = require('./constants/step-validator');
-const SuggestArgumentValidation = require('./validations/suggest-argument');
+const GitClone = require('./steps/git-clone');
+const Deploy = require('./steps/deploy');
+const Push = require('./steps/push');
+const Build = require('./steps/build');
+const Freestyle = require('./steps/freestyle');
+const Composition = require('./steps/composition');
 
 let totalErrors;
 let totalWarnings;
 
 const MaxStepLength = 150;
+
+const StepValidator = {
+    'git-clone': GitClone,
+    'deploy': Deploy,
+    'push': Push,
+    'build': Build,
+    'freestyle': Freestyle,
+    'composition': Composition
+};
 
 class Validator {
 
@@ -461,52 +474,17 @@ class Validator {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue; // eslint-disable-line no-continue
             }
-
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
-                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
+                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml);
                 });
             }
         }
     }
 
 
-    static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
-        const originalPath = Validator._getOriginalPath(err);
-        const originalFieldValue = Validator._getOriginalFieldValue(originalPath, validationResult);
-        const suggestion = Validator._getArgumentSuggestion(err, originalPath, stepSchema);
-        const message = Validator._getStepSchemaErrorMessage(err, originalFieldValue, suggestion);
-        const error = new Error();
-        error.name = 'ValidationError';
-        error.isJoi = true;
-        const errorDetails = {
-            message,
-            type: 'Validation',
-            path: 'steps',
-            context: {
-                key: 'steps',
-            },
-            level: 'step',
-            stepName,
-            docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
-            actionItems: `Please make sure you have all the required fields and valid values`,
-            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
-        };
-        if (suggestion) {
-            errorDetails.suggestion = {
-                from: err.context.key,
-                to: suggestion,
-            };
-        }
-
-        error.details = [_.pickBy(errorDetails, _.identity)];
-
-        Validator._addError(error);
-    }
-
-
-    static _getOriginalPath(err) {
+    static _processStepSchemaError(err, validationResult, stepName, type, yaml) {
         // regex to split joi's error path so that we can use lodah's _.get
         // we make sure split first ${{}} annotations before splitting by dots (.)
         const joiPathSplitted = err.path
@@ -520,37 +498,29 @@ class Validator {
             }
         });
 
-        return originalPath;
-    }
+        const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
+        const message = originalFieldValue && !_.includes(_.get(err, 'message'), 'is not allowed')
+            ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
+        const error = new Error();
+        error.name = 'ValidationError';
+        error.isJoi = true;
+        error.details = [
+            {
+                message,
+                type: 'Validation',
+                path: 'steps',
+                context: {
+                    key: 'steps',
+                },
+                level: 'step',
+                stepName,
+                docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                actionItems: `Please make sure you have all the required fields and valid values`,
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+            },
+        ];
 
-
-    static _getOriginalFieldValue(originalPath, validationResult) {
-        return _.get(validationResult, ['value', ...originalPath]);
-    }
-
-
-    static _getArgumentSuggestion(err, originalPath, stepSchema) {
-        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
-        const misspelledArgument = _.get(err, 'context.key', '');
-        const suggestion = SuggestArgumentValidation.suggest(stepSchema, misspelledArgument, originalPath.slice(0, originalPath.length - 1));
-        const canSuggest = !!(isNotAllowedArgumentError && misspelledArgument && stepSchema && suggestion);
-
-        return canSuggest ? suggestion : null;
-    }
-
-
-    static _getStepSchemaErrorMessage(err, originalFieldValue, suggestion) {
-        const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
-
-        if (suggestion) {
-            return `${err.message}. Did you mean "${suggestion}"?`;
-        }
-
-        if (originalFieldValue && !isNotAllowedArgumentError) {
-            return `${err.message}. Current value: ${originalFieldValue} `;
-        }
-
-        return err.message;
+        Validator._addError(error);
     }
 
     static _validateContextStep(objectModel, yaml, context, opts) {
