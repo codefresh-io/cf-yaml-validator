@@ -17,7 +17,7 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.22.0",
+  "version": "0.23.0",
   "main": "./validator.js",
   "scripts": {
     "test": "jest --coverage --runInBand",
@@ -29,13 +29,14 @@
     "colors": "^1.3.3",
     "joi": "^9.2.0",
     "joi-to-json-schema": "^5.0.0",
+    "js-levenshtein": "^1.1.6",
     "js-yaml": "^3.8.2",
     "lodash": "^4.17.4"
   },
   "devDependencies": {
     "chai": "^3.0.0",
-    "eslint": "^5.12.1",
     "ci-publish": "^1.3.0",
+    "eslint": "^5.12.1",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.15.0",
