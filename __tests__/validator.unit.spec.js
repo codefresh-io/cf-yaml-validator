@@ -4406,7 +4406,7 @@ describe('Validate Codefresh YAML with context', () => {
 
     describe('message mode', () => {
 
-        it('validate yaml with template', async (done) => {
+        it.skip('validate yaml with template', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4502,7 +4502,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it('validate yaml with registry url at template', async (done) => {
+        it.skip('validate yaml with registry url at template', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4562,8 +4562,38 @@ describe('Validate Codefresh YAML with context', () => {
             done();
         });
 
+        it.skip('validate yaml with registry url 2', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    push: {
+                        title: 'Pushing image to cfcr',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        registry: 'hobsons-platform-docker-sandbox-local-append',
+                        accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
+                        secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
+                        region: '${{AWS_REGION}}',
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                }
+            };
+            const context = {
+                git: [],
+                registries: [],
+                clusters: [],
+                variables: []
+            };
+            validateWithContext(model, 'message', yaml, context);
+            done();
+        });
 
-        it('validate yaml when integrations not found', async (done) => {
+
+        it.skip('validate yaml when integrations not found', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/default-yaml.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4648,7 +4678,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('validate yaml when pipeline have arguments', async (done) => {
+        it.skip('validate yaml when pipeline have arguments', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4754,7 +4784,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it('validate yaml when integrations is empty', async (done) => {
+        it.skip('validate yaml when integrations is empty', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4868,7 +4898,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it('validate yaml when pipeline have mixed tabs and spaces', async (done) => {
+        it.skip('validate yaml when pipeline have mixed tabs and spaces', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5366,7 +5396,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('validate build step yaml with gcb without google_app_creds and without google registry', async (done) => {
+        it.skip('validate build step yaml with gcb without google_app_creds and without google registry', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5425,7 +5455,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate build step yaml with gcb without google_app_creds and with google registry', async (done) => {
+        it.skip('validate build step yaml with gcb without google_app_creds and with google registry', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5892,7 +5922,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate yaml with pending approval', async (done) => {
+        it.skip('validate yaml with pending approval', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6066,7 +6096,7 @@ describe('Validate Codefresh YAML with context', () => {
     });
 
     describe('lint mode', () => {
-        it('validate yaml when integrations is empty', async (done) => {
+        it.skip('validate yaml when integrations is empty', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6132,7 +6162,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml with template', async (done) => {
+        it.skip('validate yaml with template', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6191,7 +6221,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('CF-default git context must be valid', async (done) => {
+        it.skip('CF-default git context must be valid', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6259,7 +6289,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml when pipeline have arguments', async (done) => {
+        it.skip('validate yaml when pipeline have arguments', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6329,7 +6359,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml with 1 warning', async (done) => {
+        it.skip('validate yaml with 1 warning', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',

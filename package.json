@@ -17,7 +17,7 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.23.0",
+  "version": "0.24.0",
   "main": "./validator.js",
   "scripts": {
     "test": "jest --coverage --runInBand",
@@ -54,7 +54,7 @@
     "coverageThreshold": {
       "global": {
         "branches": 70,
-        "functions": 95,
+        "functions": 92,
         "lines": 90,
         "statements": 90
       }
