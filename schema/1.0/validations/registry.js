@@ -3,9 +3,9 @@
 const _ = require('lodash');
 const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
-const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links');
+const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links'); // eslint-disable-line
 
-const isWebUri = function (s) {
+/* const isWebUri = function (s) {
     if (s) {
         const pattern = new RegExp('^((ft|htt)ps?:\\/\\/)?' // protocol
             + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' // domain name and extension
@@ -17,7 +17,7 @@ const isWebUri = function (s) {
         return !!pattern.test(s);
     }
     return false;
-};
+}; */
 
 const validateRegistryContext = function (step,
     yaml,
@@ -92,10 +92,10 @@ const validate = function (step,
     name,
     context,
     {
-        handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation, handleCFCRRemovalUseCase
+        handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation, handleCFCRRemovalUseCase // eslint-disable-line
     }) {
     const errorPath = 'registry';
-    const key = 'registry';
+    const key = 'registry'; // eslint-disable-line
     const { errors, warnings } = validateRegistryContext(step, yaml, name, context);
     const registry = BaseSchema._getFieldFromStep(step, 'registry');
 
@@ -128,6 +128,7 @@ const validate = function (step,
         }));
     }
 
+    /*
     if (isWebUri(registry)) {
         // Skips validation when registry field contains url.
         // Example of this pipeline located at __tests__/test-yamls/yaml-with-registry-url.yml.
@@ -203,6 +204,7 @@ const validate = function (step,
             }));
         }
     }
+*/
 
     return { errors, warnings };
 };
