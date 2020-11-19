@@ -15,6 +15,7 @@ const sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 
 const Validator = require('../validator');
+const { isWebUri } = require('../schema/1.0/validations/registry');
 
 function validate(model, outputFormat, yaml) {
     return Validator.validate(model, outputFormat, yaml);
@@ -4400,6 +4401,106 @@ describe('Validate Codefresh YAML', () => {
         });
 
     });
+
+    describe('isWebUri', () => {
+        describe('regular', () => {
+            it('should return false when not uri', () => {
+                const value = 'hobsons-platform-docker-sandbox-local-append';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return true when host', () => {
+                const value = 'g.codefresh.io';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when ip', () => {
+                const value = '123.123.123.123';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol and host', () => {
+                const value = 'https://g.codefresh.io';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol and ip', () => {
+                const value = 'https://123.93.123.93';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host and port', () => {
+                const value = 'https://g.codefresh.io:1234';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host, port and path', () => {
+                const value = 'https://g.codefresh.io:1234/some/path';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host, port, path and query', () => {
+                const value = 'https://g.codefresh.io:1234/some/path?query=test';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host, port, path, query and locator fragment', () => {
+                const value = 'https://g.codefresh.io:1234/some/path?query=test#some-fragment_test';
+                expect(isWebUri(value)).to.be.true;
+            });
+        });
+        describe('worst case', () => {
+            it('should return false when not uri very long', () => {
+                const value = [
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                ].join('-');
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when host with wrong char at the end', () => {
+                const value = 'some.very.long.host.name.with.wrong.char.at.the.end!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol and host with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol and ip with wrong char at the end', () => {
+                const value = 'https://123.12.123.12!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host and port with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host, port and path with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234'
+                    + '/some/very/long/path/at/the/end/to/verify/it/works!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host, port, path and query with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234'
+                    + '/some/very/long/path/at/the/end/to/verify/it/works'
+                    + '?alot=of&query=params&to=have&more=characters!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host, port, path, query and locator fragment with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234'
+                    + '/some/very/long/path/at/the/end/to/verify/it/works'
+                    + '?alot=of&query=params&to=have&more=characters'
+                    + '#and-long_fragment-locator-at_the-end!';
+                expect(isWebUri(value)).to.be.false;
+            });
+        });
+    });
 });
 
 describe('Validate Codefresh YAML with context', () => {
@@ -4562,7 +4663,7 @@ describe('Validate Codefresh YAML with context', () => {
             done();
         });
 
-        it('validate yaml with registry url 2', async (done) => {
+        it('validate yaml with registry long value', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
             const model = {
                 version: '1.0',

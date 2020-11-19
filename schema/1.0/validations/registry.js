@@ -7,8 +7,17 @@ const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../docum
 
 const isWebUri = function (s) {
     if (s) {
-        const domainRegex = /^(?:https?:\/\/)?(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9](?::\d+)?$/;
-        return !!domainRegex.test(s);
+        const patterns = [
+            /^(?:https?:\/\/)?/, // protocol
+            /(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9][a-z0-9-]*[a-z0-9]/, // hostname
+            /(?::\d+)?/, // port
+            /(?:\/[a-z0-9%@_.~+&:-]*)*/, // path
+            /(?:\?[a-z0-9%@_.,;&~+:=-]*)?/, // query
+            /(?:#[a-z0-9_-]*)?$/, // fragment locator
+        ];
+        const finalPattern = _.reduce(patterns, (acc, value) => acc + value.source, '');
+        const regex = new RegExp(finalPattern, 'i');
+        return !!regex.test(s);
     }
     return false;
 };
@@ -203,5 +212,6 @@ const validate = function (step,
 
 module.exports = {
     validate,
-    validateRegistryContext
+    validateRegistryContext,
+    isWebUri,
 };
