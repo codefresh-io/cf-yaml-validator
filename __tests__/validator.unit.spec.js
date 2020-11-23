@@ -15,6 +15,7 @@ const sinonChai = require('sinon-chai');
 chai.use(sinonChai);
 
 const Validator = require('../validator');
+const { isWebUri } = require('../schema/1.0/validations/registry');
 
 function validate(model, outputFormat, yaml) {
     return Validator.validate(model, outputFormat, yaml);
@@ -4400,13 +4401,113 @@ describe('Validate Codefresh YAML', () => {
         });
 
     });
+
+    describe('isWebUri', () => {
+        describe('regular', () => {
+            it('should return false when not uri', () => {
+                const value = 'hobsons-platform-docker-sandbox-local-append';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return true when host', () => {
+                const value = 'g.codefresh.io';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when ip', () => {
+                const value = '123.123.123.123';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol and host', () => {
+                const value = 'https://g.codefresh.io';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol and ip', () => {
+                const value = 'https://123.93.123.93';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host and port', () => {
+                const value = 'https://g.codefresh.io:1234';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host, port and path', () => {
+                const value = 'https://g.codefresh.io:1234/some/path';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host, port, path and query', () => {
+                const value = 'https://g.codefresh.io:1234/some/path?query=test';
+                expect(isWebUri(value)).to.be.true;
+            });
+            it('should return true when protocol, host, port, path, query and locator fragment', () => {
+                const value = 'https://g.codefresh.io:1234/some/path?query=test#some-fragment_test';
+                expect(isWebUri(value)).to.be.true;
+            });
+        });
+        describe('worst case', () => {
+            it('should return false when not uri very long', () => {
+                const value = [
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                    'hobsons-platform-docker-sandbox-local-append',
+                ].join('-');
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when host with wrong char at the end', () => {
+                const value = 'some.very.long.host.name.with.wrong.char.at.the.end!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol and host with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol and ip with wrong char at the end', () => {
+                const value = 'https://123.12.123.12!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host and port with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host, port and path with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234'
+                    + '/some/very/long/path/at/the/end/to/verify/it/works!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host, port, path and query with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234'
+                    + '/some/very/long/path/at/the/end/to/verify/it/works'
+                    + '?alot=of&query=params&to=have&more=characters!';
+                expect(isWebUri(value)).to.be.false;
+            });
+            it('should return false when protocol, host, port, path, query and locator fragment with wrong char at the end', () => {
+                const value = 'https://some.very.long.host.name.with.wrong.char.at.the.end:1234'
+                    + '/some/very/long/path/at/the/end/to/verify/it/works'
+                    + '?alot=of&query=params&to=have&more=characters'
+                    + '#and-long_fragment-locator-at_the-end!';
+                expect(isWebUri(value)).to.be.false;
+            });
+        });
+    });
 });
 
 describe('Validate Codefresh YAML with context', () => {
 
     describe('message mode', () => {
 
-        it.skip('validate yaml with template', async (done) => {
+        it('validate yaml with template', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4502,7 +4603,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it.skip('validate yaml with registry url at template', async (done) => {
+        it('validate yaml with registry url at template', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4541,7 +4642,7 @@ describe('Validate Codefresh YAML with context', () => {
                         title: 'Pushing image to cfcr',
                         type: 'push',
                         image_name: 'codefresh/test',
-                        registry: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web',
+                        registry: '123456789012.dkr.ecr.eu-west-1.amazonaws.com',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
                         region: '${{AWS_REGION}}',
@@ -4562,8 +4663,8 @@ describe('Validate Codefresh YAML with context', () => {
             done();
         });
 
-        it.skip('validate yaml with registry url 2', async (done) => {
-            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
+        it('validate yaml with registry long value', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
             const model = {
                 version: '1.0',
                 steps: {
@@ -4582,18 +4683,35 @@ describe('Validate Codefresh YAML with context', () => {
                     },
                 }
             };
+            const expectedError = {
+                details: [
+                    {
+                        actionItems: 'Add one in your account settings to continue.',
+                        code: 200,
+                        context: { key: undefined },
+                        docsLink: 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        level: 'workflow',
+                        lines: 3,
+                        message: 'You have not added a registry integration.',
+                        path: 'registry',
+                        stepName: 'push',
+                        type: 'Error'
+                    }
+                ],
+                warningDetails: [],
+            };
             const context = {
                 git: [],
                 registries: [],
                 clusters: [],
                 variables: []
             };
-            validateWithContext(model, 'message', yaml, context);
+            validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
             done();
         });
 
 
-        it.skip('validate yaml when integrations not found', async (done) => {
+        it('validate yaml when integrations not found', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/default-yaml.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4678,7 +4796,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it.skip('validate yaml when pipeline have arguments', async (done) => {
+        it('validate yaml when pipeline have arguments', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4784,7 +4902,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it.skip('validate yaml when integrations is empty', async (done) => {
+        it('validate yaml when integrations is empty', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -4898,7 +5016,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it.skip('validate yaml when pipeline have mixed tabs and spaces', async (done) => {
+        it('validate yaml when pipeline have mixed tabs and spaces', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5396,7 +5514,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it.skip('validate build step yaml with gcb without google_app_creds and without google registry', async (done) => {
+        it('validate build step yaml with gcb without google_app_creds and without google registry', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5455,7 +5573,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it.skip('validate build step yaml with gcb without google_app_creds and with google registry', async (done) => {
+        it('validate build step yaml with gcb without google_app_creds and with google registry', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5922,7 +6040,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it.skip('validate yaml with pending approval', async (done) => {
+        it('validate yaml with pending approval', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6096,7 +6214,7 @@ describe('Validate Codefresh YAML with context', () => {
     });
 
     describe('lint mode', () => {
-        it.skip('validate yaml when integrations is empty', async (done) => {
+        it('validate yaml when integrations is empty', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6162,7 +6280,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it.skip('validate yaml with template', async (done) => {
+        it('validate yaml with template', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6221,7 +6339,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it.skip('CF-default git context must be valid', async (done) => {
+        it('CF-default git context must be valid', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6289,7 +6407,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it.skip('validate yaml when pipeline have arguments', async (done) => {
+        it('validate yaml when pipeline have arguments', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6359,7 +6477,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it.skip('validate yaml with 1 warning', async (done) => {
+        it('validate yaml with 1 warning', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',

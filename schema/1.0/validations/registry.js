@@ -5,19 +5,22 @@ const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
 const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links'); // eslint-disable-line
 
-/* const isWebUri = function (s) {
+const isWebUri = function (s) {
     if (s) {
-        const pattern = new RegExp('^((ft|htt)ps?:\\/\\/)?' // protocol
-            + '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' // domain name and extension
-            + '((\\d{1,3}\\.){3}\\d{1,3}))' // OR ip (v4) address
-            + '(\\:\\d+)?' // port
-            + '(\\/[-a-z\\d%@_.~+&:]*)*' // path
-            + '(\\?[;&a-z\\d%@_.,~+&:=-]*)?' // query string
-            + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-        return !!pattern.test(s);
+        const patterns = [
+            /^(?:https?:\/\/)?/, // protocol
+            /(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9][a-z0-9-]*[a-z0-9]/, // hostname
+            /(?::\d+)?/, // port
+            /(?:\/[a-z0-9%@_.~+&:-]*)*/, // path
+            /(?:\?[a-z0-9%@_.,;&~+:=-]*)?/, // query
+            /(?:#[a-z0-9_-]*)?$/, // fragment locator
+        ];
+        const finalPattern = _.reduce(patterns, (acc, value) => acc + value.source, '');
+        const regex = new RegExp(finalPattern, 'i');
+        return !!regex.test(s);
     }
     return false;
-}; */
+};
 
 const validateRegistryContext = function (step,
     yaml,
@@ -128,7 +131,6 @@ const validate = function (step,
         }));
     }
 
-    /*
     if (isWebUri(registry)) {
         // Skips validation when registry field contains url.
         // Example of this pipeline located at __tests__/test-yamls/yaml-with-registry-url.yml.
@@ -204,12 +206,12 @@ const validate = function (step,
             }));
         }
     }
-*/
 
     return { errors, warnings };
 };
 
 module.exports = {
     validate,
-    validateRegistryContext
+    validateRegistryContext,
+    isWebUri,
 };
