@@ -31,7 +31,8 @@ class GitClone extends BaseSchema {
             'repo': Joi.string().required(),
             'revision': Joi.string(),
             'credentials': BaseSchema._getCredentialsSchema(),
-            'git': Joi.string()
+            'git': Joi.string(),
+            'use_proxy': Joi.boolean(),
         };
         return this._createSchema(gitCloneProperties);
     }
