@@ -4,7 +4,7 @@ steps:
 
   install_dependencies:
     title: 'Installing testing dependencies'
-    image: node:12.13.0
+    image: node:11.8.0
     commands:
     - yarn install --frozen-lockfile
 
@@ -15,10 +15,11 @@ steps:
         image: aquasec/trivy:latest
         title: "Scanning lockfile for security vulnerablities"
         fail_fast: false
+        shell: bash
         commands:
           - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
           - |-
-            set -o pipefail
+            set -eo pipefail; \
             trivy \
               --quiet \
               --ignorefile /tmp/.trivy/trivyignore \
@@ -30,13 +31,13 @@ steps:
 
       eslint:
         title: 'Running linting logic'
-        image: node:12.13.0
+        image: node:11.8.0
         commands:
         - yarn eslint
 
       unit_tests:
         title: 'Running unit-tests'
-        image: node:12.13.0
+        image: node:11.8.0
         commands:
         - yarn test
 
