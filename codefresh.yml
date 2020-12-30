@@ -15,10 +15,11 @@ steps:
         image: aquasec/trivy:latest
         title: "Scanning lockfile for security vulnerablities"
         fail_fast: false
-        shell: bash
         commands:
+          - apk add bash
           - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
           - |-
+            bash -c "
             set -eo pipefail; \
             trivy \
               --quiet \
@@ -27,7 +28,7 @@ steps:
               --exit-code 1 \
               fs \
               . \
-              | tee ${{SEC_SCAN_REPORT_FILE}} 
+              | tee ${{SEC_SCAN_REPORT_FILE}} "
 
       eslint:
         title: 'Running linting logic'
