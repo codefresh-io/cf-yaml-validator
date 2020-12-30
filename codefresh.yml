@@ -16,19 +16,15 @@ steps:
         title: "Scanning lockfile for security vulnerablities"
         fail_fast: false
         commands:
-          - apk add bash
           - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
           - |-
-            bash -c "
-            set -eo pipefail; \
             trivy \
               --quiet \
               --ignorefile /tmp/.trivy/trivyignore \
               --ignore-unfixed \
               --exit-code 1 \
               fs \
-              . \
-              | tee ${{SEC_SCAN_REPORT_FILE}} "
+              .
 
       eslint:
         title: 'Running linting logic'
