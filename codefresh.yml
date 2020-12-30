@@ -16,7 +16,16 @@ steps:
         title: "Scanning lockfile for security vulnerablities"
         fail_fast: false
         commands:
-          - trivy fs . --quiet --exit-code 1
+          - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
+          - |-
+            set -eo pipefail; \
+            trivy \
+              fs \
+              --quiet \
+              --ignorefile /tmp/.trivy/trivyignore \
+              --ignore-unfixed \
+              --exit-code 1 \
+              | tee ${{SEC_SCAN_REPORT_FILE}} "
 
       eslint:
         title: 'Running linting logic'
