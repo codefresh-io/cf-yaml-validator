@@ -17,6 +17,9 @@
   "bin": {
     "cyv": "./index.js"
   },
+  "engines": {
+    "node": "12.13.0"
+  },
   "version": "0.24.3",
   "main": "./validator.js",
   "scripts": {

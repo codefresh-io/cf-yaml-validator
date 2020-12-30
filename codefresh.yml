@@ -4,19 +4,19 @@ steps:
 
   install_dependencies:
     title: 'Installing testing dependencies'
-    image: node:11.8.0
+    image: node:12.13.0
     commands:
     - yarn install --frozen-lockfile
 
   eslint:
     title: 'Running linting logic'
-    image: node:11.8.0
+    image: node:12.13.0
     commands:
     - yarn eslint
 
   unit_tests:
     title: 'Running unit-tests'
-    image: node:11.8.0
+    image: node:12.13.0
     commands:
       - yarn test
 
