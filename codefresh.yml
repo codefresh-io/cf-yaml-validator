@@ -16,7 +16,7 @@ steps:
         title: "Scanning lockfile for security vulnerablities"
         fail_fast: false
         commands:
-          - trivy --quiet --exit-code 1 fs .
+          - trivy fs . --quiet --exit-code 1
 
       eslint:
         title: 'Running linting logic'
