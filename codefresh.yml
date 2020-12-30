@@ -7,27 +7,27 @@ steps:
     image: node:11.8.0
     commands:
     - yarn install --frozen-lockfile
+  
+  security_scan:
+    image: aquasec/trivy:latest
+    title: "Scanning lockfile for security vulnerablities"
+    fail_fast: false
+    commands:
+      - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
+      - |-
+        set -eo pipefail; \
+        trivy \
+          fs \
+          --quiet \
+          --ignorefile /tmp/.trivy/trivyignore \
+          --ignore-unfixed \
+          --exit-code 1 \
+          . \
+          | tee ${{SEC_SCAN_REPORT_FILE}}
 
   test:
     type: parallel
     steps:
-      security_scan:
-        image: aquasec/trivy:latest
-        title: "Scanning lockfile for security vulnerablities"
-        fail_fast: false
-        commands:
-          - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
-          - |-
-            set -eo pipefail; \
-            trivy \
-              fs \
-              --quiet \
-              --ignorefile /tmp/.trivy/trivyignore \
-              --ignore-unfixed \
-              --exit-code 1 \
-              . \
-              | tee ${{SEC_SCAN_REPORT_FILE}}
-
       eslint:
         title: 'Running linting logic'
         image: node:11.8.0
