@@ -7,18 +7,38 @@ steps:
     image: node:11.8.0
     commands:
     - yarn install --frozen-lockfile
-
-  eslint:
-    title: 'Running linting logic'
-    image: node:11.8.0
+  
+  security_scan:
+    image: aquasec/trivy:latest
+    title: "Scanning lockfile for security vulnerablities"
+    fail_fast: false
     commands:
-    - yarn eslint
+      - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
+      - |-
+        set -eo pipefail; \
+        trivy \
+          fs \
+          --quiet \
+          --ignorefile /tmp/.trivy/trivyignore \
+          --ignore-unfixed \
+          --exit-code 1 \
+          . \
+          | tee ${{SEC_SCAN_REPORT_FILE}}
 
-  unit_tests:
-    title: 'Running unit-tests'
-    image: node:11.8.0
-    commands:
-      - yarn test
+  test:
+    type: parallel
+    steps:
+      eslint:
+        title: 'Running linting logic'
+        image: node:11.8.0
+        commands:
+        - yarn eslint
+
+      unit_tests:
+        title: 'Running unit-tests'
+        image: node:11.8.0
+        commands:
+        - yarn test
 
   deploy_to_npm:
     title: Publishing To Npm
