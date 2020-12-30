@@ -25,7 +25,7 @@ steps:
               --ignorefile /tmp/.trivy/trivyignore \
               --ignore-unfixed \
               --exit-code 1 \
-              .
+              . \
               | tee ${{SEC_SCAN_REPORT_FILE}}
 
       eslint:
