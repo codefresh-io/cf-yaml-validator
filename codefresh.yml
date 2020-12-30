@@ -17,14 +17,7 @@ steps:
         fail_fast: false
         commands:
           - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
-          - |-
-            trivy \
-              --quiet \
-              --ignorefile /tmp/.trivy/trivyignore \
-              --ignore-unfixed \
-              --exit-code 1 \
-              fs \
-              .
+          - trivy --quiet --ignorefile /tmp/.trivy/trivyignore --exit-code 1 --severity MEDIUM,HIGH,CRITICAL fs .
 
       eslint:
         title: 'Running linting logic'
