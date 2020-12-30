@@ -13,7 +13,7 @@ steps:
     steps:
       security_scan:
         image: aquasec/trivy:latest
-        title: "Scanning image for security vulnerablities"
+        title: "Scanning lockfile for security vulnerablities"
         fail_fast: false
         commands:
           - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
@@ -24,7 +24,8 @@ steps:
               --ignorefile /tmp/.trivy/trivyignore \
               --ignore-unfixed \
               --exit-code 1 \
-              codefresh/${{CF_REPO_NAME}}:${{CF_BRANCH_TAG_NORMALIZED}} \
+              fs \
+              . \
               | tee ${{SEC_SCAN_REPORT_FILE}} 
 
       eslint:
