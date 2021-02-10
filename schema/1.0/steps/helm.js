@@ -28,7 +28,7 @@ class Helm extends BaseSchema {
     static validateStep(step, yaml, name, context, { ignoreValidation }) {
         const warnings = [];
 
-        const helmVersion = _.get(step, 'arguments.helm_version', '3');
+        const helmVersion = _.get(step, 'arguments.helm_version', '2.0.0');
         if (!ignoreValidation && helmVersion.startsWith('2')) {
             warnings.push(ErrorBuilder.buildError({
                 message: `Helm 2 support will be deprecated soon`,
