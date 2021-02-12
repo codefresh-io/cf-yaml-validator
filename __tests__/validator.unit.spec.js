@@ -6275,17 +6275,17 @@ describe('Validate Codefresh YAML with context', () => {
                 details: [],
                 warningDetails: [
                     {
+                        'actionItems': 'Please view our documentation for more details.',
                         'code': 601,
                         'context': {
                             'key': 'helm_version'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/new-helm/using-helm-in-codefresh-pipeline/',
+                        'docsLink': 'https://codefresh.io/docs/docs/new-helm/helm2-support',
                         'level': 'workflow',
                         'lines': 22,
-                        'message': 'Helm 2 support will be deprecated soon',
+                        'message': 'You are using HELM version 2 which will be deprecated on July 16 2021 and will no longer be able to run.',
                         'path': 'helm',
                         'stepName': 'store',
-                        'actionItems': undefined,
                         'type': 'Warning'
                     }
                 ],
@@ -6729,9 +6729,10 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedMessage = {
                 message: '',
                 warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
-                    + ` 22   ${colors.yellow('warning')}   Helm 2 support will be deprecated soon                                         \n`,
+                    + ` 22   ${colors.yellow('warning')}   You are using HELM version 2 which will be deprecated on July 16 2021 and will \n`
+                    + `                no longer be able to run.                                                      \n`,
                 summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
-                documentationLinks: 'Visit https://codefresh.io/docs/docs/new-helm/using-helm-in-codefresh-pipeline/ for helm documentation\n'
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
             };
             const context = {
                 git: [
