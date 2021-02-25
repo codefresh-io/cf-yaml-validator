@@ -6283,7 +6283,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'docsLink': 'https://codefresh.io/docs/docs/new-helm/helm2-support',
                         'level': 'workflow',
                         'lines': 22,
-                        'message': 'You are using HELM version 2 which will be deprecated on July 16 2021 and will no longer be able to run.',
+                        'message': 'Codefresh will discontinue support for Helm 2 on July 16 2021.',
                         'path': 'helm',
                         'stepName': 'store',
                         'type': 'Warning'
@@ -6729,8 +6729,7 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedMessage = {
                 message: '',
                 warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
-                    + ` 22   ${colors.yellow('warning')}   You are using HELM version 2 which will be deprecated on July 16 2021 and will \n`
-                    + `                no longer be able to run.                                                      \n`,
+                    + ` 22   ${colors.yellow('warning')}   Codefresh will discontinue support for Helm 2 on July 16 2021.                 \n`,
                 summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
                 documentationLinks: 'Visit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
             };

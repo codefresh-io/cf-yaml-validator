@@ -31,7 +31,7 @@ class Helm extends BaseSchema {
         const helmVersion = _.get(step, 'arguments.helm_version', '2.0.0');
         if (!ignoreValidation && helmVersion.startsWith('2')) {
             warnings.push(ErrorBuilder.buildError({
-                message: `You are using HELM version 2 which will be deprecated on July 16 2021 and will no longer be able to run.`,
+                message: `Codefresh will discontinue support for Helm 2 on July 16 2021.`,
                 name,
                 yaml,
                 code: 601,
