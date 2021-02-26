@@ -4397,7 +4397,7 @@ describe('Validate Codefresh YAML', () => {
 
         it('should return json schemas', () => {
             const schemas = Validator.getJsonSchemas();
-            expect(_.size(schemas)).to.equal(12);
+            expect(_.size(schemas)).to.equal(13);
         });
 
     });
@@ -6211,6 +6211,89 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
+        it('validate yaml with helm', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-helm.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                stages: [
+                    'prepare',
+                    'build',
+                    'store',
+                    'deploy'
+                ],
+                steps: {
+                    'clone': {
+                        'title': 'Cloning main repository...',
+                        'stage': 'prepare',
+                        'type': 'git-clone',
+                        'repo': 'codefresh-contrib/helm-sample-app',
+                        'revision': '${{CF_BRANCH}}',
+                        'git': 'github'
+                    },
+                    'store': {
+                        'title': 'Storing Helm Chart',
+                        'type': 'helm',
+                        'stage': 'store',
+                        'working_directory': './helm-sample-app',
+                        'arguments': {
+                            'action': 'push',
+                            'helm_version': '2.17.0',
+                            'chart_name': 'charts/helm-example',
+                            'kube_context': 'anais-cluster@codefresh-sa'
+                        }
+                    },
+                    'deploy': {
+                        'type': 'helm',
+                        'stage': 'deploy',
+                        'working_directory': './helm-sample-app',
+                        'arguments': {
+                            'action': 'install',
+                            'chart_name': 'charts/helm-example',
+                            'release_name': 'my-go-chart-prod',
+                            'helm_version': '3.0.2',
+                            'kube_context': 'anais-cluster@codefresh-sa',
+                            'custom_values': [
+                                'buildID=${{CF_BUILD_ID}}',
+                                'image_pullPolicy=Always',
+                                'image_tag=2.0.0',
+                                'replicaCount=3'
+                            ]
+                        }
+                    }
+                }
+            };
+
+            const context = {
+                git: [
+                    { metadata: { name: 'github' } },
+                ],
+                registries: [
+                ],
+                variables: []
+            };
+            const expectedMessage = {
+                details: [],
+                warningDetails: [
+                    {
+                        'actionItems': 'Please view our documentation for more details.',
+                        'code': 601,
+                        'context': {
+                            'key': 'helm_version'
+                        },
+                        'docsLink': 'https://codefresh.io/docs/docs/new-helm/helm2-support',
+                        'level': 'workflow',
+                        'lines': 22,
+                        'message': 'Codefresh will discontinue support for Helm 2 on July 16 2021.',
+                        'path': 'helm',
+                        'stepName': 'store',
+                        'type': 'Warning'
+                    }
+                ],
+                autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: false });
+        });
+
     });
 
     describe('lint mode', () => {
@@ -6590,6 +6673,78 @@ describe('Validate Codefresh YAML with context', () => {
                 autoPush: true
             };
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { ignoreValidation: true });
+        });
+
+        it('validate yaml with helm', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-helm.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                stages: [
+                    'prepare',
+                    'build',
+                    'store',
+                    'deploy'
+                ],
+                steps: {
+                    'clone': {
+                        'title': 'Cloning main repository...',
+                        'stage': 'prepare',
+                        'type': 'git-clone',
+                        'repo': 'codefresh-contrib/helm-sample-app',
+                        'revision': '${{CF_BRANCH}}',
+                        'git': 'github'
+                    },
+                    'store': {
+                        'title': 'Storing Helm Chart',
+                        'type': 'helm',
+                        'stage': 'store',
+                        'working_directory': './helm-sample-app',
+                        'arguments': {
+                            'action': 'push',
+                            'helm_version': '2.17.0',
+                            'chart_name': 'charts/helm-example',
+                            'kube_context': 'anais-cluster@codefresh-sa'
+                        }
+                    },
+                    'deploy': {
+                        'type': 'helm',
+                        'stage': 'deploy',
+                        'working_directory': './helm-sample-app',
+                        'arguments': {
+                            'action': 'install',
+                            'chart_name': 'charts/helm-example',
+                            'release_name': 'my-go-chart-prod',
+                            'helm_version': '3.0.2',
+                            'kube_context': 'anais-cluster@codefresh-sa',
+                            'custom_values': [
+                                'buildID=${{CF_BUILD_ID}}',
+                                'image_pullPolicy=Always',
+                                'image_tag=2.0.0',
+                                'replicaCount=3'
+                            ]
+                        }
+                    }
+                }
+            };
+            const expectedMessage = {
+                message: '',
+                warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
+                    + ` 22   ${colors.yellow('warning')}   Codefresh will discontinue support for Helm 2 on July 16 2021.                 \n`,
+                summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
+            };
+            const context = {
+                git: [
+                    { metadata: { name: 'github' } },
+                ],
+                registries: [
+                ],
+                clusters: [
+                ],
+                variables: [],
+                autoPush: true
+            };
+            validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { ignoreValidation: false });
         });
 
     });

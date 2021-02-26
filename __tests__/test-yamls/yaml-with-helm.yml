@@ -1,0 +1,39 @@
+version: '1.0'
+stages:
+  - prepare
+  - build
+  - store
+  - deploy
+steps:
+  clone:
+    title: Cloning main repository...
+    stage: prepare
+    type: git-clone
+    repo: codefresh-contrib/helm-sample-app
+    revision: "${{CF_BRANCH}}"
+    git: github
+  store:
+    title: Storing Helm Chart
+    type: helm
+    stage: store
+    working_directory: ./helm-sample-app
+    arguments:
+      action: push
+      helm_version: 2.17.0
+      chart_name: charts/helm-example
+      kube_context: anais-cluster@codefresh-sa
+  deploy:
+    type: helm
+    stage: deploy
+    working_directory: ./helm-sample-app
+    arguments:
+      action: install
+      chart_name: charts/helm-example
+      release_name: my-go-chart-prod
+      helm_version: 3.0.2
+      kube_context: anais-cluster@codefresh-sa
+      custom_values:
+        - 'buildID=${{CF_BUILD_ID}}'
+        - 'image_pullPolicy=Always'
+        - 'image_tag=2.0.0'
+        - 'replicaCount=3'

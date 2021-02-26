@@ -20,6 +20,7 @@ const IntegrationLinks = {
     'build': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
     'composition': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
     'freestyle': `https://codefresh.io/docs/docs/docker-registries/external-docker-registries/`,
+    'helm': 'https://codefresh.io/docs/docs/new-helm/helm2-support',
     'variables': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/'
 };
 module.exports = { docBaseUrl, DocumentationLinks, IntegrationLinks };
