@@ -23,6 +23,7 @@ const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
+const object = require('joi/lib/object');
 
 let totalErrors;
 let totalWarnings;
@@ -307,7 +308,7 @@ class Validator {
             version: Joi.number().positive().required(),
             steps: Joi.object().pattern(/^.+$/, Joi.object()).required(),
             stages: Joi.array().items(Joi.string()),
-            mode: Joi.string().valid('sequential', 'parallel'),
+            mode: Joi.string().valid('sequential', 'parallel', 'tree'),
             hooks: BaseSchema._getBaseHooksSchema(),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
             success_criteria: BaseSchema.getSuccessCriteriaSchema(),
@@ -391,6 +392,11 @@ class Validator {
     static _validateStepSchema(objectModel, yaml, opts) {
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
+
+        if (objectModel.mode === 'tree') {
+            return;
+        }
+
         _.map(objectModel.steps, (s, name) => {
             const step = _.cloneDeep(s);
             if (step.arguments) {
