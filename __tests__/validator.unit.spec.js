@@ -6,6 +6,7 @@
 const _ = require('lodash');
 const chai = require('chai');
 const fs = require('fs');
+const jsyaml = require('js-yaml');
 const path = require('path');
 const colors = require('colors');
 
@@ -1236,6 +1237,67 @@ describe('Validate Codefresh YAML', () => {
                     };
                     validateWithContext(model, 'message', yaml, context, opts);
                     done();
+                });
+            });
+
+            describe('tag-policy', () => {
+                it('positive', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');
+                    const model = jsyaml.load(yaml);
+                    const context = {
+                        git: [
+                        ],
+                        registries: [
+                            { name: 'mydefaultReg', default: true }
+                        ],
+                        clusters: [
+                        ],
+                        variables: [],
+                        autoPush: true
+                    };
+                    const opts = {
+                        build: {
+                            buildVersion: 'V2'
+                        }
+                    };
+                    validateWithContext(model, 'message', yaml, context, opts);
+                    const lowercaseValue = jsyaml.load(yaml);
+                    lowercaseValue.steps.BuildingDockerImage['tag-policy'] = 'lowercase';
+                    validateWithContext(lowercaseValue, 'message', yaml, context, opts);
+                    const noValue = jsyaml.load(yaml);
+                    delete noValue.steps.BuildingDockerImage['tag-policy'];
+                    validateWithContext(noValue, 'message', yaml, context, opts);
+                    done();
+                });
+                it('negative', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');
+                    const context = {
+                        git: [
+                        ],
+                        registries: [
+                            { name: 'mydefaultReg', default: true }
+                        ],
+                        clusters: [
+                        ],
+                        variables: [],
+                        autoPush: true
+                    };
+                    const opts = {
+                        build: {
+                            buildVersion: 'V2'
+                        }
+                    };
+                    const notValidModel = jsyaml.load(yaml);
+                    notValidModel.steps.BuildingDockerImage['tag-policy'] = 'lower';
+                    try {
+                        validateWithContext(notValidModel, 'message', yaml, context, opts);
+                        done(new Error('Validation should have failed'));
+                    } catch (err) {
+                        // eslint-disable-next-line max-len
+                        const expected = '"tag_policy" with value "lower" fails to match the required pattern: /^(original)|(lowercase)$/. Current value: lower \n';
+                        expect(err.message).to.equal(expected);
+                        done();
+                    }
                 });
             });
 

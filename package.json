@@ -17,7 +17,7 @@
   "bin": {
     "cyv": "./index.js"
   },
-  "version": "0.24.7",
+  "version": "0.24.8",
   "main": "./validator.js",
   "scripts": {
     "test": "jest --coverage --runInBand",
@@ -41,6 +41,7 @@
     "eslint-plugin-mocha": "^5.2.1",
     "eslint-plugin-react": "^7.12.4",
     "jest": "^24.0.0",
+    "js-yaml": "^4.1.0",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0"
   },

@@ -38,6 +38,7 @@ class Build extends BaseSchema {
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
             tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
+            tag_policy: Joi.string().regex(/^(original)|(lowercase)$/),
             ...(opts.buildVersion === BUILD_VERSION && { tags: Joi.array().items(Joi.string()) }),
             metadata: Joi.object({
                 set: BaseSchema._getMetadataAnnotationSetSchema()
@@ -112,7 +113,8 @@ class Build extends BaseSchema {
     _applyStepCompatibility(schema) {
         return schema.rename('working-directory', 'working_directory', { ignoreUndefined: true })
             .rename('image-name', 'image_name', { ignoreUndefined: true })
-            .rename('build-arguments', 'build_arguments', { ignoreUndefined: true });
+            .rename('build-arguments', 'build_arguments', { ignoreUndefined: true })
+            .rename('tag-policy', 'tag_policy', { ignoreUndefined: true });
     }
 }
 // Exported objects/methods
