@@ -38,7 +38,7 @@ class Build extends BaseSchema {
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
             tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
-            tag_policy: Joi.string().regex(/^(original)|(lowercase)$/),
+            tag_policy: Joi.string().valid('original', 'lowercase'),
             ...(opts.buildVersion === BUILD_VERSION && { tags: Joi.array().items(Joi.string()) }),
             metadata: Joi.object({
                 set: BaseSchema._getMetadataAnnotationSetSchema()

@@ -1240,7 +1240,7 @@ describe('Validate Codefresh YAML', () => {
                 });
             });
 
-            describe('tag-policy', () => {
+            describe('tag_policy', () => {
                 it('positive', (done) => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');
                     const model = jsyaml.load(yaml);
@@ -1262,10 +1262,12 @@ describe('Validate Codefresh YAML', () => {
                     };
                     validateWithContext(model, 'message', yaml, context, opts);
                     const lowercaseValue = jsyaml.load(yaml);
-                    lowercaseValue.steps.BuildingDockerImage['tag-policy'] = 'lowercase';
+                    lowercaseValue.steps.BuildingDockerImage.tag_policy = 'lowercase';
                     validateWithContext(lowercaseValue, 'message', yaml, context, opts);
                     const noValue = jsyaml.load(yaml);
-                    delete noValue.steps.BuildingDockerImage['tag-policy'];
+                    delete noValue.steps.BuildingDockerImage.tag_policy;
+                    validateWithContext(noValue, 'message', yaml, context, opts);
+                    noValue.steps.BuildingDockerImage['tag-policy'] = 'original';
                     validateWithContext(noValue, 'message', yaml, context, opts);
                     done();
                 });
@@ -1288,16 +1290,27 @@ describe('Validate Codefresh YAML', () => {
                         }
                     };
                     const notValidModel = jsyaml.load(yaml);
+                    notValidModel.steps.BuildingDockerImage.tag_policy = 'lower';
+                    try {
+                        validateWithContext(notValidModel, 'message', yaml, context, opts);
+                        done(new Error('Validation should have failed'));
+                    } catch (err) {
+                        // eslint-disable-next-line max-len
+                        const expected = '"tag_policy" must be one of [original, lowercase]. Current value: lower \n';
+                        expect(err.message).to.equal(expected);
+                    }
+
+                    delete notValidModel.steps.BuildingDockerImage.tag_policy;
                     notValidModel.steps.BuildingDockerImage['tag-policy'] = 'lower';
                     try {
                         validateWithContext(notValidModel, 'message', yaml, context, opts);
                         done(new Error('Validation should have failed'));
                     } catch (err) {
                         // eslint-disable-next-line max-len
-                        const expected = '"tag_policy" with value "lower" fails to match the required pattern: /^(original)|(lowercase)$/. Current value: lower \n';
+                        const expected = '"tag_policy" must be one of [original, lowercase]. Current value: lower \n';
                         expect(err.message).to.equal(expected);
-                        done();
                     }
+                    done();
                 });
             });
 

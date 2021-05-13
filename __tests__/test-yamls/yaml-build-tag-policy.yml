@@ -6,4 +6,4 @@ steps:
     image_name: alpine
     working_directory: ./
     tag: mixedCase
-    tag-policy: original
+    tag_policy: original
