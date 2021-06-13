@@ -8,7 +8,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const Joi        = require('joi');
+const Joi = require('joi');
 const BaseSchema = require('../base-schema');
 
 class PendingApproval extends BaseSchema {
@@ -25,6 +25,11 @@ class PendingApproval extends BaseSchema {
         const pendingApprovalProperties = {
             type: Joi.string().valid(PendingApproval.getType()),
             timeout: Joi.object({
+                timeUnit: Joi.string()
+                    .valid([
+                        'hours',
+                        'minutes'
+                    ]),
                 duration: Joi.number().positive(),
                 finalState: Joi.string()
                     .valid([
