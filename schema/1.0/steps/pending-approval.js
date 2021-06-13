@@ -29,7 +29,7 @@ class PendingApproval extends BaseSchema {
                     .valid([
                         'hours',
                         'minutes'
-                    ]),
+                    ]).default('hours'),
                 duration: Joi.number().positive(),
                 finalState: Joi.string()
                     .valid([
