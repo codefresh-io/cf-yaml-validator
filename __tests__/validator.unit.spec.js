@@ -3393,6 +3393,101 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, 'step name exist more than once\nstep name exist more than once\n', done);
             });
+
+            it('not-duplicate-step-names-parent-child', (done) => {
+                validate({
+                    'version': '1.0',
+                    'steps': {
+                        'BuildingDockerImage': {
+                            'type': 'parallel',
+                            'steps': {
+                                'writing_file_1': {
+                                    'title': 'Step1A',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1A" > first.txt'
+                                    ]
+                                },
+                                'writing_file_2': {
+                                    'title': 'Step1B',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1B" > second.txt'
+                                    ]
+                                }
+                            }
+                        },
+                        'BuildingDockerImage2': {
+                            'type': 'parallel',
+                            'steps': {
+                                'writing_file_4': {
+                                    'title': 'Step1A',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1A" > first.txt'
+                                    ]
+                                },
+                                'writing_file_3': {
+                                    'title': 'Step1B',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1B" > second.txt'
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                });
+                done();
+            });
+
+            it('duplicate-step-names-parent-child', (done) =>  {
+                validateForError({
+                    'version': '1.0',
+                    'steps': {
+                        'writing_file': {
+                            'type': 'parallel',
+                            'steps': {
+                                'writing_file': {
+                                    'title': 'Step1A',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1A" > first.txt'
+                                    ]
+                                },
+                                'writing_file_1': {
+                                    'title': 'Step1B',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1B" > second.txt'
+                                    ]
+                                }
+                            }
+                        },
+                        'writing_file2': {
+                            'type': 'parallel',
+                            'steps': {
+                                'writing_file2': {
+                                    'title': 'Step1A',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1A" > first.txt'
+                                    ]
+                                },
+                                'writing_file_2': {
+                                    'title': 'Step1B',
+                                    'image': 'alpine',
+                                    'commands': [
+                                        'echo "Step1B" > second.txt'
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                    // eslint-disable-next-line max-len
+                }, '`step names should be unique within the same pipeline. The parent and child steps should NOT share the same name`\n`step names should be unique within the same pipeline. The parent and child steps should NOT share the same name`\n', done);
+            });
+
             it('long-step-names', (done) => {
                 validateForError({
                     version: '1.0',

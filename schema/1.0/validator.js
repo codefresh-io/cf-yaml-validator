@@ -302,6 +302,46 @@ class Validator {
         }
     }
 
+    static _validateUniqueStepNamesOfChiledAndParent(objectModel, yaml) {
+        // get a list of all steps names of each father step
+        const stepsNames = _.map(objectModel.steps,
+            (step, key) => {
+                return step.steps ? Object.keys(step.steps).concat([key]) : [];
+            });
+        // get duplicate step names from steps names:
+        const duplicateStepsList = _.map(stepsNames, step => _.filter(step, (val, i, iteratee) => _.includes(iteratee, val, i + 1)));
+
+        _.forEach(duplicateStepsList, (arrStep) => {
+            if (arrStep.length > 0) {
+                _.forEach(arrStep, (stepName) => {
+                    // eslint-disable-next-line max-len
+                    const message = `step names should be unique within the same pipeline. The parent and child steps should NOT share the same name`;
+                    const error = new Error(message);
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message,
+                            type: 'Validation',
+                            path: 'steps',
+                            context: {
+                                key: 'steps',
+                            },
+                            level: 'step',
+                            stepName,
+                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#inserting-parallel-steps-in-a-sequential-pipeline',
+                            actionItems: `Please rename ${arrStep} steps`,
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
+                        },
+                    ];
+
+                    Validator._addError(error);
+
+                });
+            }
+        });
+    }
+
     static _validateRootSchema(objectModel, yaml) {
         const rootSchema = Joi.object({
             version: Joi.number().positive().required(),
@@ -753,6 +793,7 @@ class Validator {
             details: [],
         };
         Validator._validateUniqueStepNames(objectModel, yaml);
+        Validator._validateUniqueStepNamesOfChiledAndParent(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
@@ -781,6 +822,7 @@ class Validator {
         Validator._validateIndention(yaml, outputFormat);
         Validator._validateNewLineToSpaceConverter(yaml);
         Validator._validateUniqueStepNames(objectModel, yaml);
+        Validator._validateUniqueStepNamesOfChiledAndParent(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
