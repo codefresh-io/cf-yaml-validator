@@ -3485,7 +3485,7 @@ describe('Validate Codefresh YAML', () => {
                         }
                     }
                     // eslint-disable-next-line max-len
-                }, '`step names should be unique within the same pipeline. The parent and child steps should NOT share the same name`\n`step names should be unique within the same pipeline. The parent and child steps should NOT share the same name`\n', done);
+                }, 'step names should be unique within the same pipeline. The parent and child steps should NOT share the same name\nstep names should be unique within the same pipeline. The parent and child steps should NOT share the same name\n', done);
             });
 
             it('long-step-names', (done) => {

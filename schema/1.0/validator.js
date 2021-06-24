@@ -315,7 +315,7 @@ class Validator {
             if (arrStep.length > 0) {
                 _.forEach(arrStep, (stepName) => {
                     // eslint-disable-next-line max-len
-                    const message = `step names should be unique within the same pipeline. The parent and child steps should NOT share the same name`;
+                    const message = 'step names should be unique within the same pipeline. The parent and child steps should NOT share the same name';
                     const error = new Error(message);
                     error.name = 'ValidationError';
                     error.isJoi = true;
