@@ -227,10 +227,18 @@ class Validator {
 
     static _validateStepsLength(objectModel, yaml) {
         // get all step names:
-        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
-            return step.steps ? Object.keys(step.steps) : [key];
-        });
-        const currentMaxStepLength = stepNames.reduce((acc, curr) => {
+        const stepNames = (obj, lst) => {
+            _.flatMap(obj, (step, key) => {
+                lst.push(key);
+                if (step.steps) {
+                    stepNames(step.steps, lst);
+                }
+            });
+            return lst;
+        };
+
+        const stepNamesList = stepNames(objectModel.steps, []);
+        const currentMaxStepLength = stepNamesList.reduce((acc, curr) => {
             if (curr.length > acc.length) {
                 acc = {
                     length: curr.length,
@@ -269,11 +277,18 @@ class Validator {
 
     static _validateUniqueStepNames(objectModel, yaml) {
         // get all step names:
-        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
-            return step.steps ? Object.keys(step.steps) : [key];
-        });
-        // get duplicate step names from step names:
-        const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
+        const stepNames = (obj, lst) => {
+            _.flatMap(obj, (step, key) => {
+                lst.push(key);
+                if (step.steps) {
+                    stepNames(step.steps, lst);
+                }
+            });
+            return lst;
+        };
+        const stepNamesList = stepNames(objectModel.steps, []);
+        // get duplicate step names
+        const duplicateSteps = _.filter(stepNamesList, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
         if (duplicateSteps.length > 0) {
             _.forEach(duplicateSteps, (stepName) => {
                 const message = `step name exist more than once`;
@@ -302,45 +317,58 @@ class Validator {
         }
     }
 
-    static _validateUniqueStepNamesOfChiledAndParent(objectModel, yaml) {
-        // get a list of all steps names of each father step
-        const stepsNames = _.map(objectModel.steps,
-            (step, key) => {
-                return step.steps ? Object.keys(step.steps).concat([key]) : [];
-            });
-        // get duplicate step names from steps names:
-        const duplicateStepsList = _.map(stepsNames, step => _.filter(step, (val, i, iteratee) => _.includes(iteratee, val, i + 1)));
-
-        _.forEach(duplicateStepsList, (arrStep) => {
-            if (arrStep.length > 0) {
-                _.forEach(arrStep, (stepName) => {
-                    // eslint-disable-next-line max-len
-                    const message = 'step names should be unique within the same pipeline. The parent and child steps should NOT share the same name';
-                    const error = new Error(message);
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message,
-                            type: 'Validation',
-                            path: 'steps',
-                            context: {
-                                key: 'steps',
-                            },
-                            level: 'step',
-                            stepName,
-                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#inserting-parallel-steps-in-a-sequential-pipeline',
-                            actionItems: `Please rename ${arrStep} steps`,
-                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
-                        },
-                    ];
-
-                    Validator._addError(error);
-
-                });
-            }
-        });
-    }
+    // static _validateUniqueStepNamesOfChildAndParent(objectModel, yaml) {
+    //
+    //     const keyify = (obj, prefix = '') => _.keysIn(obj).reduce((res, el) => {
+    //         if (typeof obj[el] === 'object' && obj[el] !== null) {
+    //             return [...res, ...keyify(obj[el], el)];
+    //         }
+    //         return [...res, prefix];
+    //     }, []);
+    //
+    //     const output = keyify(objectModel.steps);
+    //
+    //     const duplicateSteps =_.filter(output, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
+    //
+    //
+    //     // get a list of all steps names of each father step
+    //     const stepsNames = _.map(objectModel.steps,
+    //         (step, key) => {
+    //             return step.steps ? Object.keys(step.steps).concat([key]) : [];
+    //         });
+    //     // get duplicate step names from steps names:
+    //     const duplicateStepsList = _.map(stepsNames, step => _.filter(step, (val, i, iteratee) => _.includes(iteratee, val, i + 1)));
+    //
+    //     _.forEach(duplicateStepsList, (arrStep) => {
+    //         if (arrStep.length > 0) {
+    //             _.forEach(arrStep, (stepName) => {
+    //                 // eslint-disable-next-line max-len
+    //                 const message = 'step names should be unique within the same pipeline. The parent and child steps should NOT share the same name';
+    //                 const error = new Error(message);
+    //                 error.name = 'ValidationError';
+    //                 error.isJoi = true;
+    //                 error.details = [
+    //                     {
+    //                         message,
+    //                         type: 'Validation',
+    //                         path: 'steps',
+    //                         context: {
+    //                             key: 'steps',
+    //                         },
+    //                         level: 'step',
+    //                         stepName,
+    //                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#inserting-parallel-steps-in-a-sequential-pipeline',
+    //                         actionItems: `Please rename ${arrStep} steps`,
+    //                         lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
+    //                     },
+    //                 ];
+    //
+    //                 Validator._addError(error);
+    //
+    //             });
+    //         }
+    //     });
+    // }
 
     static _validateRootSchema(objectModel, yaml) {
         const rootSchema = Joi.object({
@@ -793,7 +821,7 @@ class Validator {
             details: [],
         };
         Validator._validateUniqueStepNames(objectModel, yaml);
-        Validator._validateUniqueStepNamesOfChiledAndParent(objectModel, yaml);
+        // Validator._validateUniqueStepNamesOfChildAndParent(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
@@ -822,7 +850,7 @@ class Validator {
         Validator._validateIndention(yaml, outputFormat);
         Validator._validateNewLineToSpaceConverter(yaml);
         Validator._validateUniqueStepNames(objectModel, yaml);
-        Validator._validateUniqueStepNamesOfChiledAndParent(objectModel, yaml);
+        // Validator._validateUniqueStepNamesOfChildAndParent(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
