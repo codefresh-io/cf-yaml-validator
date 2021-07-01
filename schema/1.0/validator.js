@@ -37,7 +37,7 @@ function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
         }
     });
     return stepNameLst;
-};
+}
 
 class Validator {
 
@@ -233,7 +233,6 @@ class Validator {
 
         throw err;
     }
-
 
 
     static _validateStepsLength(objectModel, yaml) {
