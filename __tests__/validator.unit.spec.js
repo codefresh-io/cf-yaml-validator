@@ -18,6 +18,106 @@ chai.use(sinonChai);
 const Validator = require('../validator');
 const { isWebUri } = require('../schema/1.0/validations/registry');
 
+const Mustache = require('mustache');
+const yamlTemplateForDuplicateStepNamesTest = JSON.stringify({
+    'version': '1.0',
+    'steps': {
+        '{{stepName0}}': {
+            'type': 'parallel',
+            'steps': {
+                '{{stepName0_1}}': {
+                    'title': 'Step1A',
+                    'image': 'alpine',
+                    'commands': [
+                        'echo "Step1A" > first.txt'
+                    ]
+                },
+                '{{stepName0_2}}': {
+                    'title': 'Step1B',
+                    'image': 'alpine',
+                    'commands': [
+                        'echo "Step1B" > second.txt'
+                    ]
+                }
+            }
+        },
+        '{{stepName1}}': {
+            'type': 'parallel',
+            'steps': {
+                '{{stepName1_1}}': {
+                    'title': 'Step1A',
+                    'image': 'alpine',
+                    'commands': [
+                        'echo "Step1A" > first.txt'
+                    ]
+                },
+                '{{stepName1_2}}': {
+                    'title': 'Step1B',
+                    'image': 'alpine',
+                    'commands': [
+                        'echo "Step1B" > second.txt'
+                    ]
+                }
+            }
+        }
+    }
+});
+const yamlTemplateForNestedDuplicateStepNamesTest = JSON.stringify({
+    'version': '1.0',
+    'steps': {
+    '{{stepName0}}': {
+        'type': 'parallel',
+            'steps': {
+            '{{stepName0_1}}': {
+                'title': 'Step1A',
+                    'image': 'alpine',
+                    'commands': [
+                    'echo "Step1A" > first.txt'
+                ]
+            },
+            '{{stepName0_2}}': {
+                'title': 'Step1B',
+                    'image': 'alpine',
+                    'commands': [
+                    'echo "Step1B" > second.txt'
+                ]
+            },
+            '{{stepName0_3}}': {
+                'type': 'parallel',
+                    'steps': {
+                    '{{stepName0_3_1}}': {
+                        'title': 'Step1A',
+                            'image': 'alpine',
+                            'commands': [
+                            'echo "Step1A" > first.txt'
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    '{{stepName1}}': {
+        'type': 'parallel',
+            'steps': {
+            '{{stepName1_1}}': {
+                'title': 'Step1A',
+                    'image': 'alpine',
+                    'commands': [
+                    'echo "Step1A" > first.txt'
+                ]
+            },
+            '{{stepName1_2}}': {
+                'title': 'Step1B',
+                    'image': 'alpine',
+                    'commands': [
+                    'echo "Step1B" > second.txt'
+                ]
+            }
+        }
+    }
+}
+});
+
 function validate(model, outputFormat, yaml) {
     return Validator.validate(model, outputFormat, yaml);
 }
@@ -44,6 +144,8 @@ function validateForErrorWithContext(model, expectedError, done, outputFormat = 
         done();
     }
 }
+
+
 
 function validateForError(model, expectedMessage, done, outputFormat = 'message', yaml) {
     try {
@@ -3302,307 +3404,42 @@ describe('Validate Codefresh YAML', () => {
 
 
             it('not-duplicate-step-names', (done) => {
-                validate({
-                    'version': '1.0',
-                    'steps': {
-                        'BuildingDockerImage': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_1': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        },
-                        'BuildingDockerImage2': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_4': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_3': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                });
+                let values = {stepName0: 'BuildingDockerImage',stepName0_1:'writing_file_1',stepName0_2:'writing_file_2',
+                    stepName1:'BuildingDockerImage2',stepName1_1:'writing_file_4',stepName1_2:'writing_file_3'};
+                validate(JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)));
                 done();
             });
 
             it('duplicate-step-names', (done) => {
-                validateForError({
-                    'version': '1.0',
-                    'steps': {
-                        'BuildingDockerImage': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_1': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        },
-                        'BuildingDockerImage2': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_1': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }, 'step name exist more than once\nstep name exist more than once\n', done);
+                let values = {stepName0: 'BuildingDockerImage',stepName0_1:'writing_file_1',stepName0_2:'writing_file_2',
+                    stepName1:'BuildingDockerImage2',stepName1_1:'writing_file_1',stepName1_2:'writing_file_2'};
+                validateForError(JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)), 'step name exist more than once\nstep name exist more than once\n', done);
             });
 
             it('not-duplicate-step-names-parent-child', (done) => {
-                validate({
-                    'version': '1.0',
-                    'steps': {
-                        'BuildingDockerImage': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_1': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        },
-                        'BuildingDockerImage2': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_4': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_3': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                });
+                let values = {stepName0: 'BuildingDockerImage',stepName0_1:'writing_file_1',stepName0_2:'writing_file_2',
+                    stepName1:'BuildingDockerImage2',stepName1_1:'writing_file_4',stepName1_2:'writing_file_3'};
+                validate(JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)));
                 done();
             });
 
             it('duplicate-step-names-parent-child', (done) =>  {
-                validateForError({
-                    'version': '1.0',
-                    'steps': {
-                        'writing_file': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_1': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        },
-                        'writing_file2': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file2': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                    // eslint-disable-next-line max-len
-                }, 'step name exist more than once\nstep name exist more than once\n', done);
+                let values = {stepName0: 'writing_file',stepName0_1:'writing_file',stepName0_2:'writing_file_1',
+                    stepName1:'writing_file2',stepName1_1:'writing_file2',stepName1_2:'writing_file_2'};
+                validateForError(JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)), 'step name exist more than once\nstep name exist more than once\n', done);
             });
 
             it('not-duplicate-step-names-parent-child-nested', (done) => {
-                validate({
-                    'version': '1.0',
-                    'steps': {
-                        'BuildingDockerImage': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_1': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                },
-                                'test': {
-                                    'type': 'parallel',
-                                    'steps': {
-                                        'writing_file_1_1': {
-                                            'title': 'Step1A',
-                                            'image': 'alpine',
-                                            'commands': [
-                                                'echo "Step1A" > first.txt'
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        'BuildingDockerImage2': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_4': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_3': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                });
+                let values = {stepName0: 'BuildingDockerImage',stepName0_1:'writing_file_1',stepName0_2:'writing_file_2',stepName0_3:'test',stepName0_3_1:'writing_file_1_1',
+                    stepName1:'BuildingDockerImage2',stepName1_1:'writing_file_4',stepName1_2:'writing_file_3'};
+                validate(JSON.parse(Mustache.render(yamlTemplateForNestedDuplicateStepNamesTest, values)));
                 done();
             });
 
             it('duplicate-step-names-parent-child-nested', (done) => {
-                validateForError({
-                    'version': '1.0',
-                    'steps': {
-                        'BuildingDockerImage': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_1': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_2': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                },
-                                'BuildingDockerImage': {
-                                    'type': 'parallel',
-                                    'steps': {
-                                        'writing_file_1': {
-                                            'title': 'Step1A',
-                                            'image': 'alpine',
-                                            'commands': [
-                                                'echo "Step1A" > first.txt'
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        'BuildingDockerImage2': {
-                            'type': 'parallel',
-                            'steps': {
-                                'writing_file_4': {
-                                    'title': 'Step1A',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1A" > first.txt'
-                                    ]
-                                },
-                                'writing_file_3': {
-                                    'title': 'Step1B',
-                                    'image': 'alpine',
-                                    'commands': [
-                                        'echo "Step1B" > second.txt'
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }, 'step name exist more than once\nstep name exist more than once\n', done);
+                let values = {stepName0: 'BuildingDockerImage',stepName0_1:'writing_file_1',stepName0_2:'writing_file_2',stepName0_3:'BuildingDockerImage',stepName0_3_1:'writing_file_1',
+                    stepName1:'BuildingDockerImage2',stepName1_1:'writing_file_4',stepName1_2:'writing_file_3'};
+                validateForError(JSON.parse(Mustache.render(yamlTemplateForNestedDuplicateStepNamesTest, values)), 'step name exist more than once\nstep name exist more than once\n', done);
             });
 
 

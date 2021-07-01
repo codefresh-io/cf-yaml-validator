@@ -29,6 +29,16 @@ let totalWarnings;
 
 const MaxStepLength = 150;
 
+function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
+    _.flatMap(objectModelSteps, (step, key) => {
+        stepNameLst.push(key);
+        if (step.steps) {
+            getAllStepNamesFromObjectModel(step.steps, stepNameLst);
+        }
+    });
+    return stepNameLst;
+};
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -225,19 +235,10 @@ class Validator {
     }
 
 
+
     static _validateStepsLength(objectModel, yaml) {
         // get all step names:
-        const stepNames = (obj, lst) => {
-            _.flatMap(obj, (step, key) => {
-                lst.push(key);
-                if (step.steps) {
-                    stepNames(step.steps, lst);
-                }
-            });
-            return lst;
-        };
-
-        const stepNamesList = stepNames(objectModel.steps, []);
+        const stepNamesList = getAllStepNamesFromObjectModel(objectModel.steps);
         const currentMaxStepLength = stepNamesList.reduce((acc, curr) => {
             if (curr.length > acc.length) {
                 acc = {
@@ -277,18 +278,9 @@ class Validator {
 
     static _validateUniqueStepNames(objectModel, yaml) {
         // get all step names:
-        const stepNames = (obj, lst) => {
-            _.flatMap(obj, (step, key) => {
-                lst.push(key);
-                if (step.steps) {
-                    stepNames(step.steps, lst);
-                }
-            });
-            return lst;
-        };
-        const stepNamesList = stepNames(objectModel.steps, []);
+        const stepNamesList = getAllStepNamesFromObjectModel(objectModel.steps);
         // get duplicate step names
-        const duplicateSteps = _.filter(stepNamesList, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
+        const duplicateSteps = _.filter(stepNamesList, (stepName, index, iteratee) => _.includes(iteratee, stepName, index + 1));
         if (duplicateSteps.length > 0) {
             _.forEach(duplicateSteps, (stepName) => {
                 const message = `step name exist more than once`;
