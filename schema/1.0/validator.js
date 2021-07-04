@@ -29,6 +29,16 @@ let totalWarnings;
 
 const MaxStepLength = 150;
 
+function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
+    _.flatMap(objectModelSteps, (step, key) => {
+        stepNameLst.push(key);
+        if (step.steps) {
+            getAllStepNamesFromObjectModel(step.steps, stepNameLst);
+        }
+    });
+    return stepNameLst;
+}
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -227,10 +237,8 @@ class Validator {
 
     static _validateStepsLength(objectModel, yaml) {
         // get all step names:
-        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
-            return step.steps ? Object.keys(step.steps) : [key];
-        });
-        const currentMaxStepLength = stepNames.reduce((acc, curr) => {
+        const stepNamesList = getAllStepNamesFromObjectModel(objectModel.steps);
+        const currentMaxStepLength = stepNamesList.reduce((acc, curr) => {
             if (curr.length > acc.length) {
                 acc = {
                     length: curr.length,
@@ -269,11 +277,9 @@ class Validator {
 
     static _validateUniqueStepNames(objectModel, yaml) {
         // get all step names:
-        const stepNames = _.flatMap(objectModel.steps, (step, key) => {
-            return step.steps ? Object.keys(step.steps) : [key];
-        });
-        // get duplicate step names from step names:
-        const duplicateSteps = _.filter(stepNames, (val, i, iteratee) => _.includes(iteratee, val, i + 1));
+        const stepNamesList = getAllStepNamesFromObjectModel(objectModel.steps);
+        // get duplicate step names
+        const duplicateSteps = _.filter(stepNamesList, (stepName, index, iteratee) => _.includes(iteratee, stepName, index + 1));
         if (duplicateSteps.length > 0) {
             _.forEach(duplicateSteps, (stepName) => {
                 const message = `step name exist more than once`;
@@ -301,6 +307,7 @@ class Validator {
 
         }
     }
+
 
     static _validateRootSchema(objectModel, yaml) {
         const rootSchema = Joi.object({
