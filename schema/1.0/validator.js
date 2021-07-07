@@ -320,7 +320,8 @@ class Validator {
             success_criteria: BaseSchema.getSuccessCriteriaSchema(),
             indicators: Joi.array(),
             services: Joi.object(),
-            build_version: Joi.string().valid('v1', 'v2')
+            build_version: Joi.string().valid('v1', 'v2'),
+            extends: Joi.string()
         });
         const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
         if (validationResult.error) {
