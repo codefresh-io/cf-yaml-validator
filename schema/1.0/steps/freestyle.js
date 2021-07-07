@@ -38,6 +38,7 @@ class Freestyle extends BaseSchema {
             working_directory: Joi.string(),
             image: Joi.string().required(),
             commands: Joi.array().items(Joi.string()),
+            command: Joi.any().forbidden().label('Use commands instead command'),
             cmd: Joi.alternatives().try(Joi.string(), Joi.array().items(Joi.string())),
             volumes: Joi.array().items(Joi.string().regex(/:/)),
             environment: Joi.array().items(Joi.string()),
