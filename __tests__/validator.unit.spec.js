@@ -289,9 +289,6 @@ describe('Validate Codefresh YAML', () => {
                     steps: {},
                     hooks: {
                         on_elected: ['echo test'],
-                        on_success: {
-                            exec: ['echo test'],
-                        },
                         on_finish: {
                             steps: {
                                 freestyle: {
@@ -300,13 +297,13 @@ describe('Validate Codefresh YAML', () => {
                                     arguments: {
                                         image: 'ubuntu:latest',
                                         commands: ['echo test']
+                                    },
                                 },
                                 clone: {
                                     title: 'clone title',
                                     type: 'git-clone',
                                     repo: 'codefresh/repo'
-                                }
-                                }
+                                },
                             },
                         },
                         on_success: {

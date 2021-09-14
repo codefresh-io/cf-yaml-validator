@@ -737,7 +737,7 @@ class Validator {
         const validationResult = Joi.validate(hook, hookSchema, { abortEarly: false });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
-                Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
+                return Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
             });
         }
     }
