@@ -689,6 +689,9 @@ class Validator {
     }
 
     static _validateSingleHookSchema(objectModel, hook, stepName, yaml, opts = {}) {
+        if (_.isArray(hook)) {
+            return {};
+        }
         // validation for a hook with plugins/costume steps
         if (hook.steps) {
             opts.isInHook = true;
@@ -740,6 +743,7 @@ class Validator {
                 return Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
             });
         }
+        return {};
     }
 
     static _validateDisallowOldHooks(step) {
