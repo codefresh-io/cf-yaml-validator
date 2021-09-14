@@ -395,7 +395,8 @@ class Validator {
         return joiSchemas;
     }
 
-    static _validateStepSchema(objectModel, yaml, opts) {
+    static _validateStepSchema(objectModel, yaml, opts = {}) {
+        opts.isInHook = opts.isInHook? true : false;
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (s, name) => {
@@ -463,10 +464,21 @@ class Validator {
             if (!type) {
                 type = 'freestyle';
             }
-            const stepSchema = stepsSchemas[type];
+            let stepSchema = stepsSchemas[type];
             if (!stepSchema) {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue; // eslint-disable-line no-continue
+            }
+            if (opts.isInHook){
+                const hookStepSchema = stepSchema.keys({
+                    debug: Joi.forbidden(),
+                    on_start: Joi.forbidden(),
+                    on_finish: Joi.forbidden(),
+                    on_fail: Joi.forbidden(),
+                    hooks: Joi.forbidden(),
+                    stage: Joi.forbidden(),
+                })
+                stepSchema = hookStepSchema;
             }
 
             const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
@@ -653,26 +665,18 @@ class Validator {
         }
     }
 
-    static _validateHooksSchema(objectModel, yaml, opts) {
+    static _validateHooksSchema(objectModel, yaml, opts = {}) {
+        //if there are any pipeline hooks, validate them one by one
         if (objectModel.hooks) {
             _.forEach(objectModel.hooks, (hook) => {
-                const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
-                if (validationResult.error) {
-                    _.forEach(validationResult.error.details, (err) => {
-                        Validator._processRootSchemaError(err, validationResult, yaml);
-                    });
-                }
+                Validator._validateSingleHookSchema(objectModel, hook, undefined, yaml, opts);
             });
         }
+        //check for each step if it has hooks and validate them
         _.forEach(objectModel.steps, (step, stepName) => {
             if (step.hooks) {
                 _.forEach(step.hooks, (hook) => {
-                    const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
-                    if (validationResult.error) {
-                        _.forEach(validationResult.error.details, (err) => {
-                            Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
-                        });
-                    }
+                    Validator._validateSingleHookSchema(objectModel, hook, stepName, yaml, opts);
                 });
                 const validationResult = Validator._validateDisallowOldHooks(step);
                 delete validationResult.value;
@@ -685,10 +689,17 @@ class Validator {
         });
     }
 
-    static _validateSingleHookSchema(objectModel, hook, opts) {
+    static _validateSingleHookSchema(objectModel, hook, stepName, yaml, opts = {}) {
         if (_.isArray(hook)) {
             return {};
         }
+        
+        //validation for a hook with plugins/costume steps
+        if (hook.steps) {
+            opts.isInHook = true;
+            return Validator._validateStepSchema(hook, yaml, opts);
+        }
+
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const freestyleSchema = stepsSchemas.freestyle.keys({
             debug: Joi.forbidden(),
@@ -696,17 +707,13 @@ class Validator {
             on_finish: Joi.forbidden(),
             on_fail: Joi.forbidden(),
             hooks: Joi.forbidden(),
+            stage: Joi.forbidden(),
         });
         const multipleStepsSchema = Joi.object({
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: Joi.boolean(),
             steps: Joi.object().pattern(/.+/, freestyleSchema),
         });
-
-        if (!hook.metadata && !hook.annotations && !hook.exec) {
-            const schema = hook.steps ? multipleStepsSchema : freestyleSchema;
-            return Joi.validate(hook, schema, { abortEarly: false });
-        }
 
         let execSchema = Joi.alternatives([
             Joi.array().items(Joi.string()),
@@ -722,12 +729,22 @@ class Validator {
             }
         }
 
-        const hookSchema = Joi.object({
+        let hookSchema = Joi.object({
             exec: execSchema,
             metadata: BaseSchema._getMetadataSchema(),
             annotations: BaseSchema._getAnnotationsSchema(),
         });
-        return Joi.validate(hook, hookSchema, { abortEarly: false });
+
+        if (!hook.metadata && !hook.annotations && !hook.exec) {
+            hookSchema = freestyleSchema;
+        }
+
+        const validationResult = Joi.validate(hook, hookSchema, { abortEarly: false });
+        if (validationResult.error) {
+            _.forEach(validationResult.error.details, (err) => {
+                Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
+            });
+        }
     }
 
     static _validateDisallowOldHooks(step) {
