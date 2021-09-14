@@ -689,17 +689,7 @@ class Validator {
     }
 
     static _validateSingleHookSchema(objectModel, hook, stepName, yaml, opts = {}) {
-        if (_.isArray(hook)) {
-            const validationResult = Joi.validate(hook, hookSchema, { abortEarly: false });
-            if (validationResult.error) {
-                _.forEach(validationResult.error.details, (err) => {
-                    Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
-            });
-        }
-            return {};
-        }
-        
-        //validation for a hook with plugins/costume steps
+        // validation for a hook with plugins/costume steps
         if (hook.steps) {
             opts.isInHook = true;
             return Validator._validateStepSchema(hook, yaml, opts);
