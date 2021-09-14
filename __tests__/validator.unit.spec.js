@@ -283,6 +283,107 @@ describe('Validate Codefresh YAML', () => {
                 });
                 done();
             });
+            it('valid pipeline hooks with plugins / costume steps', (done) => {
+                validate({
+                    version: '1.0',
+                    steps: {},
+                    hooks: {
+                        on_elected: ['echo test'],
+                        on_success: {
+                            exec: ['echo test'],
+                        },
+                        on_finish: {
+                            steps: {
+                                freestyle: {
+                                    title: 'some title',
+                                    type: 'freestyle',
+                                    arguments: {
+                                        image: 'ubuntu:latest',
+                                        commands: ['echo test']
+                                    },
+                                clone: {
+                                    title: 'clone title',
+                                    type: 'git-clone',
+                                    repo: 'codefresh/repo'
+                                }
+                                }
+                            },
+                        },
+                        on_success: {
+                            steps: {
+                                deploy:{
+                                    type: 'helm',
+                                    arguments: {
+                                        chart_name: 'test_chart',
+                                        release_name: 'first',
+                                        kube_context: 'my-kubernetes-context',
+                                        tiller_namespace: 'kube-system',
+                                        namespace: 'project',
+                                        custom_values: [
+                                            'KEY1=VAL1',
+                                            'KEY2=VAL2',
+                                            'KEY3=VAL3',
+                                        ],
+                                        custom_value_files: [
+                                            '/path/to/values.yaml',
+                                            '/path/to/values2.yaml'
+                                        ],
+                                        cmd_ps: '--wait --timeout 5'
+                                    }
+                                }
+                            }
+                        },
+                        on_fail: {
+                            steps: {
+                                exec: {
+                                    image: 'alpine',
+                                    commands: ['echo test'],
+                                },
+                                clone: {
+                                    title: 'clone title',
+                                    type: 'git-clone',
+                                    repo: 'codefresh/repo'
+                                },
+                                build: {
+                                    title: 'Building Docker image',
+                                    type: 'build',
+                                    image_name: 'user/sandbox',
+                                    working_directory: '${{clone}}',
+                                    tag: '${{CF_BRANCH_TAG_NORMALIZED}}',
+                                    dockerfile: "Dockerfile",
+                                }
+                            },
+                            metadata: {
+                                set: [
+                                    {
+                                        test: [
+                                            {
+                                                test: 'test'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            annotations: {
+                                set: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: [{ test: 'test' }]
+                                    }
+                                ],
+                                unset: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: ['test']
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                
+                });
+                done();
+            });
             it('invalid hooks', (done) => {
                 validateForError({
                     version: '1.0',
@@ -4236,7 +4337,112 @@ describe('Validate Codefresh YAML', () => {
                     });
                     done();
                 });
-
+                it('valid steps hooks with plugins / costume steps', (done) => {
+                    validate({
+                        version: '1.0',
+                        stages: ['test'],
+                        steps: {
+                            test: {
+                                title: 'Running test',
+                                type: 'freestyle',
+                                image: 'ubuntu:latest',
+                                commands: ['ls'],
+                                stage: 'test',
+                                hooks: {
+                                    on_elected: ['echo test'],
+                                    on_success: {
+                                        exec: ['echo test'],
+                                    },
+                                    on_finish: {
+                                        mode: 'parallel',
+                                        steps: {
+                                            freestyle: {
+                                                title: 'some title',
+                                                type: 'freestyle',
+                                                arguments: {
+                                                    image: 'ubuntu:latest',
+                                                    commands: ['echo test']
+                                                },
+                                            },
+                                            clone: {
+                                                title: 'clone title',
+                                                type: 'git-clone',
+                                                repo: 'codefresh/repo'
+                                            },
+                                            deploy:{
+                                                type: 'helm',
+                                                arguments: {
+                                                    chart_name: 'test_chart',
+                                                    release_name: 'first',
+                                                    kube_context: 'my-kubernetes-context',
+                                                    tiller_namespace: 'kube-system',
+                                                    namespace: 'project',
+                                                    custom_values: [
+                                                        'KEY1=VAL1',
+                                                        'KEY2=VAL2',
+                                                        'KEY3=VAL3',
+                                                    ],
+                                                    custom_value_files: [
+                                                        '/path/to/values.yaml',
+                                                        '/path/to/values2.yaml'
+                                                    ],
+                                                    cmd_ps: '--wait --timeout 5'
+                                                }
+                                            }
+                                        },
+                                    },
+                                    on_fail: {
+                                        steps: {
+                                            exec: {
+                                                image: 'alpine',
+                                                commands: ['echo test'],
+                                            },
+                                            clone: {
+                                                title: 'clone title',
+                                                type: 'git-clone',
+                                                repo: 'codefresh/repo'
+                                            },
+                                            build: {
+                                                title: 'Building Docker image',
+                                                type: 'build',
+                                                image_name: 'user/sandbox',
+                                                working_directory: '${{clone}}',
+                                                tag: '${{CF_BRANCH_TAG_NORMALIZED}}',
+                                                dockerfile: 'Dockerfile',
+                                            }
+                                        },
+                                        metadata: {
+                                            set: [
+                                                {
+                                                    test: [
+                                                        {
+                                                            test: 'test'
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        annotations: {
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test' }]
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test']
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
                 it('should allow shortcuts', (done) => {
                     validate({
                         version: '1.0',
@@ -4453,6 +4659,81 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     }, '"type" is not allowed', done);
+                });
+                it('should not allow stage', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        steps: {
+                                            clone: {
+                                                title: 'Cloning repository',
+                                                type: 'git-clone',
+                                                repo: 'user/sandbox',
+                                                revision: 'master',
+                                                git: 'github',
+                                                stage: 'clone'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }, '"stage" is not allowed', done);
+                });
+                it('should not allow hooks', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        steps: {
+                                            clone: {
+                                                title: 'Cloning repository',
+                                                type: 'git-clone',
+                                                repo: 'user/sandbox',
+                                                revision: 'master',
+                                                git: 'github',
+                                                hooks: {},
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }, '"hooks" is not allowed', done);
+                });
+                it('should not allow debug', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        steps: {
+                                            clone: {
+                                                title: 'Cloning repository',
+                                                type: 'git-clone',
+                                                repo: 'user/sandbox',
+                                                revision: 'github',
+                                                debug: {
+                                                    phases: {
+                                                        before: true,
+                                                    }
+                                                }, 
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    }, '"debug" is not allowed', done);
                 });
             });
         });
