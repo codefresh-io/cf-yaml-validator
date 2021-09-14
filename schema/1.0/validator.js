@@ -396,7 +396,6 @@ class Validator {
     }
 
     static _validateStepSchema(objectModel, yaml, opts = {}) {
-        opts.isInHook = opts.isInHook? true : false;
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         const steps = {};
         _.map(objectModel.steps, (s, name) => {
@@ -469,7 +468,7 @@ class Validator {
                 console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
                 continue; // eslint-disable-line no-continue
             }
-            if (opts.isInHook){
+            if (opts.isInHook) {
                 const hookStepSchema = stepSchema.keys({
                     debug: Joi.forbidden(),
                     on_start: Joi.forbidden(),
@@ -477,7 +476,7 @@ class Validator {
                     on_fail: Joi.forbidden(),
                     hooks: Joi.forbidden(),
                     stage: Joi.forbidden(),
-                })
+                });
                 stepSchema = hookStepSchema;
             }
 
@@ -666,13 +665,13 @@ class Validator {
     }
 
     static _validateHooksSchema(objectModel, yaml, opts = {}) {
-        //if there are any pipeline hooks, validate them one by one
+        //  if there are any pipeline hooks, validate them one by one
         if (objectModel.hooks) {
             _.forEach(objectModel.hooks, (hook) => {
                 Validator._validateSingleHookSchema(objectModel, hook, undefined, yaml, opts);
             });
         }
-        //check for each step if it has hooks and validate them
+        //  check for each step if it has hooks and validate them
         _.forEach(objectModel.steps, (step, stepName) => {
             if (step.hooks) {
                 _.forEach(step.hooks, (hook) => {
@@ -691,6 +690,12 @@ class Validator {
 
     static _validateSingleHookSchema(objectModel, hook, stepName, yaml, opts = {}) {
         if (_.isArray(hook)) {
+            const validationResult = Joi.validate(hook, hookSchema, { abortEarly: false });
+            if (validationResult.error) {
+                _.forEach(validationResult.error.details, (err) => {
+                    Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
+            });
+        }
             return {};
         }
         

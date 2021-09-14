@@ -300,7 +300,7 @@ describe('Validate Codefresh YAML', () => {
                                     arguments: {
                                         image: 'ubuntu:latest',
                                         commands: ['echo test']
-                                    },
+                                },
                                 clone: {
                                     title: 'clone title',
                                     type: 'git-clone',
@@ -311,7 +311,7 @@ describe('Validate Codefresh YAML', () => {
                         },
                         on_success: {
                             steps: {
-                                deploy:{
+                                deploy: {
                                     type: 'helm',
                                     arguments: {
                                         chart_name: 'test_chart',
@@ -350,7 +350,7 @@ describe('Validate Codefresh YAML', () => {
                                     image_name: 'user/sandbox',
                                     working_directory: '${{clone}}',
                                     tag: '${{CF_BRANCH_TAG_NORMALIZED}}',
-                                    dockerfile: "Dockerfile",
+                                    dockerfile: 'Dockerfile',
                                 }
                             },
                             metadata: {
@@ -380,7 +380,6 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                
                 });
                 done();
             });
@@ -4369,7 +4368,7 @@ describe('Validate Codefresh YAML', () => {
                                                 type: 'git-clone',
                                                 repo: 'codefresh/repo'
                                             },
-                                            deploy:{
+                                            deploy: {
                                                 type: 'helm',
                                                 arguments: {
                                                     chart_name: 'test_chart',
@@ -4726,7 +4725,7 @@ describe('Validate Codefresh YAML', () => {
                                                     phases: {
                                                         before: true,
                                                     }
-                                                }, 
+                                                },
                                             }
                                         }
                                     }
