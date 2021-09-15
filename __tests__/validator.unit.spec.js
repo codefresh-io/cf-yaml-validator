@@ -350,31 +350,6 @@ describe('Validate Codefresh YAML', () => {
                                     dockerfile: 'Dockerfile',
                                 }
                             },
-                            metadata: {
-                                set: [
-                                    {
-                                        test: [
-                                            {
-                                                test: 'test'
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            annotations: {
-                                set: [
-                                    {
-                                        entity_type: 'build',
-                                        annotations: [{ test: 'test' }]
-                                    }
-                                ],
-                                unset: [
-                                    {
-                                        entity_type: 'build',
-                                        annotations: ['test']
-                                    }
-                                ]
-                            }
                         }
                     }
                 });
@@ -4407,31 +4382,6 @@ describe('Validate Codefresh YAML', () => {
                                                 dockerfile: 'Dockerfile',
                                             }
                                         },
-                                        metadata: {
-                                            set: [
-                                                {
-                                                    test: [
-                                                        {
-                                                            test: 'test'
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        },
-                                        annotations: {
-                                            set: [
-                                                {
-                                                    entity_type: 'build',
-                                                    annotations: [{ test: 'test' }]
-                                                }
-                                            ],
-                                            unset: [
-                                                {
-                                                    entity_type: 'build',
-                                                    annotations: ['test']
-                                                }
-                                            ]
-                                        }
                                     }
                                 }
                             }
