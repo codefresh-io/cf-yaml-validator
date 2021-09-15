@@ -23,7 +23,6 @@ const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
-const { _examples } = require('joi/lib/lazy');
 
 let totalErrors;
 let totalWarnings;
@@ -422,12 +421,12 @@ class Validator {
         return steps;
     }
 
-    static _assignArgumentsToStep(step){
+    static _assignArgumentsToStep(step) {
         Object.assign(step, step.arguments);
         delete step.arguments;
     }
-    
-    static _validateParallelTypeInnerSteps(step, steps, yaml){
+
+    static _validateParallelTypeInnerSteps(step, steps, yaml) {
         if (_.size(step.steps) > 0) {
             _.map(step.steps, (innerStep, innerName) => {
                 steps[innerName] = innerStep;
@@ -712,7 +711,6 @@ class Validator {
         if (_.isArray(hook)) {
             return {};
         }
-        
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         let steps = {};
 
@@ -759,12 +757,11 @@ class Validator {
             if (hook.exec.steps) {
                 execSchema = multipleStepsSchema;
             } 
-
             hookSchema = Joi.object({
                 exec: execSchema,
                 metadata: BaseSchema._getMetadataSchema(),
                 annotations: BaseSchema._getAnnotationsSchema(),
-            })
+            });
         } else {
             if (hook.steps) {
                 hookSchema = Joi.object({
@@ -773,12 +770,11 @@ class Validator {
                     steps: Joi.object().pattern(/^.+$/, Joi.object()),
                     metadata: BaseSchema._getMetadataSchema(),
                     annotations: BaseSchema._getAnnotationsSchema()
-                })
+                });
             } else {
                 hookSchema = Joi.object();
             }
         }
-        
         // Validating the hook's structure schema
         const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
         if (validationResult.error) {
