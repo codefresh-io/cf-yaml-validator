@@ -767,8 +767,6 @@ class Validator {
                 mode: Joi.string().valid('sequential', 'parallel'),
                 fail_fast: Joi.boolean(),
                 steps: Joi.object().pattern(/^.+$/, Joi.object()),
-                metadata: BaseSchema._getMetadataSchema(),
-                annotations: BaseSchema._getAnnotationsSchema()
             });
         } else {
             hookSchema = Joi.object();
