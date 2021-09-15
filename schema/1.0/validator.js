@@ -756,7 +756,7 @@ class Validator {
         if (hook.exec) {
             if (hook.exec.steps) {
                 execSchema = multipleStepsSchema;
-            } 
+            }
             hookSchema = Joi.object({
                 exec: execSchema,
                 metadata: BaseSchema._getMetadataSchema(),
@@ -773,7 +773,6 @@ class Validator {
         } else {
             hookSchema = Joi.object();
         }
-        
         // Validating the hook's structure schema
         const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
         if (validationResult.error) {
