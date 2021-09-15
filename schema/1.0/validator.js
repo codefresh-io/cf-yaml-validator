@@ -779,7 +779,7 @@ class Validator {
             }
         }
         
-        // Validating the hook's root schema
+        // Validating the hook's structure schema
         const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {

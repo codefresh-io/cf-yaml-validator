@@ -4525,6 +4525,73 @@ describe('Validate Codefresh YAML', () => {
                     });
                     done();
                 });
+                it('should allow costume steps inside exec', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        exec: {
+                                            mode: 'parallel',
+                                            fail_fast: false,
+                                            steps: {
+                                                main_clone: {
+                                                    title: 'Cloning main repository...',
+                                                    type: 'git-clone',
+                                                    repo: 'some_repo',
+                                                    revision: 'revision',
+                                                    git: 'git context',
+                                                },
+                                                deploy: {
+                                                    title: 'deploying to cluster',
+                                                    type: 'deploy',
+                                                    kind: 'kubernetes',
+                                                    service: 'kubernetes',
+                                                    cluster: '${{test-cluster}}',
+                                                    namespace: 'default',
+                                                    arguments: {
+                                                        image: '${{build}}',
+                                                        registry: 'cfcr',
+                                                        commands:
+                                                            ['cf-deploy-kubernetes deployment.yml']
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        metadata: {
+                                            set: [
+                                                {
+                                                    test: [
+                                                        {
+                                                            test: 'test'
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        annotations: {
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test' }]
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test']
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
             });
             describe('negative', () => {
                 it('should not allow debug', (done) => {
