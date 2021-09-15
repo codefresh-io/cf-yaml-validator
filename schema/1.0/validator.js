@@ -762,19 +762,18 @@ class Validator {
                 metadata: BaseSchema._getMetadataSchema(),
                 annotations: BaseSchema._getAnnotationsSchema(),
             });
+        } else if (hook.steps) {
+            hookSchema = Joi.object({
+                mode: Joi.string().valid('sequential', 'parallel'),
+                fail_fast: Joi.boolean(),
+                steps: Joi.object().pattern(/^.+$/, Joi.object()),
+                metadata: BaseSchema._getMetadataSchema(),
+                annotations: BaseSchema._getAnnotationsSchema()
+            });
         } else {
-            if (hook.steps) {
-                hookSchema = Joi.object({
-                    mode: Joi.string().valid('sequential', 'parallel'),
-                    fail_fast: Joi.boolean(),
-                    steps: Joi.object().pattern(/^.+$/, Joi.object()),
-                    metadata: BaseSchema._getMetadataSchema(),
-                    annotations: BaseSchema._getAnnotationsSchema()
-                });
-            } else {
-                hookSchema = Joi.object();
-            }
+            hookSchema = Joi.object();
         }
+        
         // Validating the hook's structure schema
         const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
         if (validationResult.error) {
