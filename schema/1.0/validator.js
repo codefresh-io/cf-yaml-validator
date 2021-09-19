@@ -395,89 +395,116 @@ class Validator {
         return joiSchemas;
     }
 
-    static _validateStepSchema(objectModel, yaml, opts) {
+    static _validateStepSchema(objectModel, yaml, opts = {}) {
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
+        const steps = Validator._getFormattedSteps(objectModel.steps, yaml);
+
+        for (const stepName in steps) { // eslint-disable-line
+            const step = steps[stepName];
+            Validator._validateSingleStepSchema(step, stepsSchemas, stepName, yaml, opts);
+        }
+    }
+
+    static _getFormattedSteps(stepsModel, yaml) {
         const steps = {};
-        _.map(objectModel.steps, (s, name) => {
+        _.map(stepsModel, (s, name) => {
             const step = _.cloneDeep(s);
             if (step.arguments) {
-                Object.assign(step, step.arguments);
-                delete step.arguments;
+                Validator._assignArgumentsToStep(step);
             }
             if (step.type === 'parallel') {
-                if (_.size(step.steps) > 0) {
-                    _.map(step.steps, (innerStep, innerName) => {
-                        steps[innerName] = innerStep;
-                    });
-                    for (const stepName in step.steps) { // eslint-disable-line
-                        const subStep = steps[stepName];
-                        if (_.get(subStep, 'type', 'freestyle') === PendingApproval.getType()) {
-                            const error = new Error(`"type" can't be ${PendingApproval.getType()}`);
-                            error.name = 'ValidationError';
-                            error.isJoi = true;
-                            error.details = [
-                                {
-                                    message: `"type" can't be ${PendingApproval.getType()}`,
-                                    type: 'Validation',
-                                    path: 'type',
-                                    context: {
-                                        key: 'type',
-                                    },
-                                    level: 'step',
-                                    stepName,
-                                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
-                                    actionItems: `Please change the type of the sub step`,
-                                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
-                                },
-                            ];
-                            Validator._addError(error);
-                        }
-                    }
-                } else {
-                    const error = new Error('"steps" is required and must be an array steps');
-                    error.name = 'ValidationError';
-                    error.isJoi = true;
-                    error.details = [
-                        {
-                            message: '"steps" is required and must be an array of type steps',
-                            type: 'Validation',
-                            path: 'steps',
-                            context: {
-                                key: 'steps',
-                            },
-                            level: 'workflow',
-                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
-                            actionItems: `Please make sure you have all the required fields`,
-                            lines: ErrorBuilder.getErrorLineNumber({ yaml }),
-                        },
-                    ];
-                    Validator._addError(error);
-                }
+                Validator._validateParallelTypeInnerSteps(step, steps, yaml);
             } else {
                 steps[name] = step;
             }
         });
-        for (const stepName in steps) { // eslint-disable-line
-            const step = steps[stepName];
-            let { type } = step;
-            if (!type) {
-                type = 'freestyle';
-            }
-            const stepSchema = stepsSchemas[type];
-            if (!stepSchema) {
-                console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
-                continue; // eslint-disable-line no-continue
-            }
+        return steps;
+    }
 
-            const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
-            if (validationResult.error) {
-                _.forEach(validationResult.error.details, (err) => {
-                    Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
-                });
+    static _assignArgumentsToStep(step) {
+        Object.assign(step, step.arguments);
+        delete step.arguments;
+    }
+
+    static _validateParallelTypeInnerSteps(step, steps, yaml) {
+        if (_.size(step.steps) > 0) {
+            _.map(step.steps, (innerStep, innerName) => {
+                steps[innerName] = innerStep;
+            });
+            for (const stepName in step.steps) { // eslint-disable-line
+                const subStep = steps[stepName];
+                if (_.get(subStep, 'type', 'freestyle') === PendingApproval.getType()) {
+                    const error = new Error(`"type" can't be ${PendingApproval.getType()}`);
+                    error.name = 'ValidationError';
+                    error.isJoi = true;
+                    error.details = [
+                        {
+                            message: `"type" can't be ${PendingApproval.getType()}`,
+                            type: 'Validation',
+                            path: 'type',
+                            context: {
+                                key: 'type',
+                            },
+                            level: 'step',
+                            stepName,
+                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/',
+                            actionItems: `Please change the type of the sub step`,
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
+                        },
+                    ];
+                    Validator._addError(error);
+                }
             }
+        } else {
+            const error = new Error('"steps" is required and must be an array steps');
+            error.name = 'ValidationError';
+            error.isJoi = true;
+            error.details = [
+                {
+                    message: '"steps" is required and must be an array of type steps',
+                    type: 'Validation',
+                    path: 'steps',
+                    context: {
+                        key: 'steps',
+                    },
+                    level: 'workflow',
+                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/what-is-the-codefresh-yaml/',
+                    actionItems: `Please make sure you have all the required fields`,
+                    lines: ErrorBuilder.getErrorLineNumber({ yaml }),
+                },
+            ];
+            Validator._addError(error);
         }
     }
 
+    static _validateSingleStepSchema(step, stepsSchemas, stepName, yaml, opts) {
+        let { type } = step;
+        if (!type) {
+            type = 'freestyle';
+        }
+        let stepSchema = stepsSchemas[type];
+        if (!stepSchema) {
+            console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
+            return;
+        }
+        if (opts.isInHook) {
+            const hookStepSchema = stepSchema.keys({
+                debug: Joi.forbidden(),
+                on_start: Joi.forbidden(),
+                on_finish: Joi.forbidden(),
+                on_fail: Joi.forbidden(),
+                hooks: Joi.forbidden(),
+                stage: Joi.forbidden(),
+            });
+            stepSchema = hookStepSchema;
+        }
+        const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
+        if (validationResult.error) {
+            _.forEach(validationResult.error.details, (err) => {
+                Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
+            });
+        }
+    }
 
     static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
         const originalPath = Validator._getOriginalPath(err);
@@ -653,26 +680,18 @@ class Validator {
         }
     }
 
-    static _validateHooksSchema(objectModel, yaml, opts) {
+    static _validateHooksSchema(objectModel, yaml, opts = {}) {
+        //  if there are any pipeline hooks, validate them one by one
         if (objectModel.hooks) {
             _.forEach(objectModel.hooks, (hook) => {
-                const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
-                if (validationResult.error) {
-                    _.forEach(validationResult.error.details, (err) => {
-                        Validator._processRootSchemaError(err, validationResult, yaml);
-                    });
-                }
+                Validator._validateSingleHookSchema(objectModel, hook, yaml, opts);
             });
         }
+        //  check for each step if it has hooks and validate them
         _.forEach(objectModel.steps, (step, stepName) => {
             if (step.hooks) {
                 _.forEach(step.hooks, (hook) => {
-                    const validationResult = Validator._validateSingleHookSchema(objectModel, hook, opts);
-                    if (validationResult.error) {
-                        _.forEach(validationResult.error.details, (err) => {
-                            Validator._processStepSchemaError(err, validationResult, stepName, 'freestyle', yaml);
-                        });
-                    }
+                    Validator._validateSingleHookSchema(objectModel, hook, yaml, opts);
                 });
                 const validationResult = Validator._validateDisallowOldHooks(step);
                 delete validationResult.value;
@@ -685,49 +704,81 @@ class Validator {
         });
     }
 
-    static _validateSingleHookSchema(objectModel, hook, opts) {
+    static _validateSingleHookSchema(objectModel, hook, yaml, opts = {}) {
+        if (_.isArray(hook.exec) && !hook.metadata && !hook.annotations) {
+            return {};
+        }
         if (_.isArray(hook)) {
             return {};
         }
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
-        const freestyleSchema = stepsSchemas.freestyle.keys({
-            debug: Joi.forbidden(),
-            on_start: Joi.forbidden(),
-            on_finish: Joi.forbidden(),
-            on_fail: Joi.forbidden(),
-            hooks: Joi.forbidden(),
-        });
+        let steps = {};
+
+        // gathering the steps from relevant position
+        if (hook.exec && hook.exec.steps) {
+            steps = Validator._getFormattedSteps(hook.exec.steps, yaml);
+        } else if (!hook.exec && hook.steps) {
+            steps = Validator._getFormattedSteps(hook.steps, yaml);
+        } else if (hook.exec && !hook.exec.steps) {
+            const step = _.cloneDeep(hook.exec);
+            if (step.arguments) {
+                Validator._assignArgumentsToStep(step);
+            }
+            steps[step.name] = step;
+        } else if (!hook.exec && !hook.steps) {
+            const step = _.cloneDeep(hook);
+            if (step.arguments) {
+                Validator._assignArgumentsToStep(step);
+            }
+            steps[step.name] = step;
+        }
+
+        // validating the steps seperately
+        for (const stepName in steps) { // eslint-disable-line     
+            opts.isInHook = true;
+            const step = steps[stepName];
+            Validator._validateSingleStepSchema(step, stepsSchemas, stepName, yaml, opts);
+        }
+
+        let hookSchema = {};
+
         const multipleStepsSchema = Joi.object({
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: Joi.boolean(),
-            steps: Joi.object().pattern(/.+/, freestyleSchema),
+            steps: Joi.object().pattern(/^.+$/, Joi.object()),
         });
-
-        if (!hook.metadata && !hook.annotations && !hook.exec) {
-            const schema = hook.steps ? multipleStepsSchema : freestyleSchema;
-            return Joi.validate(hook, schema, { abortEarly: false });
-        }
 
         let execSchema = Joi.alternatives([
             Joi.array().items(Joi.string()),
             Joi.object()
         ]);
-        if (hook.exec) {
-            if (_.isArray(hook.exec)) {
-                execSchema = Joi.array().items(Joi.string());
-            } else if (hook.exec.steps) {
-                execSchema = multipleStepsSchema;
-            } else {
-                execSchema = freestyleSchema;
-            }
-        }
 
-        const hookSchema = Joi.object({
-            exec: execSchema,
-            metadata: BaseSchema._getMetadataSchema(),
-            annotations: BaseSchema._getAnnotationsSchema(),
-        });
-        return Joi.validate(hook, hookSchema, { abortEarly: false });
+        if (hook.exec) {
+            if (hook.exec.steps) {
+                execSchema = multipleStepsSchema;
+            }
+            hookSchema = Joi.object({
+                exec: execSchema,
+                metadata: BaseSchema._getMetadataSchema(),
+                annotations: BaseSchema._getAnnotationsSchema(),
+            });
+        } else if (hook.steps) {
+            hookSchema = Joi.object({
+                mode: Joi.string().valid('sequential', 'parallel'),
+                fail_fast: Joi.boolean(),
+                steps: Joi.object().pattern(/^.+$/, Joi.object()),
+            });
+        } else {
+            hookSchema = Joi.object();
+        }
+        // Validating the hook's structure schema
+        const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
+        if (validationResult.error) {
+            _.forEach(validationResult.error.details, (err) => {
+                return Validator._processStepSchemaError(err, validationResult, hook.name, 'freestyle', yaml);
+            });
+        }
+        return {};
     }
 
     static _validateDisallowOldHooks(step) {
