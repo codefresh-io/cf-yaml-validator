@@ -712,7 +712,7 @@ class Validator {
             return {};
         }
         // in case a hook contains only metadata or annotations
-        if (!hook.exec && !hook.steps && (hook.matadata || hook.annotations)) {
+        if (!hook.exec && !hook.steps && (hook.metadata || hook.annotations)) {
             const hookSchema = Joi.object({
                 metadata: BaseSchema._getMetadataSchema(),
                 annotations: BaseSchema._getAnnotationsSchema(),
@@ -739,7 +739,7 @@ class Validator {
                 Validator._assignArgumentsToStep(step);
             }
             steps[step.name] = step;
-        } else if (!hook.exec && !hook.steps && !hook.metadata && !hook.annotations) {
+        } else if (!hook.exec && !hook.steps) {
             const step = _.cloneDeep(hook);
             if (step.arguments) {
                 Validator._assignArgumentsToStep(step);

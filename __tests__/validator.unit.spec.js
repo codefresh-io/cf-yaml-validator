@@ -374,12 +374,18 @@ describe('Validate Codefresh YAML', () => {
                         },
                         on_fail: {
                             annotations: {
-                                set: [{
-                                    'entity_type': 'build',
-                                    'annotations': [{
-                                        'status': 'success',
-                                    }]
-                                }]
+                                set: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: [{ test: 'test' }]
+                                    }
+                                ],
+                                unset: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: ['test']
+                                    }
+                                ]
                             }
                         },
                     },
@@ -4438,12 +4444,18 @@ describe('Validate Codefresh YAML', () => {
                                     },
                                     on_fail: {
                                         annotations: {
-                                            set: [{
-                                                'entity_type': 'build',
-                                                'annotations': [{
-                                                    'status': 'success',
-                                                }]
-                                            }]
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test' }]
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test']
+                                                }
+                                            ]
                                         }
                                     }
                                 }
