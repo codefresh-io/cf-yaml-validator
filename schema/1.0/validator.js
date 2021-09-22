@@ -711,6 +711,20 @@ class Validator {
         if (_.isArray(hook)) {
             return {};
         }
+        // in case a hook contains only metadata or annotations
+        if (!hook.exec && !hook.steps && (hook.matadata || hook.annotations)) {
+            const hookSchema = Joi.object({
+                metadata: BaseSchema._getMetadataSchema(),
+                annotations: BaseSchema._getAnnotationsSchema(),
+            });
+            const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
+            if (validationResult.error) {
+                _.forEach(validationResult.error.details, (err) => {
+                    return Validator._processStepSchemaError(err, validationResult, hook.name, 'freestyle', yaml);
+                });
+            }
+            return {};  
+        }
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         let steps = {};
 
@@ -725,7 +739,7 @@ class Validator {
                 Validator._assignArgumentsToStep(step);
             }
             steps[step.name] = step;
-        } else if (!hook.exec && !hook.steps) {
+        } else if (!hook.exec && !hook.steps && !hook.metadata && !hook.annotations) {
             const step = _.cloneDeep(hook);
             if (step.arguments) {
                 Validator._assignArgumentsToStep(step);
