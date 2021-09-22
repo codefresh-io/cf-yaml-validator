@@ -723,7 +723,7 @@ class Validator {
                     return Validator._processStepSchemaError(err, validationResult, hook.name, 'freestyle', yaml);
                 });
             }
-            return {};  
+            return {};
         }
         const stepsSchemas = Validator._resolveStepsJoiSchemas(objectModel, opts);
         let steps = {};

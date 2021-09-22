@@ -375,10 +375,10 @@ describe('Validate Codefresh YAML', () => {
                         on_fail: {
                             annotations: {
                                 set: [{
-                                    'entity_type': 'build',
-                                      'annotations': [{
-                                          'status': 'success',
-                                      }]
+                                'entity_type': 'build',
+                                    'annotations': [{
+                                        'status': 'success',
+                                    }]
                                 }]
                             }
                         },
@@ -4439,10 +4439,10 @@ describe('Validate Codefresh YAML', () => {
                                     on_fail: {
                                         annotations: {
                                             set: [{
-                                                'entity_type': 'build',
-                                                  'annotations': [{
-                                                      'status': 'success',
-                                                  }]
+                                            'entity_type': 'build',
+                                                'annotations': [{
+                                                    'status': 'success',
+                                                }]
                                             }]
                                         }
                                     }
