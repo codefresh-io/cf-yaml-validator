@@ -355,6 +355,43 @@ describe('Validate Codefresh YAML', () => {
                 });
                 done();
             });
+            it('valid pipeline hooks that contain only metadata/annotations', (done) => {
+                validate({
+                    version: '1.0',
+                    steps: {},
+                    hooks: {
+                        on_success: {
+                            metadata: {
+                                set: [{
+                                    '${{steps.build.imageId}}': [{
+                                        'CF_QUALITY': true,
+                                        'COMMIT_HASH': '${{CF_SHORT_REVISION}}',
+                                        'COMMIT_URL': '${{CF_COMMIT_URL}}',
+                                        'DD_VERSION': '${{CF_SHORT_REVISION}}',
+                                    }]
+                                }]
+                            }
+                        },
+                        on_fail: {
+                            annotations: {
+                                set: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: [{ test: 'test' }]
+                                    }
+                                ],
+                                unset: [
+                                    {
+                                        entity_type: 'build',
+                                        annotations: ['test']
+                                    }
+                                ]
+                            }
+                        },
+                    },
+                });
+                done();
+            });
             it('invalid hooks', (done) => {
                 validateForError({
                     version: '1.0',
@@ -4382,6 +4419,44 @@ describe('Validate Codefresh YAML', () => {
                                                 dockerfile: 'Dockerfile',
                                             }
                                         },
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
+                it('valid steps hooks with only metadata/annotations', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_freestyle: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_success: {
+                                        metadata: {
+                                            set: [{
+                                                '${{steps.build.imageId}}': [{
+                                                    'CF_QUALITY': false,
+                                                }]
+                                            }]
+                                        }
+                                    },
+                                    on_fail: {
+                                        annotations: {
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test' }]
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test']
+                                                }
+                                            ]
+                                        }
                                     }
                                 }
                             }
