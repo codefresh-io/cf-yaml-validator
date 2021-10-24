@@ -232,6 +232,7 @@ const validate = function (step,
     }
 
     if (step.region) {
+        const currentRegistry = _.find(context.registries, reg => reg.name === registry);
         if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region)) {
             errors.push(ErrorBuilder.buildError({
                 message: `aws region is invalid`,
@@ -243,6 +244,18 @@ const validate = function (step,
                 errorPath,
                 key,
                 actionItems: 'Please make sure the specified region is written in the format expected by aws',
+            }));
+        } else if (!currentRegistry.provider !== 'ecr') {
+            errors.push(ErrorBuilder.buildError({
+                message: `Unable to specify region with a ${currentRegistry.provider} type registry`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'Cross-region pushes are currently supported only for ECR',
             }));
         }
     }
