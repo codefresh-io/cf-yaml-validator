@@ -5152,7 +5152,6 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: '${{AWS_API_REGISTRY}}',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: 'us-east-1',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -5214,7 +5213,6 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: 'hobsons-platform-docker-sandbox-local-append',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -5243,7 +5241,7 @@ describe('Validate Codefresh YAML with context', () => {
                 git: [],
                 registries: [],
                 clusters: [],
-                variables: { AWS_REGION: 'us-east-1' }
+                variables: [],
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
             done();
@@ -6841,7 +6839,7 @@ describe('Validate Codefresh YAML with context', () => {
                         title: 'Pushing image to ecr',
                         type: 'push',
                         image_name: 'codefresh/test',
-                        registry: 'hobsons-platform-docker-sandbox-local-append',
+                        registry: 'myecr',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
                         region: '${{AWS_REGION}}',
@@ -6857,10 +6855,10 @@ describe('Validate Codefresh YAML with context', () => {
                     {
                         actionItems: 'Please make sure the specified region is written in the format expected by aws',
                         code: 206,
-                        context: { key: undefined },
-                        docsLink: 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        context: { key: 'registry' },
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
                         level: 'workflow',
-                        lines: 3,
+                        lines: 7,
                         message: 'aws region is invalid',
                         path: 'registry',
                         stepName: 'push',
@@ -6871,7 +6869,12 @@ describe('Validate Codefresh YAML with context', () => {
             };
             const context = {
                 git: [],
-                registries: [],
+                registries: [
+                    {
+                        name: 'myecr',
+                        provider: 'ecr',
+                    }
+                ],
                 clusters: [],
                 variables: { AWS_REGION: 'invalid' }
             };
@@ -6891,7 +6894,7 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: 'non-ecr',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
+                        region: 'us-east-1',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -6904,14 +6907,14 @@ describe('Validate Codefresh YAML with context', () => {
                     {
                         actionItems: 'Cross-region pushes are currently supported only for ECR',
                         code: 206,
-                        context: { key: undefined },
-                        docsLink: 'https://codefresh.io/docs/docs/docker-registries/external-docker-registries/',
+                        context: { key: 'registry' },
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
                         level: 'workflow',
-                        lines: 3,
-                        message: 'Unable to specify region with a registry of type: ',
+                        lines: 7,
+                        message: 'Unable to specify region with a registry of type: non-ecr',
                         path: 'registry',
                         stepName: 'push',
-                        type: 'Error'
+                        type: 'Error',
                     }
                 ],
                 warningDetails: [],
@@ -6919,10 +6922,11 @@ describe('Validate Codefresh YAML with context', () => {
             const context = {
                 git: [],
                 registries: [{
-                    name: 'non-ecr'
+                    name: 'non-ecr',
+                    provider: 'non-ecr'
                 }],
                 clusters: [],
-                variables: { AWS_REGION: 'us-east-1' }
+                variables: [],
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
             done();
