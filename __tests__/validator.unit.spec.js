@@ -5152,7 +5152,7 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: '${{AWS_API_REGISTRY}}',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
+                        region: 'us-east-1',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -5165,8 +5165,7 @@ describe('Validate Codefresh YAML with context', () => {
                 registries: [{ name: 'reg' }, { name: 'reg2', default: true }],
                 clusters: [],
                 variables: {
-                    AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web',
-                    AWS_REGION: 'us-east-1'
+                    AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web'
                 }
             };
             validateWithContext(model, 'message', yaml, context);
