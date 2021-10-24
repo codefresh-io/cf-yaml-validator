@@ -231,8 +231,9 @@ const validate = function (step,
         }
     }
 
+    const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
+    
     if (step.region) {
-        const currentRegistry = _.find(context.registries, reg => reg.name === registry);
         if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region)) {
             errors.push(ErrorBuilder.buildError({
                 message: `aws region is invalid`,
@@ -245,9 +246,9 @@ const validate = function (step,
                 key,
                 actionItems: 'Please make sure the specified region is written in the format expected by aws',
             }));
-        } else if (!currentRegistry.provider !== 'ecr') {
+        } else if (integrationDefinedProvider !== 'ecr') {
             errors.push(ErrorBuilder.buildError({
-                message: `Unable to specify region with a ${currentRegistry.provider} type registry`,
+                message: `Unable to specify region with a registry of type: ${integrationDefinedProvider}`,
                 name,
                 yaml,
                 code: 206,
@@ -256,6 +257,22 @@ const validate = function (step,
                 errorPath,
                 key,
                 actionItems: 'Cross-region pushes are currently supported only for ECR',
+            }));
+        }
+    }
+
+    if (step.accountId) {
+        if (integrationDefinedProvider !== 'ecr') {
+            errors.push(ErrorBuilder.buildError({
+                message: `Unable to specify accountId with a registry of type: ${integrationDefinedProvider} `,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'Cross-account pushes are currently supported only for ECR',
             }));
         }
     }
