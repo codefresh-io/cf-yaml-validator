@@ -232,7 +232,7 @@ const validate = function (step,
     }
 
     const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
-    
+
     if (step.region) {
         if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region)) {
             errors.push(ErrorBuilder.buildError({
