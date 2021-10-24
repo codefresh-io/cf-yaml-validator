@@ -5164,7 +5164,10 @@ describe('Validate Codefresh YAML with context', () => {
                 git: [],
                 registries: [{ name: 'reg' }, { name: 'reg2', default: true }],
                 clusters: [],
-                variables: { AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web' }
+                variables: {
+                    AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web',
+                    AWS_REGION: 'us-east-1'
+                }
             };
             validateWithContext(model, 'message', yaml, context);
             done();
@@ -5241,7 +5244,7 @@ describe('Validate Codefresh YAML with context', () => {
                 git: [],
                 registries: [],
                 clusters: [],
-                variables: []
+                variables: { AWS_REGION: 'us-east-1' }
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
             done();
