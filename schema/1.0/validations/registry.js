@@ -231,9 +231,8 @@ const validate = function (step,
         }
     }
 
-    const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
-
     if (step.region) {
+        const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
         if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region)) {
             errors.push(ErrorBuilder.buildError({
                 message: `aws region is invalid`,
