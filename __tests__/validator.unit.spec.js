@@ -5152,7 +5152,6 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: '${{AWS_API_REGISTRY}}',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -5164,7 +5163,9 @@ describe('Validate Codefresh YAML with context', () => {
                 git: [],
                 registries: [{ name: 'reg' }, { name: 'reg2', default: true }],
                 clusters: [],
-                variables: { AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web' }
+                variables: {
+                    AWS_API_REGISTRY: '123456789012.dkr.ecr.eu-west-1.amazonaws.com/test-api/web'
+                }
             };
             validateWithContext(model, 'message', yaml, context);
             done();
@@ -5212,7 +5213,6 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: 'hobsons-platform-docker-sandbox-local-append',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -5241,12 +5241,11 @@ describe('Validate Codefresh YAML with context', () => {
                 git: [],
                 registries: [],
                 clusters: [],
-                variables: []
+                variables: [],
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
             done();
         });
-
 
         it('validate yaml when integrations not found', async (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/default-yaml.yml'), 'utf8');
@@ -6829,6 +6828,108 @@ describe('Validate Codefresh YAML with context', () => {
                 autoPush: true
             };
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: false });
+        });
+
+        it('validate yaml with wrong aws region', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    push: {
+                        title: 'Pushing image to ecr',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        registry: 'myecr',
+                        accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
+                        secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
+                        region: '${{AWS_REGION}}',
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                }
+            };
+            const expectedError = {
+                details: [
+                    {
+                        actionItems: 'Please make sure the specified region is written in the format expected by aws',
+                        code: 206,
+                        context: { key: 'registry' },
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
+                        level: 'workflow',
+                        lines: 7,
+                        message: 'aws region is invalid',
+                        path: 'registry',
+                        stepName: 'push',
+                        type: 'Error'
+                    }
+                ],
+                warningDetails: [],
+            };
+            const context = {
+                git: [],
+                registries: [
+                    {
+                        name: 'myecr',
+                        provider: 'ecr',
+                    }
+                ],
+                clusters: [],
+                variables: { AWS_REGION: 'invalid' }
+            };
+            validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
+            done();
+        });
+
+        it('validate yaml with correct aws region but a non-ecr integration', async (done) => {
+            const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
+            const model = {
+                version: '1.0',
+                steps: {
+                    push: {
+                        title: 'Pushing image to quay',
+                        type: 'push',
+                        image_name: 'codefresh/test',
+                        registry: 'non-ecr',
+                        accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
+                        secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
+                        region: 'us-east-1',
+                        candidate: '${{build}}',
+                        tags: [
+                            '${{CF_BRANCH_TAG_NORMALIZED}}',
+                            '${{CF_REVISION}}']
+                    },
+                }
+            };
+            const expectedError = {
+                details: [
+                    {
+                        actionItems: 'Cross-region pushes are currently supported only for ECR',
+                        code: 206,
+                        context: { key: 'registry' },
+                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
+                        level: 'workflow',
+                        lines: 7,
+                        message: 'Unable to specify region with a registry of type: non-ecr',
+                        path: 'registry',
+                        stepName: 'push',
+                        type: 'Error',
+                    }
+                ],
+                warningDetails: [],
+            };
+            const context = {
+                git: [],
+                registries: [{
+                    name: 'non-ecr',
+                    provider: 'non-ecr'
+                }],
+                clusters: [],
+                variables: [],
+            };
+            validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
+            done();
         });
 
     });

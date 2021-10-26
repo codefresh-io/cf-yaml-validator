@@ -5,6 +5,30 @@ const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
 const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links'); // eslint-disable-line
 
+const AWS_REGIONS = [
+    'us-east-2',
+    'us-east-1',
+    'us-west-1',
+    'us-west-2',
+    'af-south-1',
+    'ap-east-1',
+    'ap-south-1',
+    'ap-northeast-3',
+    'ap-northeast-2',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'ap-northeast-1',
+    'ca-central-1',
+    'eu-central-1',
+    'eu-west-1',
+    'eu-west-2',
+    'eu-south-',
+    'eu-west-3',
+    'eu-north-1',
+    'me-south-1',
+    'sa-east-1',
+];
+
 const isWebUri = function (s) {
     if (s) {
         const patterns = [
@@ -203,6 +227,35 @@ const validate = function (step,
                 errorPath,
                 key,
                 actionItems: 'Add google container registry as an integration or provide an explicit credentials key',
+            }));
+        }
+    }
+
+    if (step.region) {
+        const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
+        if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region)) {
+            errors.push(ErrorBuilder.buildError({
+                message: `aws region is invalid`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'Please make sure the specified region is written in the format expected by aws',
+            }));
+        } else if (integrationDefinedProvider !== 'ecr') {
+            errors.push(ErrorBuilder.buildError({
+                message: `Unable to specify region with a registry of type: ${integrationDefinedProvider}`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'Cross-region pushes are currently supported only for ECR',
             }));
         }
     }
