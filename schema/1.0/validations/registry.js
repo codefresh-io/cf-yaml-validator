@@ -261,22 +261,6 @@ const validate = function (step,
         }
     }
 
-    if (step.accountId) {
-        if (integrationDefinedProvider !== 'ecr') {
-            errors.push(ErrorBuilder.buildError({
-                message: `Unable to specify accountId with a registry of type: ${integrationDefinedProvider} `,
-                name,
-                yaml,
-                code: 206,
-                type: ErrorType.Error,
-                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                errorPath,
-                key,
-                actionItems: 'Cross-account pushes are currently supported only for ECR',
-            }));
-        }
-    }
-
     return { errors, warnings };
 };
 
