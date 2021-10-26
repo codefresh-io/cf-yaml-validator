@@ -53,6 +53,7 @@ class Build extends BaseSchema {
             ...(opts.buildVersion === BUILD_VERSION && { disable_push: Joi.boolean() }),
             provider: Build._getProviderSchema(),
             registry_contexts: Joi.array().items(Joi.string()),
+            region: Joi.string(),
         };
         return this._createSchema(buildProperties);
     }
