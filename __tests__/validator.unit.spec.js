@@ -6853,7 +6853,7 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedError = {
                 details: [
                     {
-                        actionItems: 'Please make sure the specified region is written in the format expected by aws',
+                        actionItems: 'Please make sure the specified region is written in the correct format',
                         code: 206,
                         context: { key: 'registry' },
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
