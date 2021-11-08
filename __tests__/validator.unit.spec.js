@@ -6842,7 +6842,7 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: 'myecr',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
+                        region: 'not-a-region',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
@@ -6853,7 +6853,7 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedError = {
                 details: [
                     {
-                        actionItems: 'Please make sure the specified region is written in the format expected by aws',
+                        actionItems: 'Please make sure the specified region is written in the correct format',
                         code: 206,
                         context: { key: 'registry' },
                         docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
