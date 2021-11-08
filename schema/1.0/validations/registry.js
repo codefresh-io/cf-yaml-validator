@@ -27,7 +27,6 @@ const AWS_REGIONS = [
     'eu-north-1',
     'me-south-1',
     'sa-east-1',
-    '{{REGION}}',
 ];
 
 const isWebUri = function (s) {
@@ -234,7 +233,7 @@ const validate = function (step,
 
     if (step.region) {
         const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
-        if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region)) {
+        if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region) && !BaseSchema.isRuntimeVariable(step.region) ) {
             errors.push(ErrorBuilder.buildError({
                 message: `aws region is invalid`,
                 name,
