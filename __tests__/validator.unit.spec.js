@@ -6842,7 +6842,7 @@ describe('Validate Codefresh YAML with context', () => {
                         registry: 'myecr',
                         accessKeyId: '${{AWS_ACCESS_KEY_ID}}',
                         secretAccessKey: '${{AWS_SECRET_ACCESS_KEY}}',
-                        region: '${{AWS_REGION}}',
+                        region: 'not-a-region',
                         candidate: '${{build}}',
                         tags: [
                             '${{CF_BRANCH_TAG_NORMALIZED}}',
