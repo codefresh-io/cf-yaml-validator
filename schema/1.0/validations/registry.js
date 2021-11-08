@@ -27,6 +27,7 @@ const AWS_REGIONS = [
     'eu-north-1',
     'me-south-1',
     'sa-east-1',
+    '{{REGION}}',
 ];
 
 const isWebUri = function (s) {
