@@ -232,8 +232,7 @@ const validate = function (step,
     }
 
     if (step.region) {
-        const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
-        if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region) && !BaseSchema.isRuntimeVariable(step.region) ) {
+        if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region) && !BaseSchema.isRuntimeVariable(step.region)) {
             errors.push(ErrorBuilder.buildError({
                 message: `aws region is invalid`,
                 name,
@@ -243,20 +242,23 @@ const validate = function (step,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
                 key,
-                actionItems: 'Please make sure the specified region is written in the format expected by aws',
+                actionItems: 'Please make sure the specified region is written in the correct format',
             }));
-        } else if (integrationDefinedProvider !== 'ecr') {
-            errors.push(ErrorBuilder.buildError({
-                message: `Unable to specify region with a registry of type: ${integrationDefinedProvider}`,
-                name,
-                yaml,
-                code: 206,
-                type: ErrorType.Error,
-                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
-                errorPath,
-                key,
-                actionItems: 'Cross-region pushes are currently supported only for ECR',
-            }));
+        } else {
+            const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
+            if (integrationDefinedProvider !== 'ecr') {
+                errors.push(ErrorBuilder.buildError({
+                    message: `Unable to specify region with a registry of type: ${integrationDefinedProvider}`,
+                    name,
+                    yaml,
+                    code: 206,
+                    type: ErrorType.Error,
+                    docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                    errorPath,
+                    key,
+                    actionItems: 'Cross-region pushes are currently supported only for ECR',
+                }));
+            }
         }
     }
 
