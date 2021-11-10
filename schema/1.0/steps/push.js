@@ -38,6 +38,7 @@ class Push extends BaseSchema {
             region: Joi.string(),
             registry_context: Joi.string(),
             accountId: Joi.string(),
+            roleArn: Joi.string()
         };
 
         return this._createSchema(pushTagsProperties);
