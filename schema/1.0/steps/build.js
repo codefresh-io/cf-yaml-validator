@@ -54,7 +54,6 @@ class Build extends BaseSchema {
             provider: Build._getProviderSchema(),
             registry_contexts: Joi.array().items(Joi.string()),
             region: Joi.string(),
-            accountId: Joi.string(),
             roleArn: Joi.string()
         };
         return this._createSchema(buildProperties);

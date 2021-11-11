@@ -37,7 +37,6 @@ class Push extends BaseSchema {
             secretAccessKey: Joi.string(),
             region: Joi.string(),
             registry_context: Joi.string(),
-            accountId: Joi.string(),
             roleArn: Joi.string()
         };
 
