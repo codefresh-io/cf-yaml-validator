@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
-const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links'); // eslint-disable-line
+const { docBaseUrl, DocumentationLinks, IntegrationLinks, ExternalLinks } = require('./../documentation-links'); // eslint-disable-line
 
 const AWS_REGIONS = [
     'us-east-2',
@@ -259,6 +259,30 @@ const validate = function (step,
                     actionItems: 'Cross-region pushes are currently supported only for ECR',
                 }));
             }
+        }
+    }
+
+    if (step.roleArn) {
+        // example for a valid roleArn: arn:aws:iam::559912345678:role/test-role
+        const splitRoleArn = step.roleArn.split(':');
+        if (splitRoleArn.length < 4
+            || splitRoleArn[0] !== 'arn'
+            || splitRoleArn[1] !== 'aws'
+            || splitRoleArn[2] !== 'iam'
+            || splitRoleArn[4].length !== 12
+            || splitRoleArn[4].substring(0, 'role/'.length) !== 'role/'
+        ) {
+            errors.push(ErrorBuilder.buildError({
+                message: `awsDurationSeconds is only relevant when using role chaining`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: ExternalLinks['reference-identifiers'],
+                errorPath,
+                key,
+                actionItems: 'If you wish to use role chaining, please specify a roleArn to assume',
+            }));
         }
     }
 
