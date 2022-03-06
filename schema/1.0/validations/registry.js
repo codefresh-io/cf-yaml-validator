@@ -273,7 +273,7 @@ const validate = function (step,
             || splitRoleArn[4].substring(0, 'role/'.length) !== 'role/'
         ) {
             errors.push(ErrorBuilder.buildError({
-                message: `awsDurationSeconds is only relevant when using role chaining`,
+                message: `Invalid roleArn`,
                 name,
                 yaml,
                 code: 206,
@@ -281,7 +281,7 @@ const validate = function (step,
                 docsLink: ExternalLinks['reference-identifiers'],
                 errorPath,
                 key,
-                actionItems: 'If you wish to use role chaining, please specify a roleArn to assume',
+                actionItems: 'Please fix the roleArn property',
             }));
         }
     }
