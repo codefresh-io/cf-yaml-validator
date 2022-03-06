@@ -28,7 +28,7 @@ class PushTag extends BaseSchema {
             type: Joi.string().valid(PushTag.getType()),
             image_name: Joi.string().required(),
             tags: Joi.array().items(Joi.string()).required(),
-
+            roleArn: Joi.string(),
         };
 
         return this._createSchema(pushTagsProperties);
