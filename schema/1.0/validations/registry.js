@@ -29,6 +29,8 @@ const AWS_REGIONS = [
     'sa-east-1',
 ];
 
+const FIX_AWS_SESSION_DURATION_MESSAGE = 'Please specify a durationSeconds value between 900 and 3600';
+
 const isWebUri = function (s) {
     if (s) {
         const patterns = [
@@ -98,7 +100,7 @@ const validateRegistryContext = function (step,
     }
 
     if (registryContext && !_.isArray(registryContext) && !BaseSchema.isRuntimeVariable(registryContext)
-        && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
+        && !_.some(context.registries, (obj) => { return obj.name === registryContext; })) {
         errors.push(ErrorBuilder.buildError({
             message: `Registry '${registryContext}' does not exist.`,
             name,
@@ -186,7 +188,7 @@ const validate = function (step,
                     key,
                 }));
             }
-        } else if (!_.some(context.registries, (obj) => { return obj.name ===  registry; })) {
+        } else if (!_.some(context.registries, (obj) => { return obj.name === registry; })) {
             errors.push(ErrorBuilder.buildError({
                 message: `Registry '${registry}' does not exist.`,
                 name,
@@ -216,7 +218,7 @@ const validate = function (step,
     const provider = _.get(step, 'provider', _.get(step, 'arguments.provider', {}));
 
     if (_.get(provider, 'type', 'cf') === 'gcb') {
-        if (!_.get(provider, 'arguments.google_app_creds') && !_.some(context.registries, (obj) => { return obj.kind ===  'google'; })) {
+        if (!_.get(provider, 'arguments.google_app_creds') && !_.some(context.registries, (obj) => { return obj.kind === 'google'; })) {
             errors.push(ErrorBuilder.buildError({
                 message: `provider.arguments.google_app_creds is required`,
                 name,
@@ -259,6 +261,34 @@ const validate = function (step,
                     actionItems: 'Cross-region pushes are currently supported only for ECR',
                 }));
             }
+        }
+    }
+
+    if (step.awsDurationSeconds) {
+        if (step.roleArn && step.awsDurationSeconds > 3600) {
+            errors.push(ErrorBuilder.buildError({
+                message: `When using role chaining, the duration of the role session can be no longer than 1 hour`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: FIX_AWS_SESSION_DURATION_MESSAGE,
+            }));
+        } else if (step.awsDurationSeconds < 900 || step.awsDurationSeconds > 43200) {
+            errors.push(ErrorBuilder.buildError({
+                message: `The duration of the role session must be between 15 minutes and 12 hours`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: FIX_AWS_SESSION_DURATION_MESSAGE,
+            }));
         }
     }
 

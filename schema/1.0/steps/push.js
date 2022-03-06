@@ -39,6 +39,7 @@ class Push extends BaseSchema {
             registry_context: Joi.string(),
             roleArn: Joi.string(),
             awsSessionName: Joi.string(),
+            awsDurationSeconds: Joi.number(),
         };
 
         return this._createSchema(pushTagsProperties);
