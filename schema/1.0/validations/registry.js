@@ -273,7 +273,7 @@ const validate = function (step,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
                 key,
-                actionItems: 'If you wish to use role chaining, specify a roleArn to assume',
+                actionItems: 'If you wish to use role chaining, please specify a roleArn to assume',
             }));
         } else if (step.awsDurationSeconds < 900 || step.awsDurationSeconds > 3600) {
             errors.push(ErrorBuilder.buildError({
