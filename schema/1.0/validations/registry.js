@@ -29,8 +29,6 @@ const AWS_REGIONS = [
     'sa-east-1',
 ];
 
-const FIX_AWS_SESSION_DURATION_MESSAGE = 'Please specify a durationSeconds value between 900 and 3600';
-
 const isWebUri = function (s) {
     if (s) {
         const patterns = [
@@ -265,9 +263,9 @@ const validate = function (step,
     }
 
     if (step.awsDurationSeconds) {
-        if (step.roleArn && step.awsDurationSeconds > 3600) {
+        if (!step.roleArn) {
             errors.push(ErrorBuilder.buildError({
-                message: `When using role chaining, the duration of the role session can be no longer than 1 hour`,
+                message: `awsDurationSeconds is only relevant when using role chaining`,
                 name,
                 yaml,
                 code: 206,
@@ -275,11 +273,11 @@ const validate = function (step,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
                 key,
-                actionItems: FIX_AWS_SESSION_DURATION_MESSAGE,
+                actionItems: 'If you wish to use role chaining, specify a roleArn to assume',
             }));
-        } else if (step.awsDurationSeconds < 900 || step.awsDurationSeconds > 43200) {
+        } else if (step.awsDurationSeconds < 900 || step.awsDurationSeconds > 3600) {
             errors.push(ErrorBuilder.buildError({
-                message: `The duration of the role session must be between 15 minutes and 12 hours`,
+                message: `When using role chaining, the duration of the role session must be between 15 minutes and 1 hour`,
                 name,
                 yaml,
                 code: 206,
@@ -287,7 +285,7 @@ const validate = function (step,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
                 key,
-                actionItems: FIX_AWS_SESSION_DURATION_MESSAGE,
+                actionItems: 'Please specify a durationSeconds value between 900 and 3600',
             }));
         }
     }
