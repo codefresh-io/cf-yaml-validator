@@ -37,7 +37,8 @@ class Push extends BaseSchema {
             secretAccessKey: Joi.string(),
             region: Joi.string(),
             registry_context: Joi.string(),
-            roleArn: Joi.string()
+            roleArn: Joi.string(),
+            awsSessionName: Joi.string(),
         };
 
         return this._createSchema(pushTagsProperties);

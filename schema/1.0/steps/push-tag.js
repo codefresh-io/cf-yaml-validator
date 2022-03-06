@@ -8,7 +8,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const Joi        = require('joi');
+const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 
 class PushTag extends BaseSchema {
@@ -29,6 +29,7 @@ class PushTag extends BaseSchema {
             image_name: Joi.string().required(),
             tags: Joi.array().items(Joi.string()).required(),
             roleArn: Joi.string(),
+            awsSessionName: Joi.string(),
         };
 
         return this._createSchema(pushTagsProperties);
