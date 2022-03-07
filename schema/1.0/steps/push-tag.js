@@ -29,9 +29,9 @@ class PushTag extends BaseSchema {
             image_name: Joi.string().required(),
             tags: Joi.array().items(Joi.string()).required(),
             region: Joi.string(),
-            roleArn: Joi.string(),
-            awsSessionName: Joi.string(),
-            awsDurationSeconds: Joi.number(),
+            role_arn: Joi.string(),
+            aws_session_name: Joi.string(),
+            aws_duration_seconds: Joi.number(),
         };
 
         return this._createSchema(pushTagsProperties);

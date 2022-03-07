@@ -8,7 +8,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const Joi        = require('joi');
+const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
 
@@ -37,9 +37,9 @@ class Push extends BaseSchema {
             secretAccessKey: Joi.string(),
             region: Joi.string(),
             registry_context: Joi.string(),
-            roleArn: Joi.string(),
-            awsSessionName: Joi.string(),
-            awsDurationSeconds: Joi.number(),
+            role_arn: Joi.string(),
+            aws_session_name: Joi.string(),
+            aws_duration_seconds: Joi.number(),
         };
 
         return this._createSchema(pushTagsProperties);

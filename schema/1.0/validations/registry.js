@@ -262,18 +262,18 @@ const validate = function (step,
         }
     }
 
-    if (step.roleArn) {
-        // example for a valid roleArn: arn:aws:iam::559912345678:role/test-role
-        const splitRoleArn = step.roleArn.split(':');
-        if (splitRoleArn.length < 4
-            || splitRoleArn[0] !== 'arn'
-            || splitRoleArn[1] !== 'aws'
-            || splitRoleArn[2] !== 'iam'
-            || splitRoleArn[4].length !== 12
-            || splitRoleArn[5].substring(0, 'role/'.length) !== 'role/'
+    if (step.role_arn) {
+        // example for a valid role_arn: arn:aws:iam::559912345678:role/test-role
+        const splitrole_arn = step.role_arn.split(':');
+        if (splitrole_arn.length < 4
+            || splitrole_arn[0] !== 'arn'
+            || splitrole_arn[1] !== 'aws'
+            || splitrole_arn[2] !== 'iam'
+            || splitrole_arn[4].length !== 12
+            || splitrole_arn[5].substring(0, 'role/'.length) !== 'role/'
         ) {
             errors.push(ErrorBuilder.buildError({
-                message: `Invalid roleArn`,
+                message: `Invalid role_arn`,
                 name,
                 yaml,
                 code: 206,
@@ -281,15 +281,15 @@ const validate = function (step,
                 docsLink: ExternalLinks['reference-identifiers'],
                 errorPath,
                 key,
-                actionItems: 'Please fix the roleArn property',
+                actionItems: 'Please fix the role_arn property',
             }));
         }
     }
 
-    if (step.awsDurationSeconds) {
-        if (!step.roleArn) {
+    if (step.aws_duration_seconds) {
+        if (!step.role_arn) {
             errors.push(ErrorBuilder.buildError({
-                message: `awsDurationSeconds is only relevant when using role chaining`,
+                message: `aws_duration_seconds is only relevant when using role chaining`,
                 name,
                 yaml,
                 code: 206,
@@ -297,9 +297,9 @@ const validate = function (step,
                 docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
                 errorPath,
                 key,
-                actionItems: 'If you wish to use role chaining, please specify a roleArn to assume',
+                actionItems: 'If you wish to use role chaining, please specify a role_arn to assume',
             }));
-        } else if (step.awsDurationSeconds < 900 || step.awsDurationSeconds > 3600) {
+        } else if (step.aws_duration_seconds < 900 || step.aws_duration_seconds > 3600) {
             errors.push(ErrorBuilder.buildError({
                 message: `When using role chaining, the duration of the role session must be between 15 minutes and 1 hour`,
                 name,
