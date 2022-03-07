@@ -264,13 +264,12 @@ const validate = function (step,
 
     if (step.role_arn) {
         // example for a valid role_arn: arn:aws:iam::559912345678:role/test-role
-        const splitrole_arn = step.role_arn.split(':');
-        if (splitrole_arn.length < 4
-            || splitrole_arn[0] !== 'arn'
-            || splitrole_arn[1] !== 'aws'
-            || splitrole_arn[2] !== 'iam'
-            || splitrole_arn[4].length !== 12
-            || splitrole_arn[5].substring(0, 'role/'.length) !== 'role/'
+        const splitRoleArn = step.role_arn.split(':');
+        if (splitRoleArn.length < 4
+            || splitRoleArn[0] !== 'arn'
+            || splitRoleArn[2] !== 'iam'
+            || splitRoleArn[4].length !== 12
+            || splitRoleArn[5].substring(0, 'role/'.length) !== 'role/'
         ) {
             errors.push(ErrorBuilder.buildError({
                 message: `Invalid role_arn`,
