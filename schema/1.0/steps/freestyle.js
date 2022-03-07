@@ -50,6 +50,7 @@ class Freestyle extends BaseSchema {
                 message: `'registry_contexts' not allowed`,
                 path: 'registry_contexts'
             })),
+            role_arn: Joi.string(),
         };
         return this._createSchema(freestyleProperties)
             .without('commands', 'cmd') // make sure cmd and commands are mutually exclusive AND optional
