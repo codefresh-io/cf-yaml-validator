@@ -270,7 +270,7 @@ const validate = function (step,
             || splitRoleArn[1] !== 'aws'
             || splitRoleArn[2] !== 'iam'
             || splitRoleArn[4].length !== 12
-            || splitRoleArn[4].substring(0, 'role/'.length) !== 'role/'
+            || splitRoleArn[5].substring(0, 'role/'.length) !== 'role/'
         ) {
             errors.push(ErrorBuilder.buildError({
                 message: `Invalid roleArn`,
