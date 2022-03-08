@@ -114,7 +114,7 @@ const validateRegistryContext = function (step,
 
     if (!registryContext && step.role_arn) {
         errors.push(ErrorBuilder.buildError({
-            message: `Cross-account pulling requires specifying a specific registry integration`,
+            message: `Cross-account pulling requires specifying a registry integration`,
             name,
             yaml,
             code: 202,
