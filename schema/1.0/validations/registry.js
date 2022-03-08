@@ -112,7 +112,7 @@ const validateRegistryContext = function (step,
         }));
     }
 
-    if (!registryContext && step.role_arn) {
+    if (stepType === 'freestyle' && !registryContext && step.role_arn) {
         errors.push(ErrorBuilder.buildError({
             message: `Cross-account pulling requires specifying a registry integration`,
             name,
