@@ -111,6 +111,21 @@ const validateRegistryContext = function (step,
             actionItems: 'Please check the spelling or add a new registry in your account settings.',
         }));
     }
+
+    if (registryContext && !step.role_arn) {
+        errors.push(ErrorBuilder.buildError({
+            message: `Cross-account pulling requires specifying a specific registry integration`,
+            name,
+            yaml,
+            code: 202,
+            type: ErrorType.Error,
+            docsLink: _.get(IntegrationLinks, stepType),
+            errorPath,
+            key: 'registry_context',
+            actionItems: 'Please add the registry_context property.',
+        }));
+    }
+
     return { errors, warnings };
 };
 
