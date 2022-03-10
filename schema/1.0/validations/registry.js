@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const BaseSchema = require('./../base-schema');
 const { ErrorType, ErrorBuilder } = require('./../error-builder');
-const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links'); // eslint-disable-line
+const { docBaseUrl, DocumentationLinks, IntegrationLinks, ExternalLinks } = require('./../documentation-links'); // eslint-disable-line
 
 const AWS_REGIONS = [
     'us-east-2',
@@ -98,7 +98,7 @@ const validateRegistryContext = function (step,
     }
 
     if (registryContext && !_.isArray(registryContext) && !BaseSchema.isRuntimeVariable(registryContext)
-        && !_.some(context.registries, (obj) => { return obj.name ===  registryContext; })) {
+        && !_.some(context.registries, (obj) => { return obj.name === registryContext; })) {
         errors.push(ErrorBuilder.buildError({
             message: `Registry '${registryContext}' does not exist.`,
             name,
@@ -111,6 +111,21 @@ const validateRegistryContext = function (step,
             actionItems: 'Please check the spelling or add a new registry in your account settings.',
         }));
     }
+
+    if (stepType === 'freestyle' && !registryContext && step.role_arn) {
+        errors.push(ErrorBuilder.buildError({
+            message: `Cross-account pulling requires specifying a registry integration`,
+            name,
+            yaml,
+            code: 202,
+            type: ErrorType.Error,
+            docsLink: _.get(IntegrationLinks, stepType),
+            errorPath,
+            key: 'registry_context',
+            actionItems: 'Please add the registry_context property.',
+        }));
+    }
+
     return { errors, warnings };
 };
 
@@ -186,7 +201,7 @@ const validate = function (step,
                     key,
                 }));
             }
-        } else if (!_.some(context.registries, (obj) => { return obj.name ===  registry; })) {
+        } else if (!_.some(context.registries, (obj) => { return obj.name === registry; })) {
             errors.push(ErrorBuilder.buildError({
                 message: `Registry '${registry}' does not exist.`,
                 name,
@@ -216,7 +231,7 @@ const validate = function (step,
     const provider = _.get(step, 'provider', _.get(step, 'arguments.provider', {}));
 
     if (_.get(provider, 'type', 'cf') === 'gcb') {
-        if (!_.get(provider, 'arguments.google_app_creds') && !_.some(context.registries, (obj) => { return obj.kind ===  'google'; })) {
+        if (!_.get(provider, 'arguments.google_app_creds') && !_.some(context.registries, (obj) => { return obj.kind === 'google'; })) {
             errors.push(ErrorBuilder.buildError({
                 message: `provider.arguments.google_app_creds is required`,
                 name,
@@ -259,6 +274,57 @@ const validate = function (step,
                     actionItems: 'Cross-region pushes are currently supported only for ECR',
                 }));
             }
+        }
+    }
+
+    if (step.role_arn) {
+        // example for a valid role_arn: arn:aws:iam::559912345678:role/test-role
+        const splitRoleArn = step.role_arn.split(':');
+        if (splitRoleArn.length < 4
+            || splitRoleArn[0] !== 'arn'
+            || splitRoleArn[2] !== 'iam'
+            || splitRoleArn[4].length !== 12
+            || splitRoleArn[5].substring(0, 'role/'.length) !== 'role/'
+        ) {
+            errors.push(ErrorBuilder.buildError({
+                message: `Invalid role_arn`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: ExternalLinks['reference-identifiers'],
+                errorPath,
+                key,
+                actionItems: 'Please fix the role_arn property',
+            }));
+        }
+    }
+
+    if (step.aws_duration_seconds) {
+        if (!step.role_arn) {
+            errors.push(ErrorBuilder.buildError({
+                message: `aws_duration_seconds is only relevant when using role chaining`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'If you wish to use role chaining, please specify a role_arn to assume',
+            }));
+        } else if (step.aws_duration_seconds < 900 || step.aws_duration_seconds > 3600) {
+            errors.push(ErrorBuilder.buildError({
+                message: `When using role chaining, the duration of the role session must be between 15 minutes and 1 hour`,
+                name,
+                yaml,
+                code: 206,
+                type: ErrorType.Error,
+                docsLink: _.get(DocumentationLinks, step.type, docBaseUrl),
+                errorPath,
+                key,
+                actionItems: 'Please specify a durationSeconds value between 900 and 3600',
+            }));
         }
     }
 

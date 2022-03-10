@@ -54,6 +54,9 @@ class Build extends BaseSchema {
             provider: Build._getProviderSchema(),
             registry_contexts: Joi.array().items(Joi.string()),
             region: Joi.string(),
+            role_arn: Joi.string(),
+            aws_session_name: Joi.string(),
+            aws_duration_seconds: Joi.number(),
         };
         return this._createSchema(buildProperties);
     }

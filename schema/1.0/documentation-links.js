@@ -23,4 +23,14 @@ const IntegrationLinks = {
     'helm': 'https://codefresh.io/docs/docs/new-helm/helm2-support',
     'variables': 'https://codefresh.io/docs/docs/codefresh-yaml/variables/'
 };
-module.exports = { docBaseUrl, DocumentationLinks, IntegrationLinks };
+
+const ExternalLinks = {
+    'reference-identifiers': 'https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html',
+};
+
+module.exports = {
+    docBaseUrl,
+    DocumentationLinks,
+    IntegrationLinks,
+    ExternalLinks,
+};
