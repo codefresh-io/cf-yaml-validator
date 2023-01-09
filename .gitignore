@@ -39,3 +39,4 @@ jspm_packages
 bundle.js
 .idea/
 .vscode/
+.devcontainer/
