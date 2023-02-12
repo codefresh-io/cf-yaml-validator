@@ -34,6 +34,7 @@ class Build extends BaseSchema {
                 .try(Joi.string(), Joi.object({ content: Joi.string() })),
             no_cache: Joi.boolean(),
             no_cf_cache: Joi.boolean(),
+            cache_from: Joi.array().items(Joi.string()),
             squash: Joi.boolean(),
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
