@@ -10,7 +10,7 @@ const jsyaml = require('js-yaml');
 const path = require('path');
 const colors = require('colors');
 
-const { expect }    = chai;
+const { expect } = chai;
 const sinonChai = require('sinon-chai');
 
 chai.use(sinonChai);
@@ -1451,6 +1451,139 @@ describe('Validate Codefresh YAML', () => {
                 });
             });
 
+            describe('cache_from', () => {
+                it('positive', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-success.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage: {
+                                title: 'Building Docker Image',
+                                type: 'build',
+                                image_name: 'codefresh/itai-15',
+                                working_directory: './',
+                                dockerfile: {
+                                    content: 'From alpine:latest'
+                                },
+                                registry: 'reg',
+                                disable_push: true,
+                                tags: [
+                                    'tag1',
+                                    'tag2'
+                                ],
+                                cache_from: [
+                                    'some-registry/some-image:master',
+                                    'some-registry/some-image:branch1',
+                                ],
+                            }
+                        }
+                    };
+                    const context = {
+                        git: [
+                            { metadata: { name: 'git' } },
+                            { metadata: { name: 'git2', default: true } }
+                        ],
+                        registries: [
+                            { name: 'reg' }, { name: 'reg2', default: false }
+                        ],
+                        clusters: [
+                            { selector: 'cluster' }, { selector: 'cluster2' }
+                        ],
+                        variables: [],
+                        autoPush: true
+                    };
+                    const opts = {
+                        build: {
+                            buildVersion: 'V2'
+                        }
+                    };
+                    validateWithContext(model, 'message', yaml, context, opts);
+                    done();
+                });
+
+                it('negative', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-failure.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage: {
+                                title: 'Building Docker Image',
+                                type: 'build',
+                                image_name: 'codefresh/itai-15',
+                                working_directory: './',
+                                dockerfile: {
+                                    content: 'From alpine:latest'
+                                },
+                                registry: 'reg',
+                                disable_push: true,
+                                tags: [
+                                    'tag1',
+                                    'tag2'
+                                ],
+                                cache_from: [
+                                    0,
+                                    false,
+                                ],
+                            }
+                        }
+                    };
+                    const context = {
+                        git: [
+                            { metadata: { name: 'git' } },
+                            { metadata: { name: 'git2', default: true } }
+                        ],
+                        registries: [
+                            { name: 'reg' }, { name: 'reg2', default: false }
+                        ],
+                        clusters: [
+                            { selector: 'cluster' }, { selector: 'cluster2' }
+                        ],
+                        variables: [],
+                        autoPush: true
+                    };
+                    const opts = {
+                        build: {
+                            buildVersion: 'V2'
+                        }
+                    };
+
+                    const expectedMessage = {
+                        details: [
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'level': 'step',
+                                'lines': 3,
+                                'message': '"0" must be a string',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            },
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'level': 'step',
+                                'lines': 3,
+                                'message': '"1" must be a string',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            },
+                        ],
+                        warningDetails: [],
+                    };
+
+                    validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
+                    done();
+                });
+            });
+
             describe('tag_policy', () => {
                 it('positive', (done) => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');
@@ -2670,7 +2803,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                         }
                     }
@@ -2705,7 +2838,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: 'hi there',
@@ -2725,7 +2858,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2747,7 +2880,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2770,7 +2903,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2793,7 +2926,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2817,7 +2950,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2841,7 +2974,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2867,7 +3000,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2893,7 +3026,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2920,7 +3053,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2947,7 +3080,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -2976,7 +3109,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -3005,7 +3138,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -3031,7 +3164,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -3060,7 +3193,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -3087,7 +3220,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: '',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -3121,7 +3254,7 @@ describe('Validate Codefresh YAML', () => {
                             'type': 'integration-test',
                             'test': {
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'services': {
                                 redis: {
@@ -3257,7 +3390,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command'],
+                                    ['command'],
                                 working_directory: '/var/whatever'
                             },
                             'services': {
@@ -3289,7 +3422,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command'],
+                                    ['command'],
                                 working_directory: '/var/whatever'
                             },
                             'services': {
@@ -3322,7 +3455,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                         }
                     }
@@ -3355,7 +3488,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'preconfigured_services': 'asd'
 
@@ -3374,7 +3507,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command']
+                                    ['command']
                             },
                             'preconfigured_services': [123, 456, 0.9, true]
                         }
@@ -3392,7 +3525,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command'],
+                                    ['command'],
                                 working_directory: '/asdasd/asd'
                             },
                             'preconfigured_services': ['sqlserver', 'sqlite3']
@@ -3411,7 +3544,7 @@ describe('Validate Codefresh YAML', () => {
                             'test': {
                                 image: 'bob',
                                 commands:
-                                  ['command'],
+                                    ['command'],
                                 working_directory: '/asdasd/asd'
                             },
                             'preconfigured_services': [
@@ -3551,7 +3684,7 @@ describe('Validate Codefresh YAML', () => {
                 done();
             });
 
-            it('duplicate-step-names-parent-child', (done) =>  {
+            it('duplicate-step-names-parent-child', (done) => {
                 const values = {
                     stepName0: 'writing_file',
                     stepName0_1: 'writing_file',
