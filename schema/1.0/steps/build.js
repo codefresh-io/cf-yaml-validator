@@ -57,6 +57,18 @@ class Build extends BaseSchema {
             role_arn: Joi.string(),
             aws_session_name: Joi.string(),
             aws_duration_seconds: Joi.number(),
+            platform: Joi.string(),
+            buildx: Joi.alternatives()
+                .try(Joi.boolean(), Joi.object({
+                    qemu: {
+                        image: Joi.string(),
+                        platforms: Joi.string(),
+                    },
+                    builder: {
+                        driver: Joi.string(),
+                        driverOpts: Joi.string(),
+                    },
+                })),
         };
         return this._createSchema(buildProperties);
     }
