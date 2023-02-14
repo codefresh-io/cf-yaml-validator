@@ -51,14 +51,16 @@ class Build extends BaseSchema {
             progress: Joi.string(),
             buildkit: Joi.boolean(),
             ...(opts.buildVersion === BUILD_VERSION && { registry: Joi.string() }),
-            ...(opts.buildVersion === BUILD_VERSION && { disable_push: Joi.boolean() }),
-            provider: Build._getProviderSchema(),
-            registry_contexts: Joi.array().items(Joi.string()),
-            region: Joi.string(),
-            role_arn: Joi.string(),
-            aws_session_name: Joi.string(),
-            aws_duration_seconds: Joi.number(),
-            platform: Joi.string(),
+            ...(opts.buildVersion === BUILD_VERSION && {
+                disable_push: Joi.any()
+                    .when('buildx', {
+                        is: Joi.alternatives().try(null, false), // if buildx is empty or false
+                        then: Joi.boolean(),
+                        otherwise: Joi.valid(false)
+                    }).messages({
+                        'any.only': `"disable_push" is not allowed to be true when buildx is enabled.`
+                    })
+            }),
             buildx: Joi.alternatives()
                 .try(Joi.boolean(), Joi.object({
                     qemu: {
@@ -70,6 +72,13 @@ class Build extends BaseSchema {
                         driverOpts: Joi.string(),
                     },
                 })),
+            provider: Build._getProviderSchema(),
+            registry_contexts: Joi.array().items(Joi.string()),
+            region: Joi.string(),
+            role_arn: Joi.string(),
+            aws_session_name: Joi.string(),
+            aws_duration_seconds: Joi.number(),
+            platform: Joi.string(),
         };
         return this._createSchema(buildProperties);
     }
