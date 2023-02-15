@@ -13,6 +13,7 @@ const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
 const imageNameValidation = require('../validations/image-name');
+const { ErrorBuilder } = require('./../error-builder');
 
 const BUILD_VERSION = 'V2';
 const PROVIDERS = ['cf', 'gcb'];
@@ -58,9 +59,10 @@ class Build extends BaseSchema {
                         then: Joi.boolean(),
                         otherwise: Joi.valid(false)
                     })
-                    // .messages({
-                    //     'any.only': `"disable_push" is not allowed to be true when buildx is enabled.`
-                    // })
+                    .error(ErrorBuilder.buildJoiError({
+                        message: `"disable_push" must be a boolean and is not allowed to be true when buildx is enabled.`,
+                        path: 'disable_push'
+                    }))
             }),
             buildx: Joi.alternatives()
                 .try(Joi.boolean(), Joi.object({
