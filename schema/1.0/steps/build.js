@@ -57,9 +57,10 @@ class Build extends BaseSchema {
                         is: Joi.alternatives().try(null, false), // if buildx is empty or false
                         then: Joi.boolean(),
                         otherwise: Joi.valid(false)
-                    }).messages({
-                        'any.only': `"disable_push" is not allowed to be true when buildx is enabled.`
                     })
+                    // .messages({
+                    //     'any.only': `"disable_push" is not allowed to be true when buildx is enabled.`
+                    // })
             }),
             buildx: Joi.alternatives()
                 .try(Joi.boolean(), Joi.object({
