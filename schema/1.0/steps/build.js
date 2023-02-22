@@ -55,14 +55,10 @@ class Build extends BaseSchema {
             ...(opts.buildVersion === BUILD_VERSION && {
                 disable_push: Joi.any()
                     .when('buildx', {
-                        is: Joi.alternatives().try(null, false), // if buildx is empty or false
+                        is: Joi.alternatives().try(null, false), // when buildx is empty or false
                         then: Joi.boolean(),
-                        otherwise: Joi.valid(false)
+                        otherwise: Joi.alternatives().try(null, false)
                     })
-                    .error(ErrorBuilder.buildJoiError({
-                        message: `"disable_push" must be a boolean and is not allowed to be true when buildx is enabled.`,
-                        path: 'disable_push'
-                    }))
             }),
             buildx: Joi.alternatives()
                 .try(Joi.boolean(), Joi.object({
