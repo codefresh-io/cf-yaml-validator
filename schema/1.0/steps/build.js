@@ -13,7 +13,6 @@ const Joi = require('joi');
 const BaseSchema = require('./../base-schema');
 const registryValidation = require('../validations/registry');
 const imageNameValidation = require('../validations/image-name');
-const { ErrorBuilder } = require('./../error-builder');
 
 const BUILD_VERSION = 'V2';
 const PROVIDERS = ['cf', 'gcb'];
