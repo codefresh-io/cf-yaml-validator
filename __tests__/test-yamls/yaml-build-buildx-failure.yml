@@ -1,0 +1,43 @@
+version: "1.0"
+steps:
+  BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    buildx: 'test string' # buildx can be a boolean
+  BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    disable_push: true
+    buildx: true
+  BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    disable_push: true
+    buildx: {}

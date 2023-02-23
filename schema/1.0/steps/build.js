@@ -67,7 +67,7 @@ class Build extends BaseSchema {
                     },
                     builder: {
                         driver: Joi.string(),
-                        driverOpts: Joi.string(),
+                        driver_opts: Joi.string(),
                     },
                 })),
             provider: Build._getProviderSchema(),

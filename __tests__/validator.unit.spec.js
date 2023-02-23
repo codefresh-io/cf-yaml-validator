@@ -1584,6 +1584,286 @@ describe('Validate Codefresh YAML', () => {
                 });
             });
 
+            describe('platform', () => {
+                const context = {
+                    git: [
+                        { metadata: { name: 'git' } },
+                        { metadata: { name: 'git2', default: true } }
+                    ],
+                    registries: [
+                        { name: 'reg' }, { name: 'reg2', default: false }
+                    ],
+                    clusters: [
+                        { selector: 'cluster' }, { selector: 'cluster2' }
+                    ],
+                    variables: [],
+                    autoPush: true
+                };
+                const opts = {
+                    build: {
+                        buildVersion: 'V2'
+                    }
+                };
+                const createBuildStepTemplate = () => ({
+                    title: 'Building Docker Image',
+                    type: 'build',
+                    image_name: 'codefresh/test',
+                    working_directory: './',
+                    dockerfile: {
+                        content: 'From alpine:latest'
+                    },
+                    registry: 'reg',
+                    tags: [
+                        'tag1',
+                        'tag2'
+                    ],
+                });
+
+                it('positive', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-success.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage: {
+                                ...createBuildStepTemplate(),
+                                platform: 'linux/amd64,linux/arm64'
+                            }
+                        }
+                    };
+
+                    validateWithContext(model, 'message', yaml, context, opts);
+                    done();
+                });
+
+                it('negative', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-failure.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage: {
+                                ...createBuildStepTemplate(),
+                                platform: 123,
+                            }
+                        }
+                    };
+
+                    const expectedMessage = {
+                        details: [
+                            {
+                                'message': '"platform" must be a string. Current value: 123 ',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 23
+                            }
+                        ],
+                        warningDetails: [],
+                    };
+
+                    validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
+                    done();
+                });
+            });
+
+            describe('buildx', () => {
+                const context = {
+                    git: [
+                        { metadata: { name: 'git' } },
+                        { metadata: { name: 'git2', default: true } }
+                    ],
+                    registries: [
+                        { name: 'reg' }, { name: 'reg2', default: false }
+                    ],
+                    clusters: [
+                        { selector: 'cluster' }, { selector: 'cluster2' }
+                    ],
+                    variables: [],
+                    autoPush: true
+                };
+                const opts = {
+                    build: {
+                        buildVersion: 'V2'
+                    }
+                };
+                const createBuildStepTemplate = () => ({
+                    title: 'Building Docker Image',
+                    type: 'build',
+                    image_name: 'codefresh/test',
+                    working_directory: './',
+                    dockerfile: {
+                        content: 'From alpine:latest'
+                    },
+                    registry: 'reg',
+                    tags: [
+                        'tag1',
+                        'tag2'
+                    ],
+                });
+
+                it('positive', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-buildx-success.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage_BuildxNull: {
+                                ...createBuildStepTemplate(),
+                                // buildx: true,
+                            },
+                            BuildingDockerImage_BuildxBooleanTrue: {
+                                ...createBuildStepTemplate(),
+                                buildx: true,
+                            },
+                            BuildingDockerImage_BuildxBooleanFalse: {
+                                ...createBuildStepTemplate(),
+                                buildx: false,
+                            },
+                            BuildingDockerImage_BuildxEmptyObject: {
+                                ...createBuildStepTemplate(),
+                                buildx: {},
+                            },
+                            BuildingDockerImage_BuildxObjectWithQemuAndBuilderEmptyObjects: {
+                                ...createBuildStepTemplate(),
+                                buildx: {
+                                    builder: {},
+                                    qemu: {},
+                                },
+                            },
+                            BuildingDockerImage_BuildxObjectWithQemuAndBuilderStringParameters: {
+                                ...createBuildStepTemplate(),
+                                buildx: {
+                                    qemu: {
+                                        image: 'test-image:test',
+                                        platforms: 'linux/amd64,linux/arm64',
+                                    },
+                                    builder: {
+                                        driver: 'test-driver',
+                                        driver_opts: '--test=test',
+                                    },
+                                },
+                            },
+                        }
+                    };
+
+                    validateWithContext(model, 'message', yaml, context, opts);
+                    done();
+                });
+
+                it('negative', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-buildx-failure.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject: {
+                                ...createBuildStepTemplate(),
+                                buildx: 'test string',
+                            },
+                            BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1: {
+                                ...createBuildStepTemplate(),
+                                disable_push: true,
+                                buildx: true,
+                            },
+                            BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2: {
+                                ...createBuildStepTemplate(),
+                                disable_push: true,
+                                buildx: {},
+                            },
+                        }
+                    };
+                    const expectedMessage = {
+                        details: [
+                            {
+                                'message': '"buildx" must be an object',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 15
+                            },
+                            {
+                                'message': '"buildx" must be a boolean',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 15
+                            },
+                            {
+                                'message': '"disable_push" must be one of [null]',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 28
+                            },
+                            {
+                                'message': '"disable_push" must be one of [false]',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 28
+                            },
+                            {
+                                'message': '"disable_push" must be one of [null]',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 42
+                            },
+                            {
+                                'message': '"disable_push" must be one of [false]',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2',
+                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 42
+                            }
+                        ],
+                        warningDetails: [],
+                    };
+
+                    validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
+                    done();
+                });
+            });
+
             describe('tag_policy', () => {
                 it('positive', (done) => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');

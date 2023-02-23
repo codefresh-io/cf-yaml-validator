@@ -20,3 +20,4 @@ steps:
     cache_from:
       - 0
       - false
+    platform: 123
