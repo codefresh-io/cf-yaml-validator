@@ -1778,7 +1778,7 @@ describe('Validate Codefresh YAML', () => {
                     const expectedMessage = {
                         details: [
                             {
-                                'message': '"buildx" must be an object',
+                                'message': '"buildx" must be a boolean',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
@@ -1791,7 +1791,7 @@ describe('Validate Codefresh YAML', () => {
                                 'lines': 15
                             },
                             {
-                                'message': '"buildx" must be a boolean',
+                                'message': '"buildx" must be an object',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
