@@ -1,0 +1,88 @@
+version: "1.0"
+steps:
+  BuildingDockerImage_BuildxNull:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+#    buildx: true # buildx should be optional
+  BuildingDockerImage_BuildxBooleanTrue:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    buildx: true # buildx can be a boolean
+  BuildingDockerImage_BuildxBooleanFalse:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    buildx: false # buildx can be a boolean
+  BuildingDockerImage_BuildxEmptyObject:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    buildx: {} # buildx can be an empty object
+  BuildingDockerImage_BuildxObjectWithQemuAndBuilderEmptyObjects:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    buildx: # buildx can be an object with optional builder and qemu empty objects
+      builder: {}
+      qemu: {}
+  BuildingDockerImage_BuildxObjectWithQemuAndBuilderStringParameters:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    buildx: # buildx can be an object with optional qemu string parameters and builder string parameters
+      qemu:
+        image: 'test-image:test'
+        platforms: 'linux/amd64,linux/arm64'
+      builder:
+        driver: 'test-driver'
+        driver_opts: '--test=test'
