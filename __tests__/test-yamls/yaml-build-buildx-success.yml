@@ -13,19 +13,6 @@ steps:
         From alpine:latest
     registry: reg
 #    buildx: true # buildx should be optional
-  BuildingDockerImage_BuildxBooleanTrue:
-    title: Building Docker Image
-    type: build
-    image_name: codefresh/test
-    working_directory: ./
-    tags:
-      - tag1
-      - tag2
-    dockerfile:
-      content: |-
-        From alpine:latest
-    registry: reg
-    buildx: true # buildx can be a boolean
   BuildingDockerImage_BuildxBooleanFalse:
     title: Building Docker Image
     type: build
@@ -39,6 +26,20 @@ steps:
         From alpine:latest
     registry: reg
     buildx: false # buildx can be a boolean
+  BuildingDockerImage_BuildxBooleanTrue:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    platform: 'linux/amd64,linux/arm64'
+    buildx: true # buildx can be a boolean
   BuildingDockerImage_BuildxEmptyObject:
     title: Building Docker Image
     type: build
@@ -51,6 +52,7 @@ steps:
       content: |-
         From alpine:latest
     registry: reg
+    platform: 'linux/amd64,linux/arm64'
     buildx: {} # buildx can be an empty object
   BuildingDockerImage_BuildxObjectWithQemuAndBuilderEmptyObjects:
     title: Building Docker Image
@@ -64,6 +66,7 @@ steps:
       content: |-
         From alpine:latest
     registry: reg
+    platform: 'linux/amd64,linux/arm64'
     buildx: # buildx can be an object with optional builder and qemu empty objects
       builder: {}
       qemu: {}
@@ -79,6 +82,7 @@ steps:
       content: |-
         From alpine:latest
     registry: reg
+    platform: 'linux/amd64,linux/arm64'
     buildx: # buildx can be an object with optional qemu string parameters and builder string parameters
       qemu:
         image: 'test-image:test'
