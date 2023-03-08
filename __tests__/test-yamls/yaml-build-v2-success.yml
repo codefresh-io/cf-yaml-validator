@@ -19,4 +19,3 @@ steps:
     cache_from:
       - some-registry/some-image:master
       - some-registry/some-image:branch1
-    platform: 'linux/amd64,linux/arm64'
