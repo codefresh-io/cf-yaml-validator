@@ -12,7 +12,7 @@ steps:
       content: |-
         From alpine:latest
     registry: reg
-    buildx: 'test string' # buildx can be a boolean
+    buildx: 'test string' # buildx must be boolean/object
   BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1:
     title: Building Docker Image
     type: build
@@ -41,3 +41,47 @@ steps:
     registry: reg
     disable_push: true
     buildx: {}
+  BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled1:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    disable_push: true
+    platform: 'linux/arm64'
+    buildx: false
+  BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled2:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    disable_push: true
+    platform: 'linux/arm64'
+#    buildx: false # empty
+  BuildingDockerImage_PlatformMustBeString:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    disable_push: true
+    platform: 123 # platform must be a string
