@@ -5009,6 +5009,36 @@ describe('Validate Codefresh YAML', () => {
                     });
                     done();
                 });
+                it('should allow display on set annotations', (done) => {
+                    validate({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        annotations: {
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test', test2: 'test2' }],
+                                                    display: 'test2'
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test']
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    });
+                    done();
+                });
             });
             describe('negative', () => {
                 it('should not allow debug', (done) => {
@@ -5214,6 +5244,36 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     }, '"debug" is not allowed', done);
+                });
+                it('should not allow display on unset annotations', (done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: {
+                            test_steps: {
+                                image: 'alpine',
+                                hooks: {
+                                    on_fail: {
+                                        annotations: {
+                                            set: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: [{ test: 'test', test2: 'test2' }],
+                                                    display: 'test'
+                                                }
+                                            ],
+                                            unset: [
+                                                {
+                                                    entity_type: 'build',
+                                                    annotations: ['test'],
+                                                    display: 'test'
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    },  '"display" is not allowed', done);
                 });
             });
         });
