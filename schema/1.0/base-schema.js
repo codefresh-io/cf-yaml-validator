@@ -149,6 +149,7 @@ class BaseSchema {
             entity_id: Joi.string(),
             entity_type: Joi.string(),
             annotations: BaseSchema._getAnnotationSetSchema(),
+            display: Joi.string(),
         });
     }
 
