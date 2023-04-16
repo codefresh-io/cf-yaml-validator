@@ -51,13 +51,7 @@ class Build extends BaseSchema {
             progress: Joi.string(),
             buildkit: Joi.boolean(),
             ...(opts.buildVersion === BUILD_VERSION && { registry: Joi.string() }),
-            ...(opts.buildVersion === BUILD_VERSION && {
-                disable_push: Joi.when('buildx', {
-                    is: Joi.alternatives().try(null, false), // when buildx is empty or false
-                    then: Joi.boolean(),
-                    otherwise: Joi.alternatives().try(null, false),
-                })
-            }),
+            ...(opts.buildVersion === BUILD_VERSION && { disable_push: Joi.boolean() }),
             buildx: Joi.alternatives()
                 .try(Joi.boolean(), Joi.object({
                     qemu: {

@@ -1680,16 +1680,6 @@ describe('Validate Codefresh YAML', () => {
                                 ...createBuildStepTemplate(),
                                 buildx: 'test string',
                             },
-                            BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1: {
-                                ...createBuildStepTemplate(),
-                                disable_push: true,
-                                buildx: true,
-                            },
-                            BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2: {
-                                ...createBuildStepTemplate(),
-                                disable_push: true,
-                                buildx: {},
-                            },
                             BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled1: {
                                 ...createBuildStepTemplate(),
                                 platform: 'linux/arm64',
@@ -1736,58 +1726,6 @@ describe('Validate Codefresh YAML', () => {
                                 'lines': 15
                             },
                             {
-                                'message': '"disable_push" must be one of [null]',
-                                'type': 'Validation',
-                                'path': 'steps',
-                                'context': {
-                                    'key': 'steps'
-                                },
-                                'level': 'step',
-                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 28
-                            },
-                            {
-                                'message': '"disable_push" must be one of [false]',
-                                'type': 'Validation',
-                                'path': 'steps',
-                                'context': {
-                                    'key': 'steps'
-                                },
-                                'level': 'step',
-                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled1',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 28
-                            },
-                            {
-                                'message': '"disable_push" must be one of [null]',
-                                'type': 'Validation',
-                                'path': 'steps',
-                                'context': {
-                                    'key': 'steps'
-                                },
-                                'level': 'step',
-                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 42
-                            },
-                            {
-                                'message': '"disable_push" must be one of [false]',
-                                'type': 'Validation',
-                                'path': 'steps',
-                                'context': {
-                                    'key': 'steps'
-                                },
-                                'level': 'step',
-                                'stepName': 'BuildingDockerImage_BuildxCannotBeEnabledWhenDisablePushEnabled2',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 42
-                            },
-                            {
                                 'message': '"platform" is not allowed. Did you mean "platform"?',
                                 'type': 'Validation',
                                 'path': 'steps',
@@ -1798,7 +1736,7 @@ describe('Validate Codefresh YAML', () => {
                                 'stepName': 'BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled1',
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 57,
+                                'lines': 29,
                                 'suggestion': {
                                     'from': 'platform',
                                     'to': 'platform'
@@ -1815,7 +1753,7 @@ describe('Validate Codefresh YAML', () => {
                                 'stepName': 'BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled2',
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 72,
+                                'lines': 44,
                                 'suggestion': {
                                     'from': 'platform',
                                     'to': 'platform'
@@ -1832,7 +1770,7 @@ describe('Validate Codefresh YAML', () => {
                                 'stepName': 'BuildingDockerImage_PlatformMustBeString',
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 87
+                                'lines': 59
                             }
                         ],
                         warningDetails: [],
