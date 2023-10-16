@@ -1112,6 +1112,17 @@ describe('Validate Codefresh YAML', () => {
                         }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
                     });
 
+                    const missedUnits = [];
+                    for (let i = 0; i < 50; i += 1) {
+                        missedUnits.push(i % 2 ? `${getRandomInt()}` : `${getRandomFloat()}`);
+                    }
+                    it.each(missedUnits)('should not pass if units are missed: %s', (timeout, done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    });
+
                     it.each([
                         `.5${getRandomUnit()}`,
                         `1.${getRandomUnit()}`,
