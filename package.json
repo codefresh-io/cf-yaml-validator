@@ -21,6 +21,7 @@
   "main": "./validator.js",
   "scripts": {
     "test": "jest --coverage --runInBand",
+    "test:watch": "jest --watch",
     "eslint": "eslint schema/** __tests__/**/*.js validator.js validator-error.js"
   },
   "dependencies": {
