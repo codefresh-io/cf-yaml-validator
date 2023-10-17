@@ -1070,19 +1070,9 @@ describe('Validate Codefresh YAML', () => {
                         });
                     });
 
-                    const numbers = [0];
-                    for (let i = 0; i < 50; i += 1) {
-                        numbers.push(i % 2 ? getRandomInt() : getRandomFloat());
-                    }
-                    it.each(numbers)('should not pass if timeout is number: %s', (timeout, done) => {
-                        validateForError({
-                            version: '1.0',
-                            steps: { mock: { image: 'mock-image', timeout } },
-                        }, `"timeout" must be a string`, done);
-                    });
-
                     it.each([
                         0,
+                        42,
                         false,
                         true,
                         {},
@@ -1102,7 +1092,7 @@ describe('Validate Codefresh YAML', () => {
                     });
 
                     const invalidUnits = [];
-                    for (let i = 0; i < 50; i += 1) {
+                    for (let i = 0; i < 1000; i += 1) {
                         invalidUnits.push(`${getRandomInt()}${getInvalidUnit()}`);
                     }
                     it.each(invalidUnits)('should not pass if timeout unit is invalid: %s', (timeout, done) => {
