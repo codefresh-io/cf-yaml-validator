@@ -1059,7 +1059,11 @@ describe('Validate Codefresh YAML', () => {
                         });
                     });
 
-                    const validFloatTimeouts = [`0.0${getRandomUnit()}`];
+                    const validFloatTimeouts = [
+                        `0.0${getRandomUnit()}`,
+                        `.5${getRandomUnit()}`,
+                        `1.${getRandomUnit()}`,
+                    ];
                     for (let i = 0; i < 50; i += 1) {
                         validFloatTimeouts.push(`${getRandomFloat()}${getRandomUnit()}`);
                     }
@@ -1114,8 +1118,6 @@ describe('Validate Codefresh YAML', () => {
                     });
 
                     it.each([
-                        `.5${getRandomUnit()}`,
-                        `1.${getRandomUnit()}`,
                         `1.5.1${getRandomUnit()}`,
                         `1,5${getRandomUnit()}`,
                     ])('should not pass if timeout duration is invalid: %s', (timeout, done) => {
