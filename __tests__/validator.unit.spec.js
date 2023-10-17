@@ -1014,6 +1014,120 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"evaluate" is required', done);
             });
+
+            describe('timeout', () => {
+                describe('not defined', () => {
+                    it('should pass if timeout was not defined', () => {
+                        validate({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image' } },
+                        });
+                    });
+
+                    it.each([
+                        null,
+                        undefined,
+                    ])('should pass if timeout is %s', (timeout) => {
+                        validate({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        });
+                    });
+                });
+
+                describe('defined', () => {
+                    const units = ['s', 'm', 'h'];
+                    const getRandomUnit = () => {
+                        return units[Math.floor(Math.random() * units.length)];
+                    };
+                    const getRandomInt = () => Math.floor(Math.random() * 1000);
+                    const getRandomFloat = () => Math.random() * 1000;
+                    const getInvalidUnit = () => {
+                        const char = String.fromCharCode(Math.floor(Math.random() * 65535));
+                        return units.includes(char) ? getInvalidUnit() : char;
+                    };
+
+
+                    const validIntegerTimeouts = [`0${getRandomUnit()}`];
+                    for (let i = 0; i < 50; i += 1) {
+                        validIntegerTimeouts.push(`${getRandomInt()}${getRandomUnit()}`);
+                    }
+                    it.each(validIntegerTimeouts)('should pass if timeout is valid: %s', (timeout) => {
+                        validate({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        });
+                    });
+
+                    const validFloatTimeouts = [
+                        `0.0${getRandomUnit()}`,
+                        `.5${getRandomUnit()}`,
+                        `1.${getRandomUnit()}`,
+                    ];
+                    for (let i = 0; i < 50; i += 1) {
+                        validFloatTimeouts.push(`${getRandomFloat()}${getRandomUnit()}`);
+                    }
+                    it.each(validFloatTimeouts)('should pass if timeout is valid: %s', (timeout) => {
+                        validate({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        });
+                    });
+
+                    it.each([
+                        0,
+                        42,
+                        false,
+                        true,
+                        {},
+                        [],
+                    ])(`should not pass if timeout is invalid data type: %s`, (timeout, done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        }, `"timeout" must be a string`, done);
+                    });
+
+                    it('should not pass if timeout is an empty string', (done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout: '' } },
+                        }, `"timeout" is not allowed to be empty`, done);
+                    });
+
+                    const invalidUnits = [];
+                    for (let i = 0; i < 1000; i += 1) {
+                        invalidUnits.push(`${getRandomInt()}${getInvalidUnit()}`);
+                    }
+                    it.each(invalidUnits)('should not pass if timeout unit is invalid: %s', (timeout, done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    });
+
+                    const missedUnits = [];
+                    for (let i = 0; i < 50; i += 1) {
+                        missedUnits.push(i % 2 ? `${getRandomInt()}` : `${getRandomFloat()}`);
+                    }
+                    it.each(missedUnits)('should not pass if units are missed: %s', (timeout, done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    });
+
+                    it.each([
+                        `1.5.1${getRandomUnit()}`,
+                        `1,5${getRandomUnit()}`,
+                    ])('should not pass if timeout duration is invalid: %s', (timeout, done) => {
+                        validateForError({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', timeout } },
+                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    });
+                });
+            });
         });
 
         describe('Freestyle step attributes', () => {

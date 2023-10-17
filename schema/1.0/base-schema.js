@@ -103,6 +103,9 @@ class BaseSchema {
             'debug': BaseSchema._getDebugSchema(),
             'env': BaseSchema._getEnvSchema(),
             'hooks': BaseSchema._getBaseHooksSchema(),
+            'timeout': Joi.string()
+                .regex(/^(?<duration>\d*\.?\d*)(?<units>[smh])$/, `"<duration><units> where duration is int|float and units are s|m|h"`)
+                .allow(null).optional(),
         }, schemaProperties);
     }
 
