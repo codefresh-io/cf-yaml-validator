@@ -8,7 +8,7 @@ const chai = require('chai');
 const fs = require('fs');
 const jsyaml = require('js-yaml');
 const path = require('path');
-const colors = require('colors');
+const colors = require('@colors/colors');
 
 const { expect } = chai;
 const sinonChai = require('sinon-chai');
