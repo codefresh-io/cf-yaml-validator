@@ -4061,6 +4061,11 @@ describe('Validate Codefresh YAML', () => {
                     steps: {
                         pending: {
                             type: 'pending-approval',
+                            timeout: {
+                                timeUnit: 'minutes',
+                                duration: 10,
+                                finalState: 'denied',
+                            }
                         }
                     }
                 });
@@ -5020,6 +5025,7 @@ describe('Validate Codefresh YAML', () => {
                                                     service: 'kubernetes',
                                                     cluster: '${{test-cluster}}',
                                                     namespace: 'default',
+                                                    timeout: '150',
                                                     arguments: {
                                                         image: '${{build}}',
                                                         registry: 'cfcr',
