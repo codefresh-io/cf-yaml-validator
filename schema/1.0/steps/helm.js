@@ -16,6 +16,7 @@ class Helm extends BaseSchema {
         const HelmProperties = {
             'type': Joi.string().valid(Helm.getType()),
             'working_directory': Joi.string(),
+            'timeout': Joi.string(),
         };
         return this._createSchema(HelmProperties)
             .unknown();
