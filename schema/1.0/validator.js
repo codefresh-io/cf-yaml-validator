@@ -39,6 +39,62 @@ function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
     return stepNameLst;
 }
 
+/**
+ * Assigns own enumerable string-keyed properties of source object to the destination object.
+ * If target already have the property (including prototype chain), it will be skipped.
+ * Mutates target object.
+ * @param {object} target Target object
+ * @param {object} source Source object
+ * @param {object} options Options
+ * @param {boolean} [options.overrideUndefined=false] If `true`, will override target property if it is existing but `undefined`. Default is `false`.
+ * @returns {object} Target object
+ */
+function assignMissedProperties(target, source, options = { overrideUndefined: false }) {
+    const sourceClone = _.cloneDeep(source);
+    Object.entries(sourceClone).forEach(([key, value]) => {
+        const isExistInTarget = key in target;
+        if (!isExistInTarget || (isExistInTarget && target[key] === undefined && options.overrideUndefined)) {
+            target[key] = value;
+        }
+    });
+    return target;
+}
+
+/**
+ * This is a closed list of step types that are known to the Planner and processed in a special way,
+ * thus root-level properties controlled by us.
+ * Needed for backward compatibility while migrating to the new schema.
+ * Old schema:
+ * step:
+ *   title: my-step
+ *   type: freestyle
+ *   image: alpine
+ * New schema:
+ * step:
+ *   title: my-step
+ *   type: freestyle
+ *   arguments:
+ *     image: alpine
+ */
+const KNOWN_STEP_TYPES = [
+    'git-clone',
+    'build',
+    'deploy',
+    'composition',
+    'launch-composition',
+    'parallel',
+    'push',
+    'travis',
+    'simple_travis',
+    'integration-test',
+    'push-tag',
+    'pending-approval',
+    'services',
+    'freestyle',
+    'freestyle-ssh',
+    'github-action',
+];
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -409,7 +465,7 @@ class Validator {
         const steps = {};
         _.map(stepsModel, (s, name) => {
             const step = _.cloneDeep(s);
-            if (step.arguments) {
+            if (step.arguments && (KNOWN_STEP_TYPES.includes(step.type) || !step.type)) {
                 Validator._assignArgumentsToStep(step);
             }
             if (step.type === 'parallel') {
@@ -422,8 +478,7 @@ class Validator {
     }
 
     static _assignArgumentsToStep(step) {
-        Object.assign(step, step.arguments);
-        delete step.arguments;
+        assignMissedProperties(step, step.arguments, { overrideUndefined: true });
     }
 
     static _validateParallelTypeInnerSteps(step, steps, yaml) {
@@ -735,13 +790,13 @@ class Validator {
             steps = Validator._getFormattedSteps(hook.steps, yaml);
         } else if (hook.exec && !hook.exec.steps) {
             const step = _.cloneDeep(hook.exec);
-            if (step.arguments) {
+            if (step.arguments && (KNOWN_STEP_TYPES.includes(step.type) || !step.type)) {
                 Validator._assignArgumentsToStep(step);
             }
             steps[step.name] = step;
         } else if (!hook.exec && !hook.steps) {
             const step = _.cloneDeep(hook);
-            if (step.arguments) {
+            if (step.arguments && (KNOWN_STEP_TYPES.includes(step.type) || !step.type)) {
                 Validator._assignArgumentsToStep(step);
             }
             steps[step.name] = step;
