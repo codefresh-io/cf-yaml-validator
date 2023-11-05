@@ -641,7 +641,7 @@ describe('Validate Codefresh YAML', () => {
                             'docker_machine': 'google'
                         }
                     }
-                }, '"docker_machine" must be an object', done);
+                }, '"docker_machine" must be one of \\[object\\]', done);
             });
 
             it('Non-boolean fail-fast', (done) => {
@@ -778,7 +778,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"key1" must be a', done);
+                }, '"key1" must be one of', done);
             });
 
             it('Invalid post-step metadata annotation evaluation expression', (done) => {
@@ -805,7 +805,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"evaluate" is required', done);
+                }, '"jimbob" does not match any of the allowed types', done);
             });
 
             it('Unknown post-step annotate operation', (done) => {
@@ -987,7 +987,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"key" must be a', done);
+                }, '"key" must be one of', done);
             });
 
             it('Invalid post-step annotation evaluation expression', (done) => {
@@ -1012,7 +1012,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"evaluate" is required', done);
+                }, '"key" does not match any of the allowed types', done);
             });
 
             describe('timeout', () => {
@@ -1179,7 +1179,7 @@ describe('Validate Codefresh YAML', () => {
                             commands: [{}, 'asdasd']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Non-array environment', (done) => {
@@ -1205,7 +1205,7 @@ describe('Validate Codefresh YAML', () => {
                             environment: [{}, 'asdasd']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
 
@@ -1219,7 +1219,7 @@ describe('Validate Codefresh YAML', () => {
                             entry_point: {}
                         }
                     }
-                }, '"entry_point" must be a (string|array)', done);
+                }, '"entry_point" must be one of \\[string, array\\]', done);
             });
 
             it('Non-string or array cmd', (done) => {
@@ -1232,7 +1232,7 @@ describe('Validate Codefresh YAML', () => {
                             cmd: {}
                         }
                     }
-                }, '"cmd" must be a (string|array)', done);
+                }, '"cmd" must be one of \\[string, array\\]', done);
             });
 
             it('cmd with commands', (done) => {
@@ -1445,7 +1445,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"0" must be a string. Current value: 1 ',
+                                'message': '"[0]" must be a string. Current value: 1 ',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1458,7 +1458,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"1" must be a string. Current value: 2 ',
+                                'message': '"[1]" must be a string. Current value: 2 ',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1669,7 +1669,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"0" must be a string',
+                                'message': '"[0]" must be a string',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1682,7 +1682,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"1" must be a string',
+                                'message': '"[1]" must be a string',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1810,20 +1810,7 @@ describe('Validate Codefresh YAML', () => {
                     const expectedMessage = {
                         details: [
                             {
-                                'message': '"buildx" must be a boolean',
-                                'type': 'Validation',
-                                'path': 'steps',
-                                'context': {
-                                    'key': 'steps'
-                                },
-                                'level': 'step',
-                                'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 15
-                            },
-                            {
-                                'message': '"buildx" must be an object',
+                                'message': '"buildx" must be one of [boolean, object]. Current value: test string ',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
@@ -2014,7 +2001,7 @@ describe('Validate Codefresh YAML', () => {
                             'dockerfile': []
                         }
                     }
-                }, '"dockerfile" must be a string', done);
+                }, '"dockerfile" must be one of \\[string, object\\]', done);
             });
 
             it('Dockerfile on non-build step', (done) => {
@@ -2056,7 +2043,7 @@ describe('Validate Codefresh YAML', () => {
                             'build_arguments': [{}, 'asdasd']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Unknown metadata operation', (done) => {
@@ -2110,7 +2097,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"evaluate" is required', done);
+                }, '"bob" does not match any of the allowed types', done);
             });
 
         });
@@ -2341,7 +2328,7 @@ describe('Validate Codefresh YAML', () => {
                             'composition_variables': [{}, '']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('should fail when working_directory in composition_candidates ', (done) => {
@@ -2455,7 +2442,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"redis" must be an object', done);
+                }, '"redis" must be of type object', done);
             });
 
             it('Service with no image', (done) => {
@@ -2543,7 +2530,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('Service with bad environment #2', (done) => {
@@ -2566,7 +2553,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('Service with bad environment #3', (done) => {
@@ -2616,7 +2603,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"hi" must be a string', done);
             });
 
             it('Service with bad environment #5', (done) => {
@@ -2642,7 +2629,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Service with bad environment #6', (done) => {
@@ -2668,7 +2655,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Service with environment as array of strings', (done) => {
@@ -3040,7 +3027,7 @@ describe('Validate Codefresh YAML', () => {
                             'services': [123, 456, 0.9, true]
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Unknown services', (done) => {
@@ -3058,7 +3045,7 @@ describe('Validate Codefresh YAML', () => {
                             'services': ['sqlserver', 'sqlite3']
                         }
                     }
-                }, '"0" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
+                }, '"\\[0\\]" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
             });
 
             it('Known services', (done) => {
@@ -3150,7 +3137,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"redis" must be an object', done);
+                }, '"redis" must be of type object', done);
             });
 
             it('services with no image', (done) => {
@@ -3242,7 +3229,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('services with bad environment #2', (done) => {
@@ -3266,7 +3253,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('services with bad environment #3', (done) => {
@@ -3318,7 +3305,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"hi" must be a string', done);
             });
 
             it('services with bad environment #5', (done) => {
@@ -3339,13 +3326,12 @@ describe('Validate Codefresh YAML', () => {
                                     ports: [1234, 5678],
                                     environment: [{
                                         someValue: '123'
-                                    }
-                                    ]
+                                    }]
                                 },
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('services with bad environment #6', (done) => {
@@ -3372,7 +3358,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('services with environment as array of strings', (done) => {
@@ -3817,7 +3803,7 @@ describe('Validate Codefresh YAML', () => {
                             'preconfigured_services': [123, 456, 0.9, true]
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Unknown preconfigured_services', (done) => {
@@ -3836,7 +3822,7 @@ describe('Validate Codefresh YAML', () => {
                             'preconfigured_services': ['sqlserver', 'sqlite3']
                         }
                     }
-                }, '"0" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
+                }, '"\\[0\\]" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
             });
 
             it('Known preconfigured_services', (done) => {

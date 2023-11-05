@@ -80,7 +80,7 @@ class Build extends BaseSchema {
 
     static _getProviderSchema() {
         return Joi.object({
-            type: Joi.string().valid(PROVIDERS),
+            type: Joi.string().valid(...PROVIDERS),
             arguments: Joi.when('type', {
                 is: 'gcb',
                 then: Joi.object({

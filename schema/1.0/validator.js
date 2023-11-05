@@ -322,7 +322,7 @@ class Validator {
             services: Joi.object(),
             build_version: Joi.string().valid('v1', 'v2')
         });
-        const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
+        const validationResult = rootSchema.validate(objectModel, { abortEarly: false, errors: { label: 'key' } });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
                 Validator._processRootSchemaError(err, validationResult, yaml);
@@ -331,18 +331,7 @@ class Validator {
     }
 
     static _processRootSchemaError(err, validationResult, yaml) {
-        // regex to split joi's error path so that we can use lodah's _.get
-        // we make sure split first ${{}} annotations before splitting by dots (.)
-        const joiPathSplitted = err.path
-            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
-
-        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-        const originalPath = [];
-        _.forEach(joiPathSplitted, (keyPath) => {
-            if (keyPath && keyPath !== '.') {
-                originalPath.push(keyPath);
-            }
-        });
+        const { path: originalPath } = err;
 
         const originalFieldValue = _.get(validationResult, ['value', ...originalPath]);
         const message = originalFieldValue ? `${err.message}. Current value: ${originalFieldValue} ` : err.message;
@@ -498,7 +487,7 @@ class Validator {
             });
             stepSchema = hookStepSchema;
         }
-        const validationResult = Joi.validate(step, stepSchema, { abortEarly: false });
+        const validationResult = stepSchema.validate(step, { abortEarly: false, errors: { label: 'key' } });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
                 Validator._processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema);
@@ -541,20 +530,7 @@ class Validator {
 
 
     static _getOriginalPath(err) {
-        // regex to split joi's error path so that we can use lodah's _.get
-        // we make sure split first ${{}} annotations before splitting by dots (.)
-        const joiPathSplitted = err.path
-            .split(/(\$\{\{[^}]*}})|([^.]+)/g);
-
-        // TODO: I (Itai) put this code because i could not find a good regex to do all the job
-        const originalPath = [];
-        _.forEach(joiPathSplitted, (keyPath) => {
-            if (keyPath && keyPath !== '.') {
-                originalPath.push(keyPath);
-            }
-        });
-
-        return originalPath;
+        return err.path;
     }
 
 
@@ -717,7 +693,7 @@ class Validator {
                 metadata: BaseSchema._getMetadataSchema(),
                 annotations: BaseSchema._getAnnotationsSchema(),
             });
-            const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
+            const validationResult =  hookSchema.validate(hook, { abortEarly: false, errors: { label: 'key' } });
             if (validationResult.error) {
                 _.forEach(validationResult.error.details, (err) => {
                     return Validator._processStepSchemaError(err, validationResult, hook.name, 'freestyle', yaml);
@@ -786,7 +762,7 @@ class Validator {
             hookSchema = Joi.object();
         }
         // Validating the hook's structure schema
-        const validationResult =  Joi.validate(hook, hookSchema, { abortEarly: false });
+        const validationResult =  hookSchema.validate(hook, { abortEarly: false, errors: { label: 'key' } });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
                 return Validator._processStepSchemaError(err, validationResult, hook.name, 'freestyle', yaml);
@@ -804,7 +780,7 @@ class Validator {
                 on_finish: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_finish' })),
                 on_fail: Joi.forbidden().error(ErrorBuilder.buildJoiError({ message, path: 'on_fail' })),
             }).unknown(true);
-            return Joi.validate(step, schema, { abortEarly: false });
+            return schema.validate(step, { abortEarly: false, errors: { label: 'key' } });
         }
         return {};
     }

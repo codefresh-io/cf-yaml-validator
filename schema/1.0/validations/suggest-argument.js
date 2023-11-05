@@ -24,17 +24,14 @@ class SuggestArgumentValidation {
         return this._getNearestMatchingProperty(stepSchemeProperties, argument);
     }
 
-
     static _getStepSchemeProperties(stepSchema, path) {
-        const { children } = stepSchema.describe();
+        const { keys: keysDescriptions } = stepSchema.describe();
 
         if (path.length) {
-            const pathString = `${path.join('.children.')}.children`;
-
-            return _.keys(_.get(children, pathString, []));
+            const pathString = `${path.join('.keys.')}.keys`;
+            return _.keys(_.get(keysDescriptions, pathString, []));
         }
-
-        return _.keys(children);
+        return Object.keys(keysDescriptions);
     }
 
 

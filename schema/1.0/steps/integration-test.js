@@ -25,7 +25,7 @@ class IntegrationTest extends BaseSchema {
     getSchema() {
 
         const preconfiguredServicesArray = Joi.array().items(
-            Joi.string().valid([
+            Joi.string().valid(
                 'mysql',
                 'postgresql',
                 'mariadb',
@@ -39,7 +39,7 @@ class IntegrationTest extends BaseSchema {
                 'neo4j',
                 'elasticsearch',
                 'rethinkdb'
-            ])
+            )
         );
 
         const environmentAsObject = Joi.object({})
@@ -50,9 +50,7 @@ class IntegrationTest extends BaseSchema {
 
         const serviceObject = Joi.object({
             image: Joi.string().required(),
-            ports: Joi.array(
-                Joi.number()
-            ),
+            ports: Joi.array().items(Joi.number()),
             environment: Joi.alternatives(
                 environmentAsArray,
                 environmentAsObject

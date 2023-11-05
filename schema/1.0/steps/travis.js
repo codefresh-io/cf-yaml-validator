@@ -32,9 +32,7 @@ class Travis extends BaseSchema {
 
         const serviceObject = Joi.object({
             image: Joi.string().required(),
-            ports: Joi.array(
-                Joi.number()
-            ),
+            ports: Joi.array().items(Joi.number()),
             environment: Joi.alternatives(
                 environmentAsArray,
                 environmentAsObject

@@ -31,7 +31,7 @@ class Travis extends BaseSchema {
         }).required();
 
         const servicesArray = Joi.array().items(
-            Joi.string().valid([
+            Joi.string().valid(
                 'mysql',
                 'postgresql',
                 'mariadb',
@@ -45,7 +45,7 @@ class Travis extends BaseSchema {
                 'neo4j',
                 'elasticsearch',
                 'rethinkdb'
-            ])
+            )
         ).required();
 
         const compositionProperties = {
