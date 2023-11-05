@@ -39,6 +39,46 @@ function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
     return stepNameLst;
 }
 
+/**
+ * ⬇️ Backward compatibility section
+ * This is a closed list of step types that are known to the Planner and processed in a special way,
+ * thus root-level properties controlled by us.
+ * Needed for backward compatibility while migrating to the new schema.
+ * Old schema:
+ * step:
+ *   title: my-step
+ *   type: freestyle
+ *   image: alpine
+ * New schema:
+ * step:
+ *   title: my-step
+ *   type: freestyle
+ *   arguments:
+ *     image: alpine
+ * ⚠️ When adding a new property, common to all steps, ensure to add it to the `NEW_COMMON_PROPS` array
+ * in order to prevent conflicts with user-defined typed steps that already have this property in arguments.
+ */
+const KNOWN_STEP_TYPES = [
+    'git-clone',
+    'build',
+    'deploy',
+    'composition',
+    'launch-composition',
+    'parallel',
+    'push',
+    'travis',
+    'simple_travis',
+    'integration-test',
+    'push-tag',
+    'pending-approval',
+    'services',
+    'freestyle',
+    'freestyle-ssh',
+    'github-action',
+];
+const NEW_COMMON_PROPS = ['timeout'];
+// ⬆️ The end.
+
 class Validator {
 
     //------------------------------------------------------------------------------
@@ -411,7 +451,12 @@ class Validator {
     }
 
     static _assignArgumentsToStep(step) {
-        Object.assign(step, step.arguments);
+        const clonedArguments = _.cloneDeep(step.arguments);
+        if (KNOWN_STEP_TYPES.includes(step.type) || !step.type) {
+            _.assign(step, clonedArguments);
+        } else {
+            _.assign(step, _.omit(clonedArguments, NEW_COMMON_PROPS));
+        }
         delete step.arguments;
     }
 
