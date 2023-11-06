@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 const Joi        = require('joi');
-const BaseSchema = require('./../base-schema');
+const BaseSchema = require('../base-schema');
 
 class CompositionLaunch extends BaseSchema {
 

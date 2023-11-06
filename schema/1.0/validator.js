@@ -3,7 +3,6 @@
  * Creates a Joi schema and tests the deserialized YAML descriptor
  */
 
-
 'use strict';
 
 //------------------------------------------------------------------------------
@@ -134,11 +133,11 @@ class Validator {
     }
 
     static _sortWarningAccordingLineNumber() {
-        totalWarnings.details = _.sortBy(totalWarnings.details, [error => error.lines]);
+        totalWarnings.details = _.sortBy(totalWarnings.details, [(error) => error.lines]);
     }
 
     static _sortErrorAccordingLineNumber() {
-        totalErrors.details = _.sortBy(totalErrors.details, [error => error.lines]);
+        totalErrors.details = _.sortBy(totalErrors.details, [(error) => error.lines]);
     }
 
     static _printify(err) {
@@ -274,7 +273,6 @@ class Validator {
         throw err;
     }
 
-
     static _validateStepsLength(objectModel, yaml) {
         // get all step names:
         const stepNamesList = getAllStepNamesFromObjectModel(objectModel.steps);
@@ -347,7 +345,6 @@ class Validator {
 
         }
     }
-
 
     static _validateRootSchema(objectModel, yaml) {
         const rootSchema = Joi.object({
@@ -573,16 +570,13 @@ class Validator {
         Validator._addError(error);
     }
 
-
     static _getOriginalPath(err) {
         return err.path;
     }
 
-
     static _getOriginalFieldValue(originalPath, validationResult) {
         return _.get(validationResult, ['value', ...originalPath]);
     }
-
 
     static _getArgumentSuggestion(err, originalPath, stepSchema) {
         const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
@@ -592,7 +586,6 @@ class Validator {
 
         return canSuggest ? suggestion : null;
     }
-
 
     static _getStepSchemaErrorMessage(err, originalFieldValue, suggestion) {
         const isNotAllowedArgumentError = _.includes(_.get(err, 'message'), 'is not allowed');
@@ -616,8 +609,8 @@ class Validator {
             const validation = _.get(StepValidator, stepType);
             if (validation) {
                 const { errors, warnings } = validation.validateStep(step, yaml, name, context, { ignoreValidation });
-                errors.forEach(error => Validator._addError(error));
-                warnings.forEach(warning => Validator._addWarning(warning));
+                errors.forEach((error) => Validator._addError(error));
+                warnings.forEach((warning) => Validator._addWarning(warning));
             }
             if (step.type === 'parallel' || step.steps) {
                 this._validateContextStep(step, yaml, context, opts);
@@ -841,6 +834,7 @@ class Validator {
      * @param outputFormat desire output format YAML
      * @throws An error containing the details of the validation failure
      */
+    // eslint-disable-next-line default-param-last
     static validate(objectModel, outputFormat = 'message', yaml, opts) {
         totalErrors = {
             details: [],
@@ -864,6 +858,7 @@ class Validator {
      * @param context by account with git, clusters and registries
      * @throws An error containing the details of the validation failure
      */
+    // eslint-disable-next-line default-param-last
     static validateWithContext(objectModel, outputFormat = 'message', yaml, context, opts) {
         totalErrors = {
             details: [],

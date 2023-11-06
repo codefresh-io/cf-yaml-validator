@@ -19,7 +19,6 @@ const Mustache = require('mustache');
 const Validator = require('../validator');
 const { isWebUri } = require('../schema/1.0/validations/registry');
 
-
 const yamlTemplateForDuplicateStepNamesTest = JSON.stringify({
     'version': '1.0',
     'steps': {
@@ -127,6 +126,7 @@ function validateWithContext(model, outputFormat, yaml, context, opts) {
     return Validator.validateWithContext(model, outputFormat, yaml, context, opts);
 }
 
+// eslint-disable-next-line default-param-last
 function validateForErrorWithContext(model, expectedError, done, outputFormat = 'message', yaml, context, opts) {
     try {
         validateWithContext(model, outputFormat, yaml, context, opts);
@@ -146,7 +146,7 @@ function validateForErrorWithContext(model, expectedError, done, outputFormat = 
     }
 }
 
-
+// eslint-disable-next-line default-param-last
 function validateForError(model, expectedMessage, done, outputFormat = 'message', yaml) {
     try {
         validate(model, outputFormat, yaml);
@@ -489,7 +489,6 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"credentials" is not allowed', done);
             });
-
 
             it('no_cache on a build step', () => {
 
@@ -1047,7 +1046,6 @@ describe('Validate Codefresh YAML', () => {
                         return units.includes(char) ? getInvalidUnit() : char;
                     };
 
-
                     const validIntegerTimeouts = [`0${getRandomUnit()}`];
                     for (let i = 0; i < 50; i += 1) {
                         validIntegerTimeouts.push(`${getRandomInt()}${getRandomUnit()}`);
@@ -1207,7 +1205,6 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"\\[0\\]" must be a string', done);
             });
-
 
             it('Non-string or array entrypoint', (done) => {
 
@@ -1975,7 +1972,6 @@ describe('Validate Codefresh YAML', () => {
                 }, '"image_name" must be a string', done);
             });
 
-
             it('Image name on non-build step', (done) => {
 
                 validateForError({
@@ -2241,7 +2237,6 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, expectedMessage, done, 'lint', yaml, context, {});
             });
-
 
             it('Lowercase image_name with vars', (done) => {
                 const context = {
@@ -2860,7 +2855,6 @@ describe('Validate Codefresh YAML', () => {
                 }, '"image" is required', done);
             });
 
-
             it('Test with empty command', (done) => {
 
                 validateForError({
@@ -2958,7 +2952,6 @@ describe('Validate Codefresh YAML', () => {
                 done();
 
             });
-
 
         });
 
@@ -3859,7 +3852,6 @@ describe('Validate Codefresh YAML', () => {
 
             });
 
-
         });
 
         describe('Parallel step attributes', () => {
@@ -3935,7 +3927,6 @@ describe('Validate Codefresh YAML', () => {
                 done();
             });
 
-
             it('not-duplicate-step-names', (done) => {
                 const values = {
                     stepName0: 'BuildingDockerImage',
@@ -3958,8 +3949,11 @@ describe('Validate Codefresh YAML', () => {
                     stepName1_1: 'writing_file_1',
                     stepName1_2: 'writing_file_2'
                 };
-                validateForError(JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)),
-                    'step name exist more than once\nstep name exist more than once\n', done);
+                validateForError(
+                    JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)),
+                    'step name exist more than once\nstep name exist more than once\n',
+                    done
+                );
             });
 
             it('not-duplicate-step-names-parent-child', (done) => {
@@ -3984,8 +3978,11 @@ describe('Validate Codefresh YAML', () => {
                     stepName1_1: 'writing_file2',
                     stepName1_2: 'writing_file_2'
                 };
-                validateForError(JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)),
-                    'step name exist more than once\nstep name exist more than once\n', done);
+                validateForError(
+                    JSON.parse(Mustache.render(yamlTemplateForDuplicateStepNamesTest, values)),
+                    'step name exist more than once\nstep name exist more than once\n',
+                    done
+                );
             });
 
             it('not-duplicate-step-names-parent-child-nested', (done) => {
@@ -4014,10 +4011,12 @@ describe('Validate Codefresh YAML', () => {
                     stepName1_1: 'writing_file_4',
                     stepName1_2: 'writing_file_3'
                 };
-                validateForError(JSON.parse(Mustache.render(yamlTemplateForNestedDuplicateStepNamesTest, values)),
-                    'step name exist more than once\nstep name exist more than once\n', done);
+                validateForError(
+                    JSON.parse(Mustache.render(yamlTemplateForNestedDuplicateStepNamesTest, values)),
+                    'step name exist more than once\nstep name exist more than once\n',
+                    done
+                );
             });
-
 
             it('long-step-names', (done) => {
                 validateForError({
@@ -5349,9 +5348,7 @@ describe('Validate Codefresh YAML', () => {
             });
         });
 
-
     });
-
 
     describe('Printify mode', () => {
 
@@ -5620,7 +5617,6 @@ describe('Validate Codefresh YAML with context', () => {
             };
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
-
 
         it('validate yaml with registry url at template', () => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
@@ -5916,7 +5912,6 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-
         it('validate yaml when integrations is empty', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
@@ -6029,7 +6024,6 @@ describe('Validate Codefresh YAML with context', () => {
             };
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
-
 
         it('validate yaml when pipeline have mixed tabs and spaces', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');

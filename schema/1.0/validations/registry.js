@@ -1,8 +1,8 @@
 'use strict';
 
 const _ = require('lodash');
-const BaseSchema = require('./../base-schema');
-const { ErrorType, ErrorBuilder } = require('./../error-builder');
+const BaseSchema = require('../base-schema');
+const { ErrorType, ErrorBuilder } = require('../error-builder');
 const { docBaseUrl, DocumentationLinks, IntegrationLinks, ExternalLinks } = require('./../documentation-links'); // eslint-disable-line
 
 const AWS_REGIONS = [
@@ -46,10 +46,12 @@ const isWebUri = function (s) {
     return false;
 };
 
-const validateRegistryContext = function (step,
+const validateRegistryContext = function (
+    step,
     yaml,
     name,
-    context) {
+    context
+) {
     const errors = [];
     const warnings = [];
     const errorPath = 'registry_contexts';
@@ -129,13 +131,15 @@ const validateRegistryContext = function (step,
     return { errors, warnings };
 };
 
-const validate = function (step,
+const validate = function (
+    step,
     yaml,
     name,
     context,
     {
         handleIfNoRegistriesOnAccount, handleIfNoRegistryExcplicitlyDefined, ignoreValidation, handleCFCRRemovalUseCase // eslint-disable-line
-    }) {
+    }
+) {
     const errorPath = 'registry';
     const key = 'registry'; // eslint-disable-line
     const { errors, warnings } = validateRegistryContext(step, yaml, name, context);
@@ -157,7 +161,7 @@ const validate = function (step,
         }));
     }
 
-    const hasDefaultRegistry = _.find(context.registries, reg => reg.default);
+    const hasDefaultRegistry = _.find(context.registries, (reg) => reg.default);
     if (handleCFCRRemovalUseCase && context.autoPush && !registry && !hasDefaultRegistry) {
         warnings.push(ErrorBuilder.buildError({
             message: `The image that will be built will not be pushed`,
@@ -247,7 +251,7 @@ const validate = function (step,
     }
 
     if (step.region) {
-        if (!AWS_REGIONS.find(currentRegion => currentRegion === step.region) && !BaseSchema.isRuntimeVariable(step.region)) {
+        if (!AWS_REGIONS.find((currentRegion) => currentRegion === step.region) && !BaseSchema.isRuntimeVariable(step.region)) {
             errors.push(ErrorBuilder.buildError({
                 message: `aws region is invalid`,
                 name,
@@ -260,7 +264,7 @@ const validate = function (step,
                 actionItems: 'Please make sure the specified region is written in the correct format',
             }));
         } else {
-            const integrationDefinedProvider = (_.find(context.registries, reg => reg.name === registry) || {}).provider;
+            const integrationDefinedProvider = (_.find(context.registries, (reg) => reg.name === registry) || {}).provider;
             if (integrationDefinedProvider !== 'ecr') {
                 errors.push(ErrorBuilder.buildError({
                     message: `Unable to specify region with a registry of type: ${integrationDefinedProvider}`,

@@ -2,9 +2,9 @@
 
 const _ = require('lodash');
 const Joi        = require('joi');
-const BaseSchema = require('./../base-schema');
-const { ErrorType, ErrorBuilder } = require('./../error-builder');
-const { IntegrationLinks } = require('./../documentation-links');
+const BaseSchema = require('../base-schema');
+const { ErrorType, ErrorBuilder } = require('../error-builder');
+const { IntegrationLinks } = require('../documentation-links');
 
 class Helm extends BaseSchema {
 
@@ -46,6 +46,5 @@ class Helm extends BaseSchema {
         return { errors: [], warnings };
     }
 }
-
 
 module.exports = Helm;

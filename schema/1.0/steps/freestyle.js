@@ -9,9 +9,9 @@
 //------------------------------------------------------------------------------
 
 const Joi        = require('joi');
-const BaseSchema = require('./../base-schema');
+const BaseSchema = require('../base-schema');
 const registryValidation = require('../validations/registry');
-const { ErrorBuilder } = require('./../error-builder');
+const { ErrorBuilder } = require('../error-builder');
 
 class Freestyle extends BaseSchema {
 

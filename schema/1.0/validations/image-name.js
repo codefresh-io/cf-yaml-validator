@@ -2,12 +2,10 @@
 
 const _ = require('lodash');
 
-
-const BaseSchema = require('./../base-schema');
+const BaseSchema = require('../base-schema');
 const BaseArgument = require('./base-argument');
-const { ErrorType, ErrorBuilder } = require('./../error-builder');
-const { docBaseUrl, DocumentationLinks } = require('./../documentation-links');
-
+const { ErrorType, ErrorBuilder } = require('../error-builder');
+const { docBaseUrl, DocumentationLinks } = require('../documentation-links');
 
 class ImageNameValidation extends BaseArgument {
     static getName() {
@@ -57,6 +55,5 @@ class ImageNameValidation extends BaseArgument {
         return _.isString(imageName) && !pattern.test(imageName);
     }
 }
-
 
 module.exports = ImageNameValidation;
