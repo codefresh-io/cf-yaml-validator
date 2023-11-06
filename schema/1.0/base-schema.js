@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 const _ = require('lodash');
 const Joi = require('joi');
-const convert = require('joi-to-json-schema');
+const parse = require('joi-to-json');
 
 class BaseSchema {
 
@@ -44,7 +44,7 @@ class BaseSchema {
             name: Joi.string().required(),
             on: Joi.array().items(
                 Joi.string()
-                    .valid([
+                    .valid(
                         'success',
                         'running',
                         'failure',
@@ -55,7 +55,7 @@ class BaseSchema {
                         'finished',
                         'approved',
                         'denied',
-                    ])
+                    )
             )
                 .min(1)
         });
@@ -83,18 +83,16 @@ class BaseSchema {
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
             'docker_machine': Joi.alternatives().try(
-                [
-                    Joi.object({
-                        create: Joi.object({
-                            provider: Joi.string()
-                        })
-                    }),
-                    Joi.object({
-                        use: Joi.object({
-                            node: Joi.string()
-                        })
+                Joi.object({
+                    create: Joi.object({
+                        provider: Joi.string()
                     })
-                ]
+                }),
+                Joi.object({
+                    use: Joi.object({
+                        node: Joi.string()
+                    })
+                }),
             ),
             'arguments': Joi.object(),
             'when': BaseSchema._getWhenSchema(),
@@ -134,12 +132,10 @@ class BaseSchema {
 
     static _getAnnotationObjAlternative() {
         return Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
-            [
-                Joi.string(),
-                Joi.boolean(),
-                Joi.number(),
-                Joi.object({ evaluate: Joi.string().required() })
-            ]
+            Joi.string(),
+            Joi.boolean(),
+            Joi.number(),
+            Joi.object({ evaluate: Joi.string().required() }),
         ));
     }
 
@@ -183,12 +179,10 @@ class BaseSchema {
         return Joi.array().items(
             Joi.alternatives().try(
                 Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
-                    [
-                        Joi.string(),
-                        Joi.boolean(),
-                        Joi.number(),
-                        Joi.object({ evaluate: Joi.string().required() })
-                    ]
+                    Joi.string(),
+                    Joi.boolean(),
+                    Joi.number(),
+                    Joi.object({ evaluate: Joi.string().required() }),
                 )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
             )
         );
@@ -274,7 +268,7 @@ class BaseSchema {
                 name: Joi.string(),
                 url: Joi.string(),
             })),
-            type: Joi.string().valid(['kubernetes', 'helm-release']),
+            type: Joi.string().valid('kubernetes', 'helm-release'),
             change: Joi.string(),
             filters: Joi.array().items(Joi.object().keys({
                 cluster: Joi.string(),
@@ -298,7 +292,7 @@ class BaseSchema {
     }
 
     getJsonSchema() {
-        return convert(this.getSchema());
+        return parse(this.getSchema(), 'json-draft-04');
     }
 
     static getSuccessCriteriaSchema() {

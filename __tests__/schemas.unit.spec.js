@@ -1,3 +1,4 @@
+// @ts-check
 /* eslint-env node, mocha */
 /* eslint-disable no-unused-expressions,no-template-curly-in-string */
 
@@ -10,12 +11,12 @@ const { expect } = chai;
 
 function expectValid(schema, value) {
     const result = schema.validate(value);
-    expect(result.error).to.be.null;
+    expect(result.error).to.not.exist;
 }
 
 function expectInvalid(schema, value) {
     const result = schema.validate(value);
-    expect(result.error).not.to.be.null;
+    expect(result.error).to.exist;
 }
 
 describe('schemas validation check', () => {

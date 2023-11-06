@@ -26,17 +26,17 @@ class PendingApproval extends BaseSchema {
             type: Joi.string().valid(PendingApproval.getType()),
             timeout: Joi.object({
                 timeUnit: Joi.string()
-                    .valid([
+                    .valid(
                         'hours',
                         'minutes'
-                    ]).default('hours'),
+                    ).default('hours'),
                 duration: Joi.number().positive(),
                 finalState: Joi.string()
-                    .valid([
+                    .valid(
                         'terminated',
                         'approved',
                         'denied',
-                    ]),
+                    ),
             }),
         };
         return this._createSchema(pendingApprovalProperties);

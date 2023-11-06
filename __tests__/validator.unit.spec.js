@@ -8,7 +8,7 @@ const chai = require('chai');
 const fs = require('fs');
 const jsyaml = require('js-yaml');
 const path = require('path');
-const colors = require('colors');
+const colors = require('@colors/colors');
 
 const { expect } = chai;
 const sinonChai = require('sinon-chai');
@@ -641,7 +641,7 @@ describe('Validate Codefresh YAML', () => {
                             'docker_machine': 'google'
                         }
                     }
-                }, '"docker_machine" must be an object', done);
+                }, '"docker_machine" must be one of \\[object\\]', done);
             });
 
             it('Non-boolean fail-fast', (done) => {
@@ -778,7 +778,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"key1" must be a', done);
+                }, '"key1" must be one of', done);
             });
 
             it('Invalid post-step metadata annotation evaluation expression', (done) => {
@@ -805,7 +805,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"evaluate" is required', done);
+                }, '"jimbob" does not match any of the allowed types', done);
             });
 
             it('Unknown post-step annotate operation', (done) => {
@@ -987,7 +987,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"key" must be a', done);
+                }, '"key" must be one of', done);
             });
 
             it('Invalid post-step annotation evaluation expression', (done) => {
@@ -1012,7 +1012,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"evaluate" is required', done);
+                }, '"key" does not match any of the allowed types', done);
             });
 
             describe('timeout', () => {
@@ -1179,7 +1179,7 @@ describe('Validate Codefresh YAML', () => {
                             commands: [{}, 'asdasd']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Non-array environment', (done) => {
@@ -1205,7 +1205,7 @@ describe('Validate Codefresh YAML', () => {
                             environment: [{}, 'asdasd']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
 
@@ -1219,7 +1219,7 @@ describe('Validate Codefresh YAML', () => {
                             entry_point: {}
                         }
                     }
-                }, '"entry_point" must be a (string|array)', done);
+                }, '"entry_point" must be one of \\[string, array\\]', done);
             });
 
             it('Non-string or array cmd', (done) => {
@@ -1232,7 +1232,7 @@ describe('Validate Codefresh YAML', () => {
                             cmd: {}
                         }
                     }
-                }, '"cmd" must be a (string|array)', done);
+                }, '"cmd" must be one of \\[string, array\\]', done);
             });
 
             it('cmd with commands', (done) => {
@@ -1445,7 +1445,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"0" must be a string. Current value: 1 ',
+                                'message': '"[0]" must be a string. Current value: 1 ',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1458,7 +1458,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"1" must be a string. Current value: 2 ',
+                                'message': '"[1]" must be a string. Current value: 2 ',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1517,7 +1517,7 @@ describe('Validate Codefresh YAML', () => {
             });
 
             describe('positive', () => {
-                it('registry must be a string', (done) => {
+                it('registry must be a string', () => {
 
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-success.yml'), 'utf8');
                     const model = {
@@ -1561,12 +1561,11 @@ describe('Validate Codefresh YAML', () => {
                         }
                     };
                     validateWithContext(model, 'message', yaml, context, opts);
-                    done();
                 });
             });
 
             describe('cache_from', () => {
-                it('positive', (done) => {
+                it('positive', () => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-v2-success.yml'), 'utf8');
                     const model = {
                         version: '1.0',
@@ -1612,7 +1611,6 @@ describe('Validate Codefresh YAML', () => {
                         }
                     };
                     validateWithContext(model, 'message', yaml, context, opts);
-                    done();
                 });
 
                 it('negative', (done) => {
@@ -1671,7 +1669,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"0" must be a string',
+                                'message': '"[0]" must be a string',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1684,7 +1682,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
-                                'message': '"1" must be a string',
+                                'message': '"[1]" must be a string',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -1694,7 +1692,6 @@ describe('Validate Codefresh YAML', () => {
                     };
 
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
-                    done();
                 });
             });
 
@@ -1733,7 +1730,7 @@ describe('Validate Codefresh YAML', () => {
                     ],
                 });
 
-                it('positive', (done) => {
+                it('positive', () => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-buildx-success.yml'), 'utf8');
                     const model = {
                         version: '1.0',
@@ -1782,7 +1779,6 @@ describe('Validate Codefresh YAML', () => {
                     };
 
                     validateWithContext(model, 'message', yaml, context, opts);
-                    done();
                 });
 
                 it('negative', (done) => {
@@ -1814,20 +1810,7 @@ describe('Validate Codefresh YAML', () => {
                     const expectedMessage = {
                         details: [
                             {
-                                'message': '"buildx" must be a boolean',
-                                'type': 'Validation',
-                                'path': 'steps',
-                                'context': {
-                                    'key': 'steps'
-                                },
-                                'level': 'step',
-                                'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'lines': 15
-                            },
-                            {
-                                'message': '"buildx" must be an object',
+                                'message': '"buildx" must be one of [boolean, object]. Current value: test string ',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
@@ -1891,12 +1874,11 @@ describe('Validate Codefresh YAML', () => {
                     };
 
                     validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
-                    done();
                 });
             });
 
             describe('tag_policy', () => {
-                it('positive', (done) => {
+                it('positive', () => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');
                     const model = jsyaml.load(yaml);
                     const context = {
@@ -1924,7 +1906,6 @@ describe('Validate Codefresh YAML', () => {
                     validateWithContext(noValue, 'message', yaml, context, opts);
                     noValue.steps.BuildingDockerImage['tag-policy'] = 'original';
                     validateWithContext(noValue, 'message', yaml, context, opts);
-                    done();
                 });
                 it('negative', (done) => {
                     const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-tag-policy.yml'), 'utf8');
@@ -2020,7 +2001,7 @@ describe('Validate Codefresh YAML', () => {
                             'dockerfile': []
                         }
                     }
-                }, '"dockerfile" must be a string', done);
+                }, '"dockerfile" must be one of \\[string, object\\]', done);
             });
 
             it('Dockerfile on non-build step', (done) => {
@@ -2062,7 +2043,7 @@ describe('Validate Codefresh YAML', () => {
                             'build_arguments': [{}, 'asdasd']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Unknown metadata operation', (done) => {
@@ -2116,7 +2097,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"evaluate" is required', done);
+                }, '"bob" does not match any of the allowed types', done);
             });
 
         });
@@ -2347,7 +2328,7 @@ describe('Validate Codefresh YAML', () => {
                             'composition_variables': [{}, '']
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('should fail when working_directory in composition_candidates ', (done) => {
@@ -2461,7 +2442,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"redis" must be an object', done);
+                }, '"redis" must be of type object', done);
             });
 
             it('Service with no image', (done) => {
@@ -2549,7 +2530,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('Service with bad environment #2', (done) => {
@@ -2572,7 +2553,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('Service with bad environment #3', (done) => {
@@ -2622,7 +2603,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"hi" must be a string', done);
             });
 
             it('Service with bad environment #5', (done) => {
@@ -2648,7 +2629,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Service with bad environment #6', (done) => {
@@ -2674,7 +2655,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Service with environment as array of strings', (done) => {
@@ -3046,7 +3027,7 @@ describe('Validate Codefresh YAML', () => {
                             'services': [123, 456, 0.9, true]
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Unknown services', (done) => {
@@ -3064,7 +3045,7 @@ describe('Validate Codefresh YAML', () => {
                             'services': ['sqlserver', 'sqlite3']
                         }
                     }
-                }, '"0" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
+                }, '"\\[0\\]" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
             });
 
             it('Known services', (done) => {
@@ -3156,7 +3137,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"redis" must be an object', done);
+                }, '"redis" must be of type object', done);
             });
 
             it('services with no image', (done) => {
@@ -3248,7 +3229,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('services with bad environment #2', (done) => {
@@ -3272,7 +3253,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"environment" must be one of \\[array, object\\]', done);
             });
 
             it('services with bad environment #3', (done) => {
@@ -3324,7 +3305,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"environment" must be an array', done);
+                }, '"hi" must be a string', done);
             });
 
             it('services with bad environment #5', (done) => {
@@ -3345,13 +3326,12 @@ describe('Validate Codefresh YAML', () => {
                                     ports: [1234, 5678],
                                     environment: [{
                                         someValue: '123'
-                                    }
-                                    ]
+                                    }]
                                 },
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('services with bad environment #6', (done) => {
@@ -3378,7 +3358,7 @@ describe('Validate Codefresh YAML', () => {
                             }
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('services with environment as array of strings', (done) => {
@@ -3823,7 +3803,7 @@ describe('Validate Codefresh YAML', () => {
                             'preconfigured_services': [123, 456, 0.9, true]
                         }
                     }
-                }, '"0" must be a string', done);
+                }, '"\\[0\\]" must be a string', done);
             });
 
             it('Unknown preconfigured_services', (done) => {
@@ -3842,7 +3822,7 @@ describe('Validate Codefresh YAML', () => {
                             'preconfigured_services': ['sqlserver', 'sqlite3']
                         }
                     }
-                }, '"0" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
+                }, '"\\[0\\]" must be one of \\[mysql, postgresql, mariadb, mongodb', done);
             });
 
             it('Known preconfigured_services', (done) => {
@@ -4742,7 +4722,7 @@ describe('Validate Codefresh YAML', () => {
 
         describe('Hooks', () => {
             describe('positive', () => {
-                it('valid hooks', (done) => {
+                it('valid hooks', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -4792,9 +4772,8 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
-                it('valid steps hooks with plugins / costume steps', (done) => {
+                it('valid steps hooks with plugins / costume steps', () => {
                     validate({
                         version: '1.0',
                         stages: ['test'],
@@ -4873,9 +4852,8 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
-                it('valid steps hooks with only metadata/annotations', (done) => {
+                it('valid steps hooks with only metadata/annotations', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -4911,9 +4889,8 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
-                it('should allow shortcuts', (done) => {
+                it('should allow shortcuts', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -4946,10 +4923,9 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
 
-                it('should allow freestyle', (done) => {
+                it('should allow freestyle', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -4967,10 +4943,9 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
 
-                it('should allow multiple steps', (done) => {
+                it('should allow multiple steps', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -4997,9 +4972,8 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
-                it('should allow costume steps inside exec', (done) => {
+                it('should allow costume steps inside exec', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -5065,9 +5039,8 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
-                it('should allow display on set annotations', (done) => {
+                it('should allow display on set annotations', () => {
                     validate({
                         version: '1.0',
                         steps: {
@@ -5095,7 +5068,6 @@ describe('Validate Codefresh YAML', () => {
                             }
                         },
                     });
-                    done();
                 });
             });
             describe('negative', () => {
@@ -5554,7 +5526,7 @@ describe('Validate Codefresh YAML with context', () => {
 
     describe('message mode', () => {
 
-        it('validate yaml with template', async (done) => {
+        it('validate yaml with template', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5650,7 +5622,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it('validate yaml with registry url at template', async (done) => {
+        it('validate yaml with registry url at template', () => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5678,10 +5650,9 @@ describe('Validate Codefresh YAML with context', () => {
                 }
             };
             validateWithContext(model, 'message', yaml, context);
-            done();
         });
 
-        it('validate yaml with registry url', async (done) => {
+        it('validate yaml with registry url', () => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-url.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5708,10 +5679,9 @@ describe('Validate Codefresh YAML with context', () => {
                 variables: []
             };
             validateWithContext(model, 'message', yaml, context);
-            done();
         });
 
-        it('validate yaml with registry long value', async (done) => {
+        it('validate yaml with registry long value', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5754,10 +5724,9 @@ describe('Validate Codefresh YAML with context', () => {
                 variables: [],
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
-            done();
         });
 
-        it('validate yaml when integrations not found', async (done) => {
+        it('validate yaml when integrations not found', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/default-yaml.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5842,7 +5811,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('validate yaml when pipeline have arguments', async (done) => {
+        it('validate yaml when pipeline have arguments', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -5948,7 +5917,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it('validate yaml when integrations is empty', async (done) => {
+        it('validate yaml when integrations is empty', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6062,7 +6031,7 @@ describe('Validate Codefresh YAML with context', () => {
         });
 
 
-        it('validate yaml when pipeline have mixed tabs and spaces', async (done) => {
+        it('validate yaml when pipeline have mixed tabs and spaces', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/mixed-yaml.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6183,7 +6152,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('validate build step yaml with gcb provider full spec', async (done) => {
+        it('validate build step yaml with gcb provider full spec', () => {
             validate({
                 version: '1.0',
                 steps: {
@@ -6209,10 +6178,9 @@ describe('Validate Codefresh YAML with context', () => {
                     }
                 }
             });
-            done();
         });
 
-        it('validate build step yaml with gcb provider only required fields', async (done) => {
+        it('validate build step yaml with gcb provider only required fields', () => {
             validate({
                 version: '1.0',
                 steps: {
@@ -6234,10 +6202,9 @@ describe('Validate Codefresh YAML with context', () => {
                     }
                 }
             });
-            done();
         });
 
-        it('should fail in case registry was not passed and autoPush is not part of the context', async (done) => {
+        it('should fail in case registry was not passed and autoPush is not part of the context', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6290,7 +6257,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('should fail in case registry was not passed and autoPush is not part of the context', async (done) => {
+        it('should fail in case registry was not passed and autoPush is not part of the context', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6343,7 +6310,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('should throw warning in case auto push is enabled but there is no default regsitry', async (done) => {
+        it('should throw warning in case auto push is enabled but there is no default regsitry', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6396,7 +6363,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('validate yaml with new line to space converter', async (done) => {
+        it('validate yaml with new line to space converter', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-new-line-to-space-converter.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6560,7 +6527,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context);
         });
 
-        it('validate build step yaml with gcb without google_app_creds and without google registry', async (done) => {
+        it('validate build step yaml with gcb without google_app_creds and without google registry', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6619,7 +6586,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate build step yaml with gcb without google_app_creds and with google registry', async (done) => {
+        it('validate build step yaml with gcb without google_app_creds and with google registry', () => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-gcb.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6657,10 +6624,9 @@ describe('Validate Codefresh YAML with context', () => {
             };
 
             validateWithContext(model, 'message', yaml, context, { ignoreValidation: true });
-            done();
         });
 
-        it('validate yaml when registry context not found', async (done) => {
+        it('validate yaml when registry context not found', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-context.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6838,7 +6804,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate yaml when registry contexts has same domain', async (done) => {
+        it('validate yaml when registry contexts has same domain', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-context.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -6977,7 +6943,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate yaml when registry context contains runtime variable', async (done) => {
+        it('validate yaml when registry context contains runtime variable', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-context.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7086,7 +7052,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate yaml with pending approval', async (done) => {
+        it('validate yaml with pending approval', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7257,7 +7223,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate yaml with helm', async (done) => {
+        it('validate yaml with helm', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-helm.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7340,7 +7306,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, { ignoreValidation: false });
         });
 
-        it('validate yaml with wrong aws region', async (done) => {
+        it('validate yaml with wrong aws region', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7389,10 +7355,9 @@ describe('Validate Codefresh YAML with context', () => {
                 variables: { AWS_REGION: 'invalid' }
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
-            done();
         });
 
-        it('validate yaml with correct aws region but a non-ecr integration', async (done) => {
+        it('validate yaml with correct aws region but a non-ecr integration', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-registry-catastrophic-value.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7439,13 +7404,12 @@ describe('Validate Codefresh YAML with context', () => {
                 variables: [],
             };
             validateForErrorWithContext(model, expectedError, done, 'message', yaml, context);
-            done();
         });
 
     });
 
     describe('lint mode', () => {
-        it('validate yaml when integrations is empty', async (done) => {
+        it('validate yaml when integrations is empty', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7511,7 +7475,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml with template', async (done) => {
+        it('validate yaml with template', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7570,7 +7534,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('CF-default git context must be valid', async (done) => {
+        it('CF-default git context must be valid', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7638,7 +7602,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml when pipeline have arguments', async (done) => {
+        it('validate yaml when pipeline have arguments', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-arguments.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7708,7 +7672,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml with 1 warning', async (done) => {
+        it('validate yaml with 1 warning', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-template.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7763,7 +7727,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context);
         });
 
-        it('validate yaml when integrations is empty', async (done) => {
+        it('validate yaml when integrations is empty', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-empty-integration.yml'), 'utf8');
             const model = {
                 version: '1.0',
@@ -7823,7 +7787,7 @@ describe('Validate Codefresh YAML with context', () => {
             validateForErrorWithContext(model, expectedMessage, done, 'lint', yaml, context, { ignoreValidation: true });
         });
 
-        it('validate yaml with helm', async (done) => {
+        it('validate yaml with helm', (done) => {
             const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-with-helm.yml'), 'utf8');
             const model = {
                 version: '1.0',
