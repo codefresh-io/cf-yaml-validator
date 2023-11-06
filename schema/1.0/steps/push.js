@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 const Joi = require('joi');
-const BaseSchema = require('./../base-schema');
+const BaseSchema = require('../base-schema');
 const registryValidation = require('../validations/registry');
 
 class Push extends BaseSchema {
@@ -46,11 +46,13 @@ class Push extends BaseSchema {
     }
 
     static validateStep(step, yaml, name, context, { ignoreValidation }) {
-        return registryValidation.validate(step,
+        return registryValidation.validate(
+            step,
             yaml,
             name,
             context,
-            { handleIfNoRegistriesOnAccount: true, handleIfNoRegistryExcplicitlyDefined: true, ignoreValidation });
+            { handleIfNoRegistriesOnAccount: true, handleIfNoRegistryExcplicitlyDefined: true, ignoreValidation }
+        );
     }
 }
 // Exported objects/methods

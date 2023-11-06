@@ -30,7 +30,6 @@ function validateForError(model, expectedError, done) {
 
 describe('Validate Codefresh YAML', () => {
 
-
     describe('Steps', () => {
 
         describe('Build', () => {
@@ -51,7 +50,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"titl" is not allowed. Did you mean "title"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -72,7 +72,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"working-irectory" is not allowed. Did you mean "working_directory"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -93,7 +94,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"titleaaa" is not allowed'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -114,7 +116,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"ing_directory" is not allowed'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -135,7 +138,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"warcing_derektory" is not allowed. Did you mean "working_directory"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -156,7 +160,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"warcing_derektori" is not allowed'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -177,7 +182,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"working_dir" is not allowed. Did you mean "working_directory"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -198,7 +204,8 @@ describe('Validate Codefresh YAML', () => {
                             '"image_name" is required',
                             '"image_nam" is not allowed. Did you mean "image_name"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -219,11 +226,11 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"candidate" is not allowed'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
         });
-
 
         describe('Push', () => {
             it('Should suggest candidate argument', (done) => {
@@ -243,7 +250,8 @@ describe('Validate Codefresh YAML', () => {
                             '"candidate" is required',
                             '"condidate" is not allowed. Did you mean "candidate"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -264,11 +272,11 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"dockerfile" is not allowed'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
         });
-
 
         describe('Pending approval', () => {
             it('Should suggest title when git argument written', (done) => {
@@ -287,7 +295,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"git" is not allowed. Did you mean "title"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -307,7 +316,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"repo" is not allowed. Did you mean "retry"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -327,7 +337,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"repo" is not allowed. Did you mean "retry"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -349,7 +360,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"tit" is not allowed'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -371,7 +383,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"duratin" is not allowed. Did you mean "duration"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -393,7 +406,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"brunch" is not allowed. Did you mean "branch"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
 
@@ -417,7 +431,8 @@ describe('Validate Codefresh YAML', () => {
                         details: [
                             '"on" is not allowed. Did you mean "only"?'
                         ]
-                    }, done
+                    },
+                    done
                 );
             });
         });

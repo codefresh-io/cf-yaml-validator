@@ -18,7 +18,6 @@ const StepValidator = {
     'composition': Composition
 };
 
-
 module.exports = {
     StepValidator
 };

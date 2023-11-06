@@ -9,9 +9,9 @@
 //------------------------------------------------------------------------------
 const _ = require('lodash');
 const Joi        = require('joi');
-const BaseSchema = require('./../base-schema');
-const { ErrorType, ErrorBuilder } = require('./../error-builder');
-const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('./../documentation-links');
+const BaseSchema = require('../base-schema');
+const { ErrorType, ErrorBuilder } = require('../error-builder');
+const { docBaseUrl, DocumentationLinks, IntegrationLinks } = require('../documentation-links');
 
 class Deploy extends BaseSchema {
 

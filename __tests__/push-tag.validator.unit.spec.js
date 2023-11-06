@@ -28,7 +28,6 @@ function validateForError(model, expectedMessage, done) {
 
 describe('Validate Codefresh YAML', () => {
 
-
     describe('Steps', () => {
 
         describe('Push-tag', () => {
@@ -60,7 +59,6 @@ describe('Validate Codefresh YAML', () => {
                     }
                 }, '"image_name" is required', done);
             });
-
 
         });
     });

@@ -39,7 +39,6 @@ class BaseSchema {
 
     static _getWhenSchema() {
 
-
         const stepSchema = Joi.object().keys({
             name: Joi.string().required(),
             on: Joi.array().items(
@@ -78,7 +77,7 @@ class BaseSchema {
     }
 
     _applyCommonSchemaProperties(schemaProperties) {
-        return Object.assign({
+        return {
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
@@ -104,7 +103,8 @@ class BaseSchema {
             'timeout': Joi.string()
                 .regex(/^(?<duration>\d*\.?\d*)(?<units>[smh])$/, `"<duration><units> where duration is int|float and units are s|m|h"`)
                 .allow(null).optional(),
-        }, schemaProperties);
+            ...schemaProperties
+        };
     }
 
     _applyCommonCompatibility(schema) {
@@ -177,14 +177,12 @@ class BaseSchema {
 
     static _getMetadataAnnotationSetSchema() {
         return Joi.array().items(
-            Joi.alternatives().try(
-                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
-                    Joi.string(),
-                    Joi.boolean(),
-                    Joi.number(),
-                    Joi.object({ evaluate: Joi.string().required() }),
-                )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
-            )
+            Joi.alternatives().try(Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
+                Joi.string(),
+                Joi.boolean(),
+                Joi.number(),
+                Joi.object({ evaluate: Joi.string().required() }),
+            )), Joi.string().regex(/^[A-Za-z0-9_]+$/))
         );
     }
 
