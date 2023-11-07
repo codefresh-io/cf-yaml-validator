@@ -1076,7 +1076,7 @@ describe('Validate Codefresh YAML', () => {
                         });
                     });
 
-                    // TODO: Delete once CR-21202 is done.
+                    // TODO: Delete once CR-21202 is done. ⬇️
                     it.each([
                         0,
                         42,
@@ -1084,14 +1084,42 @@ describe('Validate Codefresh YAML', () => {
                         true,
                         {},
                         [],
-                    ])(`should pass if timeout is invalid data type: %s`, (timeout) => {
-                        validate({
-                            version: '1.0',
-                            steps: { mock: { image: 'mock-image', timeout } },
-                        });
-                    });
+                    ])(`should pass if timeout is invalid data type: %s`, (timeout, done) => {
+                        const expectedError = {
+                            details: [],
+                            warningDetails: [
+                                {
+                                    // eslint-disable-next-line max-len
+                                    actionItems: 'Please adjust the timeout to match the format "<duration><units>" where duration is int|float and units are s|m|h (e.g. "1m", "30s", "1.5h"). It will be ignored otherwise.',
+                                    context: {
+                                        key: 'steps',
+                                    },
+                                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
+                                    level: 'step',
+                                    lines: undefined,
+                                    message: `"timeout" must be a string${timeout ? `. Current value: ${timeout} ` : ''}`,
+                                    path: 'steps',
+                                    stepName: 'mock',
+                                    type: 'Warning',
+                                },
+                            ],
+                        };
 
-                    // TODO: Uncomment once CR-21202 is done.
+                        try {
+                            Validator.validate({
+                                version: '1.0',
+                                steps: { mock: { image: 'mock-image', timeout } },
+                            }, 'message');
+                            done(new Error('should have failed'));
+                        } catch (error) {
+                            expect(error.details).to.deep.equal(expectedError.details);
+                            expect(error.warningDetails).deep.equal(expectedError.warningDetails);
+                            done();
+                        }
+                    });
+                    // END: Delete once CR-21202 is done. ⬆️
+
+                    // TODO: Uncomment once CR-21202 is done. ⬇️
                     // it.each([
                     //     0,
                     //     42,
@@ -1144,6 +1172,7 @@ describe('Validate Codefresh YAML', () => {
                     //         steps: { mock: { image: 'mock-image', timeout } },
                     //     }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
                     // });
+                    // END: Uncomment once CR-21202 is done. ⬆️
                 });
             });
         });
