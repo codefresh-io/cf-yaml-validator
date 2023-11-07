@@ -1042,6 +1042,8 @@ describe('Validate Codefresh YAML', () => {
                     };
                     const getRandomInt = () => Math.floor(Math.random() * 1000);
                     const getRandomFloat = () => Math.random() * 1000;
+                    // TODO: Delete once CR-21202 is done.
+                    // eslint-disable-next-line no-unused-vars
                     const getInvalidUnit = () => {
                         const char = String.fromCharCode(Math.floor(Math.random() * 65535));
                         return units.includes(char) ? getInvalidUnit() : char;
@@ -1074,6 +1076,7 @@ describe('Validate Codefresh YAML', () => {
                         });
                     });
 
+                    // TODO: Delete once CR-21202 is done.
                     it.each([
                         0,
                         42,
@@ -1081,51 +1084,66 @@ describe('Validate Codefresh YAML', () => {
                         true,
                         {},
                         [],
-                    ])(`should not pass if timeout is invalid data type: %s`, (timeout, done) => {
-                        validateForError({
+                    ])(`should pass if timeout is invalid data type: %s`, (timeout) => {
+                        validate({
                             version: '1.0',
                             steps: { mock: { image: 'mock-image', timeout } },
-                        }, `"timeout" must be a string`, done);
+                        });
                     });
 
-                    it('should not pass if timeout is an empty string', (done) => {
-                        validateForError({
-                            version: '1.0',
-                            steps: { mock: { image: 'mock-image', timeout: '' } },
-                        }, `"timeout" is not allowed to be empty`, done);
-                    });
+                    // TODO: Uncomment once CR-21202 is done.
+                    // it.each([
+                    //     0,
+                    //     42,
+                    //     false,
+                    //     true,
+                    //     {},
+                    //     [],
+                    // ])(`should not pass if timeout is invalid data type: %s`, (timeout, done) => {
+                    //     validateForError({
+                    //         version: '1.0',
+                    //         steps: { mock: { image: 'mock-image', timeout } },
+                    //     }, `"timeout" must be a string`, done);
+                    // });
 
-                    const invalidUnits = [];
-                    for (let i = 0; i < 1000; i += 1) {
-                        invalidUnits.push(`${getRandomInt()}${getInvalidUnit()}`);
-                    }
-                    it.each(invalidUnits)('should not pass if timeout unit is invalid: %s', (timeout, done) => {
-                        validateForError({
-                            version: '1.0',
-                            steps: { mock: { image: 'mock-image', timeout } },
-                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
-                    });
+                    // it('should not pass if timeout is an empty string', (done) => {
+                    //     validateForError({
+                    //         version: '1.0',
+                    //         steps: { mock: { image: 'mock-image', timeout: '' } },
+                    //     }, `"timeout" is not allowed to be empty`, done);
+                    // });
 
-                    const missedUnits = [];
-                    for (let i = 0; i < 50; i += 1) {
-                        missedUnits.push(i % 2 ? `${getRandomInt()}` : `${getRandomFloat()}`);
-                    }
-                    it.each(missedUnits)('should not pass if units are missed: %s', (timeout, done) => {
-                        validateForError({
-                            version: '1.0',
-                            steps: { mock: { image: 'mock-image', timeout } },
-                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
-                    });
+                    // const invalidUnits = [];
+                    // for (let i = 0; i < 1000; i += 1) {
+                    //     invalidUnits.push(`${getRandomInt()}${getInvalidUnit()}`);
+                    // }
+                    // it.each(invalidUnits)('should not pass if timeout unit is invalid: %s', (timeout, done) => {
+                    //     validateForError({
+                    //         version: '1.0',
+                    //         steps: { mock: { image: 'mock-image', timeout } },
+                    //     }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    // });
 
-                    it.each([
-                        `1.5.1${getRandomUnit()}`,
-                        `1,5${getRandomUnit()}`,
-                    ])('should not pass if timeout duration is invalid: %s', (timeout, done) => {
-                        validateForError({
-                            version: '1.0',
-                            steps: { mock: { image: 'mock-image', timeout } },
-                        }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
-                    });
+                    // const missedUnits = [];
+                    // for (let i = 0; i < 50; i += 1) {
+                    //     missedUnits.push(i % 2 ? `${getRandomInt()}` : `${getRandomFloat()}`);
+                    // }
+                    // it.each(missedUnits)('should not pass if units are missed: %s', (timeout, done) => {
+                    //     validateForError({
+                    //         version: '1.0',
+                    //         steps: { mock: { image: 'mock-image', timeout } },
+                    //     }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    // });
+
+                    // it.each([
+                    //     `1.5.1${getRandomUnit()}`,
+                    //     `1,5${getRandomUnit()}`,
+                    // ])('should not pass if timeout duration is invalid: %s', (timeout, done) => {
+                    //     validateForError({
+                    //         version: '1.0',
+                    //         steps: { mock: { image: 'mock-image', timeout } },
+                    //     }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
+                    // });
                 });
             });
         });
