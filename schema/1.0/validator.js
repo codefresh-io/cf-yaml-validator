@@ -557,6 +557,7 @@ class Validator {
         const suggestion = Validator._getArgumentSuggestion(err, originalPath, stepSchema);
         const message = Validator._getStepSchemaErrorMessage(err, originalFieldValue, suggestion);
 
+        // TODO: Delete once timeout is required. ⬇️
         if (type !== 'pending-approval' && type !== 'deploy' && err.path === 'timeout') {
             const warning = new Error(message);
             warning.name = 'ValidationError';
@@ -580,6 +581,7 @@ class Validator {
             Validator._addWarning(warning);
             return;
         }
+        // END: Delete once timeout is required. ⬆️
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;

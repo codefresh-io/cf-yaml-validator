@@ -1042,7 +1042,7 @@ describe('Validate Codefresh YAML', () => {
                     };
                     const getRandomInt = () => Math.floor(Math.random() * 1000);
                     const getRandomFloat = () => Math.random() * 1000;
-                    // TODO: Delete once CR-21202 is done.
+                    // TODO: Delete once timeout is required.
                     // eslint-disable-next-line no-unused-vars
                     const getInvalidUnit = () => {
                         const char = String.fromCharCode(Math.floor(Math.random() * 65535));
@@ -1076,7 +1076,7 @@ describe('Validate Codefresh YAML', () => {
                         });
                     });
 
-                    // TODO: Delete once CR-21202 is done. ⬇️
+                    // TODO: Delete once timeout is required. ⬇️
                     it.each([
                         0,
                         42,
@@ -1084,7 +1084,7 @@ describe('Validate Codefresh YAML', () => {
                         true,
                         {},
                         [],
-                    ])(`should pass if timeout is invalid data type: %s`, (timeout, done) => {
+                    ])(`should fail with warning if timeout is invalid data type: %s`, (timeout, done) => {
                         const expectedError = {
                             details: [],
                             warningDetails: [
@@ -1117,9 +1117,9 @@ describe('Validate Codefresh YAML', () => {
                             done();
                         }
                     });
-                    // END: Delete once CR-21202 is done. ⬆️
+                    // END: Delete once timeout is required. ⬆️
 
-                    // TODO: Uncomment once CR-21202 is done. ⬇️
+                    // TODO: Uncomment once timeout is required. ⬇️
                     // it.each([
                     //     0,
                     //     42,
@@ -1172,7 +1172,7 @@ describe('Validate Codefresh YAML', () => {
                     //         steps: { mock: { image: 'mock-image', timeout } },
                     //     }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
                     // });
-                    // END: Uncomment once CR-21202 is done. ⬆️
+                    // END: Uncomment once timeout is required. ⬆️
                 });
             });
         });
