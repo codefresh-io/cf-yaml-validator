@@ -556,6 +556,32 @@ class Validator {
         const originalFieldValue = Validator._getOriginalFieldValue(originalPath, validationResult);
         const suggestion = Validator._getArgumentSuggestion(err, originalPath, stepSchema);
         const message = Validator._getStepSchemaErrorMessage(err, originalFieldValue, suggestion);
+
+        // TODO: Delete once timeout is required. ⬇️
+        if (type !== 'pending-approval' && type !== 'deploy' && err.path === 'timeout') {
+            const warning = new Error(message);
+            warning.name = 'ValidationError';
+            warning.isJoi = true;
+            warning.details = [
+                {
+                    message,
+                    type: ErrorType.Warning,
+                    path: 'steps',
+                    context: {
+                        key: 'steps',
+                    },
+                    level: 'step',
+                    stepName,
+                    docsLink: _.get(DocumentationLinks, `${type}`, docBaseUrl),
+                    // eslint-disable-next-line max-len
+                    actionItems: `Please adjust the timeout to match the format "<duration><units>" where duration is int|float and units are s|m|h (e.g. "1m", "30s", "1.5h"). It will be ignored otherwise.`,
+                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: err.path }),
+                },
+            ];
+            Validator._addWarning(warning);
+            return;
+        }
+        // END: Delete once timeout is required. ⬆️
         const error = new Error();
         error.name = 'ValidationError';
         error.isJoi = true;
@@ -869,13 +895,16 @@ class Validator {
         totalErrors = {
             details: [],
         };
+        totalWarnings = {
+            details: [],
+        };
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
         Validator._validateStepSchema(objectModel, yaml, opts);
         Validator._validateHooksSchema(objectModel, yaml, opts);
-        if (_.size(totalErrors.details) > 0) {
-            Validator._throwValidationErrorAccordingToFormat(outputFormat);
+        if (_.size(totalErrors.details) > 0 || _.size(totalWarnings.details) > 0) {
+            Validator._throwValidationErrorAccordingToFormatWithWarnings(outputFormat);
         }
     }
 
