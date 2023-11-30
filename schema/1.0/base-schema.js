@@ -82,6 +82,7 @@ class BaseSchema {
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
+            'strict_fail_fast': Joi.boolean().strict().optional(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
