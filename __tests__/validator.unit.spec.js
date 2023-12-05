@@ -445,17 +445,11 @@ describe('Validate Codefresh YAML', () => {
         });
 
         describe('strict_fail_fast', () => {
-            it('should pass if "strict_fail_fast" was not defined', () => {
-                validate({
-                    version: '1.0',
-                    steps: { mock: { image: 'mock-image' } },
-                });
-            });
-
             it.each([
                 true,
                 false,
-            ])('should pass if "strict_fail_fast" is valid boolean: %s', (strictFailFast) => {
+                undefined,
+            ])('should pass if "strict_fail_fast" is valid data type: %s', (strictFailFast) => {
                 validate({
                     version: '1.0',
                     steps: { mock: { image: 'mock-image' } },
@@ -1213,17 +1207,11 @@ describe('Validate Codefresh YAML', () => {
             });
 
             describe('strict_fail_fast', () => {
-                it('should pass if "strict_fail_fast" was not defined', () => {
-                    validate({
-                        version: '1.0',
-                        steps: { mock: { image: 'mock-image' } },
-                    });
-                });
-
                 it.each([
                     true,
                     false,
-                ])('should pass if "strict_fail_fast" is valid boolean: %s', (strictFailFast) => {
+                    undefined,
+                ])('should pass if "strict_fail_fast" is valid data type: %s', (strictFailFast) => {
                     validate({
                         version: '1.0',
                         steps: { mock: { image: 'mock-image', strict_fail_fast: strictFailFast } },
