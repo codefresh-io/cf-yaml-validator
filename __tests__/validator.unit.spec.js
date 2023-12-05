@@ -443,6 +443,36 @@ describe('Validate Codefresh YAML', () => {
                 }, '"on_something" is not allowed', done);
             });
         });
+
+        describe('strict_fail_fast', () => {
+            it.each([
+                true,
+                false,
+                undefined,
+            ])('should pass if "strict_fail_fast" is valid data type: %s', (strictFailFast) => {
+                validate({
+                    version: '1.0',
+                    steps: { mock: { image: 'mock-image' } },
+                    strict_fail_fast: strictFailFast,
+                });
+            });
+
+            it.each([
+                0,
+                42,
+                '',
+                'mock',
+                null,
+                {},
+                [],
+            ])(`should not pass if "strict_fail_fast" is invalid data type: %s`, (strictFailFast, done) => {
+                validateForError({
+                    version: '1.0',
+                    steps: { mock: { image: 'mock-image' } },
+                    strict_fail_fast: strictFailFast,
+                }, `"strict_fail_fast" must be a boolean`, done);
+            });
+        });
     });
 
     describe('Steps', () => {
@@ -1173,6 +1203,34 @@ describe('Validate Codefresh YAML', () => {
                     //     }, `fails to match the "\\<duration\\>\\<units\\> where duration is int\\|float and units are s\\|m\\|h" pattern`, done);
                     // });
                     // END: Uncomment once timeout is required. ⬆️
+                });
+            });
+
+            describe('strict_fail_fast', () => {
+                it.each([
+                    true,
+                    false,
+                    undefined,
+                ])('should pass if "strict_fail_fast" is valid data type: %s', (strictFailFast) => {
+                    validate({
+                        version: '1.0',
+                        steps: { mock: { image: 'mock-image', strict_fail_fast: strictFailFast } },
+                    });
+                });
+
+                it.each([
+                    0,
+                    42,
+                    '',
+                    'mock',
+                    null,
+                    {},
+                    [],
+                ])(`should not pass if "strict_fail_fast" is invalid data type: %s`, (strictFailFast, done) => {
+                    validateForError({
+                        version: '1.0',
+                        steps: { mock: { image: 'mock-image', strict_fail_fast: strictFailFast } },
+                    }, `"strict_fail_fast" must be a boolean`, done);
                 });
             });
         });

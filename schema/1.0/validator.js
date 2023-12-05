@@ -357,10 +357,11 @@ class Validator {
             mode: Joi.string().valid('sequential', 'parallel'),
             hooks: BaseSchema._getBaseHooksSchema(),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
+            strict_fail_fast: Joi.boolean().strict().optional(),
             success_criteria: BaseSchema.getSuccessCriteriaSchema(),
             indicators: Joi.array(),
             services: Joi.object(),
-            build_version: Joi.string().valid('v1', 'v2')
+            build_version: Joi.string().valid('v1', 'v2'),
         });
         const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
         if (validationResult.error) {
@@ -830,6 +831,7 @@ class Validator {
         const multipleStepsSchema = Joi.object({
             mode: Joi.string().valid('sequential', 'parallel'),
             fail_fast: Joi.boolean(),
+            strict_fail_fast: Joi.boolean().strict().optional(),
             steps: Joi.object().pattern(/^.+$/, Joi.object()),
         });
 
@@ -851,6 +853,7 @@ class Validator {
             hookSchema = Joi.object({
                 mode: Joi.string().valid('sequential', 'parallel'),
                 fail_fast: Joi.boolean(),
+                strict_fail_fast: Joi.boolean().strict().optional(),
                 steps: Joi.object().pattern(/^.+$/, Joi.object()),
             });
         } else {
