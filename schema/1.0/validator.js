@@ -16,28 +16,14 @@ const path = require('path');
 const _ = require('lodash');
 const colors = require('colors');
 const Table = require('cli-table3');
+const { SEMVER_REGEX } = require('../../constants');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
 const { ErrorType, ErrorBuilder } = require('./error-builder');
-const { docBaseUrl, DocumentationLinks } = require('./documentation-links');
+const { docBaseUrl, DocumentationLinks, CustomDocumentationLinks } = require('./documentation-links');
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
-
-let totalErrors;
-let totalWarnings;
-
-const MaxStepLength = 150;
-
-function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
-    _.flatMap(objectModelSteps, (step, key) => {
-        stepNameLst.push(key);
-        if (step.steps) {
-            getAllStepNamesFromObjectModel(step.steps, stepNameLst);
-        }
-    });
-    return stepNameLst;
-}
 
 /**
  * ⬇️ Backward compatibility section
@@ -58,26 +44,25 @@ function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
  * ⚠️ When adding a new property, common to all steps, ensure to add it to the `NEW_COMMON_PROPS` array
  * in order to prevent conflicts with user-defined typed steps that already have this property in arguments.
  */
-const KNOWN_STEP_TYPES = [
-    'git-clone',
-    'build',
-    'deploy',
-    'composition',
-    'launch-composition',
-    'parallel',
-    'push',
-    'travis',
-    'simple_travis',
-    'integration-test',
-    'push-tag',
-    'pending-approval',
-    'services',
-    'freestyle',
-    'freestyle-ssh',
-    'github-action',
-];
+const { KNOWN_STEP_TYPES } = require('./constants/known-step-types');
+
 const NEW_COMMON_PROPS = ['timeout'];
 // ⬆️ The end.
+
+let totalErrors;
+let totalWarnings;
+
+const MaxStepLength = 150;
+
+function getAllStepNamesFromObjectModel(objectModelSteps, stepNameLst = []) {
+    _.flatMap(objectModelSteps, (step, key) => {
+        stepNameLst.push(key);
+        if (step.steps) {
+            getAllStepNamesFromObjectModel(step.steps, stepNameLst);
+        }
+    });
+    return stepNameLst;
+}
 
 class Validator {
 
@@ -528,6 +513,26 @@ class Validator {
         if (!type) {
             type = 'freestyle';
         }
+        if (!KNOWN_STEP_TYPES.includes(type)) {
+            const [stepType, ...restType] = type.split(':');
+            const stepVersion = restType.join(':');
+            const versionSchema = Joi.string().regex(SEMVER_REGEX).required();
+            const validationResult = Joi.validate(stepVersion, versionSchema);
+            if (validationResult.error) {
+                validationResult.error.details.forEach((errDetails) => {
+                    Validator._processStepVersionError(
+                        errDetails,
+                        validationResult,
+                        stepName,
+                        type,
+                        yaml,
+                        stepsSchemas[stepType],
+                        stepType,
+                        stepVersion
+                    );
+                });
+            }
+        }
         let stepSchema = stepsSchemas[type];
         if (!stepSchema) {
             console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
@@ -608,6 +613,75 @@ class Validator {
 
         error.details = [_.pickBy(errorDetails, _.identity)];
 
+        Validator._addError(error);
+    }
+
+    static _processStepVersionError(errDetails, _validationResult, stepName, _type, yaml, _stepSchema, parsedType, parsedVersion) {
+        if (errDetails.message === `"value" is required` || errDetails.message === `"value" is not allowed to be empty`) {
+            const message = `Step version not specified. The latest version will be used, which may result in breaking changes.`;
+            const warning = new Error(message);
+            warning.name = 'ValidationError';
+            warning.isJoi = true;
+            warning.details = [
+                {
+                    message,
+                    type: ErrorType.Warning,
+                    path: 'steps',
+                    context: {
+                        key: 'steps',
+                    },
+                    level: 'step',
+                    stepName,
+                    docsLink: CustomDocumentationLinks['steps-versioning'],
+                    // eslint-disable-next-line max-len
+                    actionItems: `To specify a version for the step, add the "type" flag to the step with the version number. For example, "type: ${parsedType}:1.2.3"`,
+                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: 'type' }),
+                },
+            ];
+            Validator._addWarning(warning);
+            return;
+        }
+        if (errDetails.message.includes('fails to match the required pattern')) {
+            const message = `Invalid semantic version "${parsedVersion}" for step.`;
+            const warning = new Error(message);
+            warning.name = 'ValidationError';
+            warning.isJoi = true;
+            warning.details = [
+                {
+                    message,
+                    type: ErrorType.Warning,
+                    path: 'steps',
+                    context: {
+                        key: 'steps',
+                    },
+                    level: 'step',
+                    stepName,
+                    docsLink: CustomDocumentationLinks['steps-versioning'],
+                    actionItems: `Use "type: <type_name>:<version>". For example, "type: ${parsedType}:1.2.3"`,
+                    lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: 'type' }),
+                },
+            ];
+            Validator._addWarning(warning);
+            return;
+        }
+        const { message } = errDetails;
+        const error = new Error(message);
+        error.name = 'ValidationError';
+        error.isJoi = true;
+        error.details = [
+            {
+                message,
+                type: ErrorType.Error,
+                path: 'steps',
+                context: {
+                    key: 'steps',
+                },
+                level: 'step',
+                stepName,
+                docsLink: CustomDocumentationLinks['steps-versioning'],
+                lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: 'type' }),
+            },
+        ];
         Validator._addError(error);
     }
 
