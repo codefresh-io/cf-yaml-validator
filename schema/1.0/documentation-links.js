@@ -29,7 +29,7 @@ const ExternalLinks = {
 };
 
 const CustomDocumentationLinks = {
-    'steps-versioning': new URL('#versioning-of-typed-steps', docBaseUrl).href,
+    'steps-versioning': new URL('#versioning-for-typed-steps', docBaseUrl).href,
 };
 
 module.exports = {
