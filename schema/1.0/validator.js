@@ -634,7 +634,7 @@ class Validator {
                     stepName,
                     docsLink: CustomDocumentationLinks['steps-versioning'],
                     // eslint-disable-next-line max-len
-                    actionItems: `To specify a version for the step, add the "type" flag to the step with the version number. For example, "type: ${parsedType}:1.2.3"`,
+                    actionItems: `To specify a version for the step, add the version number to the "type" flag. For example, "type: ${parsedType}:1.2.3"`,
                     lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: 'type' }),
                 },
             ];
@@ -657,7 +657,7 @@ class Validator {
                     level: 'step',
                     stepName,
                     docsLink: CustomDocumentationLinks['steps-versioning'],
-                    actionItems: `Use "type: <type_name>:<version>". For example, "type: ${parsedType}:1.2.3"`,
+                    actionItems: `Use "type: <type_name>:<version-number>". For example, "type: ${parsedType}:1.2.3"`,
                     lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName, key: 'type' }),
                 },
             ];

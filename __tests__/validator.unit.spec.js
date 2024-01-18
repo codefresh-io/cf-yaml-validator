@@ -1263,7 +1263,7 @@ describe('Validate Codefresh YAML', () => {
                         warningDetails: [
                             {
                                 message: `Invalid semantic version "${version}" for step.`,
-                                actionItems: `Use "type: <type_name>:<version>". For example, "type: ${mockType}:1.2.3"`,
+                                actionItems: `Use "type: <type_name>:<version-number>". For example, "type: ${mockType}:1.2.3"`,
                                 context: {
                                     key: 'steps',
                                 },
@@ -1297,7 +1297,7 @@ describe('Validate Codefresh YAML', () => {
                             {
                                 message: `Step version not specified. The latest version will be used, which may result in breaking changes.`,
                                 // eslint-disable-next-line max-len
-                                actionItems: `To specify a version for the step, add the "type" flag to the step with the version number. For example, "type: ${mockType}:1.2.3"`,
+                                actionItems: `To specify a version for the step, add the version number to the "type" flag. For example, "type: ${mockType}:1.2.3"`,
                                 context: {
                                     key: 'steps',
                                 },
@@ -7518,9 +7518,9 @@ describe('Validate Codefresh YAML with context', () => {
                 warningDetails: [
                     {
                         // eslint-disable-next-line max-len
-                        'actionItems': 'To specify a version for the step, add the "type" flag to the step with the version number. For example, "type: helm:1.2.3"',
+                        'actionItems': 'To specify a version for the step, add the version number to the "type" flag. For example, "type: helm:1.2.3"',
                         'context': { 'key': 'steps' },
-                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps#versioning-of-typed-steps',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps#versioning-for-typed-steps',
                         'level': 'step',
                         'lines': 17,
                         'message': 'Step version not specified. The latest version will be used, which may result in breaking changes.',
@@ -7544,9 +7544,9 @@ describe('Validate Codefresh YAML with context', () => {
                     },
                     {
                         // eslint-disable-next-line max-len
-                        'actionItems': 'To specify a version for the step, add the "type" flag to the step with the version number. For example, "type: helm:1.2.3"',
+                        'actionItems': 'To specify a version for the step, add the version number to the "type" flag. For example, "type: helm:1.2.3"',
                         'context': { 'key': 'steps' },
-                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps#versioning-of-typed-steps',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps#versioning-for-typed-steps',
                         'level': 'step',
                         'lines': 26,
                         'message': 'Step version not specified. The latest version will be used, which may result in breaking changes.',
@@ -8103,7 +8103,7 @@ describe('Validate Codefresh YAML with context', () => {
                     // eslint-disable-next-line max-len
                     + ` 26   ${colors.yellow('warning')}   Step version not specified. The latest version will be used, which may result  \n                in breaking changes.                                                           \n`,
                 summarize: `${colors.yellow('✖ 3 problems (0 errors, 3 warnings)')}`,
-                documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps#versioning-of-typed-steps for steps documentation\nVisit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps#versioning-for-typed-steps for steps documentation\nVisit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
             };
             const context = {
                 git: [
