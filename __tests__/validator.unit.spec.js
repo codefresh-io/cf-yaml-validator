@@ -5,6 +5,7 @@
 
 const _ = require('lodash');
 const chai = require('chai');
+const { randomUUID } = require('crypto');
 const fs = require('fs');
 const jsyaml = require('js-yaml');
 const path = require('path');
@@ -18,6 +19,7 @@ chai.use(sinonChai);
 const Mustache = require('mustache');
 const Validator = require('../validator');
 const { isWebUri } = require('../schema/1.0/validations/registry');
+const { CustomDocumentationLinks } = require('../schema/1.0/documentation-links');
 
 
 const yamlTemplateForDuplicateStepNamesTest = JSON.stringify({
@@ -309,7 +311,7 @@ describe('Validate Codefresh YAML', () => {
                         on_success: {
                             steps: {
                                 deploy: {
-                                    type: 'helm',
+                                    type: 'helm:1.0.0',
                                     arguments: {
                                         chart_name: 'test_chart',
                                         release_name: 'first',
@@ -484,7 +486,7 @@ describe('Validate Codefresh YAML', () => {
                 validate({
                     version: '1.0',
                     steps: {
-                        jim: { type: 'invalid' }
+                        jim: { type: 'invalid:1.0.0' }
                     }
                 });
             });
@@ -1124,7 +1126,7 @@ describe('Validate Codefresh YAML', () => {
                                     context: {
                                         key: 'steps',
                                     },
-                                    docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
+                                    docsLink: 'https://codefresh.io/docs/docs/pipelines/steps/freestyle/',
                                     level: 'step',
                                     lines: undefined,
                                     message: `"timeout" must be a string${timeout ? `. Current value: ${timeout} ` : ''}`,
@@ -1231,6 +1233,95 @@ describe('Validate Codefresh YAML', () => {
                         version: '1.0',
                         steps: { mock: { image: 'mock-image', strict_fail_fast: strictFailFast } },
                     }, `"strict_fail_fast" must be a boolean`, done);
+                });
+            });
+
+            describe('type', () => {
+                it(`should not fail if version is not specified for built-in step type`, () => {
+                    Validator.validate({
+                        version: '1.0',
+                        steps: { mock: { image: 'mock-image', type: 'freestyle' } },
+                    }, 'message');
+                });
+                it(`should not fail if type is not specified`, () => {
+                    Validator.validate({
+                        version: '1.0',
+                        steps: { mock: { image: 'mock-image' } },
+                    }, 'message');
+                });
+                it.each([
+                    'foo',
+                    42,
+                    0,
+                    false,
+                    '1.0.foo',
+                    'foo:bar'
+                ])(`should fail with warning if version is not semver: "%s"`, (version, done) => {
+                    const mockType = randomUUID();
+                    const expectedError = {
+                        details: [],
+                        warningDetails: [
+                            {
+                                message: `Invalid semantic version "${version}" for step.`,
+                                actionItems: `Use "type: <type_name>:<version-number>". For example, "type: ${mockType}:1.2.3"`,
+                                context: {
+                                    key: 'steps',
+                                },
+                                docsLink: CustomDocumentationLinks['steps-versioning'],
+                                level: 'step',
+                                lines: undefined,
+                                path: 'steps',
+                                stepName: 'mock',
+                                type: 'Warning',
+                            },
+                        ],
+                    };
+
+                    try {
+                        Validator.validate({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', type: `${mockType}:${version}` } },
+                        }, 'message');
+                        done(new Error('should have failed'));
+                    } catch (error) {
+                        expect(error.details).to.deep.equal(expectedError.details);
+                        expect(error.warningDetails).deep.equal(expectedError.warningDetails);
+                        done();
+                    }
+                });
+                it(`should fail with warning if version is not specified`, (done) => {
+                    const mockType = randomUUID();
+                    const expectedError = {
+                        details: [],
+                        warningDetails: [
+                            {
+                                message: `Step version not specified. The latest version will be used, which may result in breaking changes.`,
+                                // eslint-disable-next-line max-len
+                                actionItems: `To specify a version for the step, add the version number to the "type" flag. For example, "type: ${mockType}:1.2.3"`,
+                                context: {
+                                    key: 'steps',
+                                },
+                                docsLink: CustomDocumentationLinks['steps-versioning'],
+                                level: 'step',
+                                lines: undefined,
+                                path: 'steps',
+                                stepName: 'mock',
+                                type: 'Warning',
+                            },
+                        ],
+                    };
+
+                    try {
+                        Validator.validate({
+                            version: '1.0',
+                            steps: { mock: { image: 'mock-image', type: mockType } },
+                        }, 'message');
+                        done(new Error('should have failed'));
+                    } catch (error) {
+                        expect(error.details).to.deep.equal(expectedError.details);
+                        expect(error.warningDetails).deep.equal(expectedError.warningDetails);
+                        done();
+                    }
                 });
             });
         });
@@ -1547,7 +1638,7 @@ describe('Validate Codefresh YAML', () => {
                                 'context': {
                                     'key': 'steps'
                                 },
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
                                 'message': '"0" must be a string. Current value: 1 ',
@@ -1560,7 +1651,7 @@ describe('Validate Codefresh YAML', () => {
                                 'context': {
                                     'key': 'steps'
                                 },
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
                                 'message': '"1" must be a string. Current value: 2 ',
@@ -1573,7 +1664,7 @@ describe('Validate Codefresh YAML', () => {
                                 'context': {
                                     'key': 'steps'
                                 },
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 12,
                                 'message': '"registry" must be a string. Current value: 1 ',
@@ -1586,7 +1677,7 @@ describe('Validate Codefresh YAML', () => {
                                 'context': {
                                     'key': 'steps'
                                 },
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 13,
                                 'message': '"disable_push" must be a boolean. Current value: hello ',
@@ -1773,7 +1864,7 @@ describe('Validate Codefresh YAML', () => {
                                 'context': {
                                     'key': 'steps'
                                 },
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
                                 'message': '"0" must be a string',
@@ -1786,7 +1877,7 @@ describe('Validate Codefresh YAML', () => {
                                 'context': {
                                     'key': 'steps'
                                 },
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 3,
                                 'message': '"1" must be a string',
@@ -1927,7 +2018,7 @@ describe('Validate Codefresh YAML', () => {
                                 },
                                 'level': 'step',
                                 'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 15
                             },
@@ -1940,7 +2031,7 @@ describe('Validate Codefresh YAML', () => {
                                 },
                                 'level': 'step',
                                 'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 15
                             },
@@ -1953,7 +2044,7 @@ describe('Validate Codefresh YAML', () => {
                                 },
                                 'level': 'step',
                                 'stepName': 'BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled1',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 29,
                                 'suggestion': {
@@ -1970,7 +2061,7 @@ describe('Validate Codefresh YAML', () => {
                                 },
                                 'level': 'step',
                                 'stepName': 'BuildingDockerImage_PlatformCannotBeUsedWhenBuildxDisabled2',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 44,
                                 'suggestion': {
@@ -1987,7 +2078,7 @@ describe('Validate Codefresh YAML', () => {
                                 },
                                 'level': 'step',
                                 'stepName': 'BuildingDockerImage_PlatformMustBeString',
-                                'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 59
                             }
@@ -2327,7 +2418,7 @@ describe('Validate Codefresh YAML', () => {
                     message: `${colors.red('Yaml validation errors:\n')}\n`
                         + ` 6    ${colors.red('error')}     "image_name" is required                                                       \n`,
                     summarize: `${colors.red('✖ 1 problem (1 error, 0 warnings)')}`,
-                    documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/build/ for steps documentation\n'
+                    documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps/build/ for steps documentation\n'
                 };
                 validateForErrorWithContext({
                     version: '1.0',
@@ -2353,7 +2444,7 @@ describe('Validate Codefresh YAML', () => {
                     warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
                         + ` 6    ${colors.yellow('warning')}   "image_name" should be in lowercase.                                           \n`,
                     summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
-                    documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/build/ for image_name documentation\n'
+                    documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps/build/ for image_name documentation\n'
                 };
                 validateForErrorWithContext({
                     version: '1.0',
@@ -4932,7 +5023,7 @@ describe('Validate Codefresh YAML', () => {
                                                 repo: 'codefresh/repo'
                                             },
                                             deploy: {
-                                                type: 'helm',
+                                                type: 'helm:1.0.0',
                                                 arguments: {
                                                     chart_name: 'test_chart',
                                                     release_name: 'first',
@@ -5502,7 +5593,7 @@ describe('Validate Codefresh YAML', () => {
                 type: 'Validation',
                 level: 'step',
                 stepName: 'push',
-                docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/freestyle/',
+                docsLink: 'https://codefresh.io/docs/docs/pipelines/steps/freestyle/',
                 actionItems: 'Please make sure you have all the required fields and valid values',
             }, done, 'printify');
         });
@@ -6095,7 +6186,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': 'steps'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/deploy/',
                         'level': 'step',
                         'lines': 16,
                         'message': '"cluster" is required',
@@ -6111,7 +6202,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': undefined
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/git-clone/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/git-clone/',
                         'level': 'workflow',
                         'lines': 3,
                         'message': 'You are using the default Git integration \'git2\'.',
@@ -6125,7 +6216,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': undefined
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/push/',
                         'level': 'workflow',
                         'lines': 8,
                         'message': 'You are using the default registry integration \'reg2\'.',
@@ -6139,7 +6230,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': undefined
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/deploy/',
                         'level': 'workflow',
                         'lines': 16,
                         'message': 'You are using the default cluster integration.',
@@ -6373,7 +6464,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'BuildingDockerImage',
                         'type': 'Error',
                         'actionItems': undefined,
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                     }
                 ],
                 warningDetails: []
@@ -6426,7 +6517,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'BuildingDockerImage',
                         'type': 'Error',
                         'actionItems': undefined,
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                     }
                 ],
                 warningDetails: []
@@ -6480,7 +6571,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'BuildingDockerImage',
                         'type': 'Warning',
                         'actionItems': undefined,
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                     }
                 ]
             };
@@ -6714,7 +6805,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'lines': 3,
                         'message': 'provider.arguments.google_app_creds is required',
                         'path': 'registry',
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                         'stepName': 'GCBuild',
                         'type': 'Error'
                     }
@@ -6854,7 +6945,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': 'steps'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                         'level': 'step',
                         'lines': 14,
                         'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
@@ -7035,7 +7126,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': 'steps'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                         'level': 'step',
                         'lines': 14,
                         'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
@@ -7053,7 +7144,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': 'registry_contexts'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                         'level': 'workflow',
                         'lines': 15,
                         'message': 'Registry contexts contains registries with same domain \'gcr.io\'',
@@ -7067,7 +7158,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': 'registry_contexts'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/composition/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/composition/',
                         'level': 'workflow',
                         'lines': 33,
                         'message': 'Registry contexts contains registries with same domain \'gcr.io\'',
@@ -7172,7 +7263,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'context': {
                             'key': 'steps'
                         },
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                         'level': 'step',
                         'lines': 14,
                         'message': '"registry" is not allowed. Did you mean "registry_contexts"?',
@@ -7320,7 +7411,7 @@ describe('Validate Codefresh YAML with context', () => {
                         'stepName': 'build',
                         'type': 'Error',
                         'actionItems': undefined,
-                        'docsLink': 'https://codefresh.io/docs/docs/codefresh-yaml/steps/build/',
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                     },
                     {
                         'actionItems': 'Add one in your account settings to continue.',
@@ -7426,6 +7517,18 @@ describe('Validate Codefresh YAML with context', () => {
                 details: [],
                 warningDetails: [
                     {
+                        // eslint-disable-next-line max-len
+                        'actionItems': 'To specify a version for the step, add the version number to the "type" flag. For example, "type: helm:1.2.3"',
+                        'context': { 'key': 'steps' },
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps#versioning-for-typed-steps',
+                        'level': 'step',
+                        'lines': 17,
+                        'message': 'Step version not specified. The latest version will be used, which may result in breaking changes.',
+                        'path': 'steps',
+                        'stepName': 'store',
+                        'type': 'Warning'
+                    },
+                    {
                         'actionItems': 'Please view our documentation for more details.',
                         'code': 601,
                         'context': {
@@ -7437,6 +7540,18 @@ describe('Validate Codefresh YAML with context', () => {
                         'message': 'Codefresh will discontinue support for Helm 2 on July 16 2021.',
                         'path': 'helm',
                         'stepName': 'store',
+                        'type': 'Warning'
+                    },
+                    {
+                        // eslint-disable-next-line max-len
+                        'actionItems': 'To specify a version for the step, add the version number to the "type" flag. For example, "type: helm:1.2.3"',
+                        'context': { 'key': 'steps' },
+                        'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps#versioning-for-typed-steps',
+                        'level': 'step',
+                        'lines': 26,
+                        'message': 'Step version not specified. The latest version will be used, which may result in breaking changes.',
+                        'path': 'steps',
+                        'stepName': 'deploy',
                         'type': 'Warning'
                     }
                 ],
@@ -7471,7 +7586,7 @@ describe('Validate Codefresh YAML with context', () => {
                         actionItems: 'Please make sure the specified region is written in the correct format',
                         code: 206,
                         context: { key: 'registry' },
-                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
+                        docsLink: 'https://codefresh.io/docs/docs/pipelines/steps/push/',
                         level: 'workflow',
                         lines: 7,
                         message: 'aws region is invalid',
@@ -7523,7 +7638,7 @@ describe('Validate Codefresh YAML with context', () => {
                         actionItems: 'Cross-region pushes are currently supported only for ECR',
                         code: 206,
                         context: { key: 'registry' },
-                        docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/steps/push/',
+                        docsLink: 'https://codefresh.io/docs/docs/pipelines/steps/push/',
                         level: 'workflow',
                         lines: 7,
                         message: 'Unable to specify region with a registry of type: non-ecr',
@@ -7594,10 +7709,10 @@ describe('Validate Codefresh YAML with context', () => {
                     + ` 8    ${colors.yellow('warning')}   You are using the default registry integration 'reg2'.                         \n`
                     + ` 16   ${colors.yellow('warning')}   You are using the default cluster integration.                                 \n`,
                 summarize: `${colors.red('✖ 4 problems (1 error, 3 warnings)')}`,
-                documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/git-clone/ for git documentation\n'
-                    + 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/push/ for registry documentation\n'
-                    + 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/ for cluster documentation\n'
-                    + 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/ for steps documentation\n'
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps/git-clone/ for git documentation\n'
+                    + 'Visit https://codefresh.io/docs/docs/pipelines/steps/push/ for registry documentation\n'
+                    + 'Visit https://codefresh.io/docs/docs/pipelines/steps/deploy/ for cluster documentation\n'
+                    + 'Visit https://codefresh.io/docs/docs/pipelines/steps/deploy/ for steps documentation\n'
             };
             const context = {
                 git: [
@@ -7909,7 +8024,7 @@ describe('Validate Codefresh YAML with context', () => {
                     + ` 16   ${colors.red('error')}     "cluster" is required                                                          \n`,
                 warningMessage: undefined,
                 summarize: `${colors.red('✖ 1 problem (1 error, 0 warnings)')}`,
-                documentationLinks: 'Visit https://codefresh.io/docs/docs/codefresh-yaml/steps/deploy/ for steps documentation\n'
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps/deploy/ for steps documentation\n'
             };
             const context = {
                 git: [
@@ -7982,9 +8097,13 @@ describe('Validate Codefresh YAML with context', () => {
             const expectedMessage = {
                 message: '',
                 warningMessage: `${colors.yellow('Yaml validation warnings:\n')}\n`
-                    + ` 22   ${colors.yellow('warning')}   Codefresh will discontinue support for Helm 2 on July 16 2021.                 \n`,
-                summarize: `${colors.yellow('✖ 1 problem (0 errors, 1 warning)')}`,
-                documentationLinks: 'Visit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
+                    // eslint-disable-next-line max-len
+                    + ` 17   ${colors.yellow('warning')}   Step version not specified. The latest version will be used, which may result  \n                in breaking changes.                                                           \n`
+                    + ` 22   ${colors.yellow('warning')}   Codefresh will discontinue support for Helm 2 on July 16 2021.                 \n`
+                    // eslint-disable-next-line max-len
+                    + ` 26   ${colors.yellow('warning')}   Step version not specified. The latest version will be used, which may result  \n                in breaking changes.                                                           \n`,
+                summarize: `${colors.yellow('✖ 3 problems (0 errors, 3 warnings)')}`,
+                documentationLinks: 'Visit https://codefresh.io/docs/docs/pipelines/steps#versioning-for-typed-steps for steps documentation\nVisit https://codefresh.io/docs/docs/new-helm/helm2-support for helm documentation\n'
             };
             const context = {
                 git: [

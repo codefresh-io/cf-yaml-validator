@@ -1,6 +1,6 @@
 'use strict';
 
-const docBaseUrl = process.env.DOCS_BASE_URL || 'https://codefresh.io/docs/docs/codefresh-yaml/steps';
+const docBaseUrl = process.env.DOCS_BASE_URL || 'https://codefresh.io/docs/docs/pipelines/steps';
 
 const DocumentationLinks = {
     'freestyle': `${docBaseUrl}/freestyle/`,
@@ -28,8 +28,13 @@ const ExternalLinks = {
     'reference-identifiers': 'https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html',
 };
 
+const CustomDocumentationLinks = {
+    'steps-versioning': new URL('#versioning-for-typed-steps', docBaseUrl).href,
+};
+
 module.exports = {
     docBaseUrl,
+    CustomDocumentationLinks,
     DocumentationLinks,
     IntegrationLinks,
     ExternalLinks,
