@@ -39,7 +39,9 @@ class SuggestArgumentValidation {
 
 
     static _getNearestMatchingProperty(stepProperties, wrongKey) {
-        const propertiesStartedFromKey = stepProperties.filter(prop => prop.startsWith(wrongKey));
+        const propertiesStartedFromKey = stepProperties.filter((property) => {
+            return property !== wrongKey && property.startsWith(wrongKey);
+        });
         if (propertiesStartedFromKey.length) {
             return _.first(propertiesStartedFromKey.sort((a, b) => a.length - b.length));
         }
@@ -51,7 +53,10 @@ class SuggestArgumentValidation {
 
 
     static _getPossibleProperties(stepProperties, wrongKey) {
-        return stepProperties.filter(property => Math.abs(property.length - wrongKey.length) < this.lengthThreshold);
+        return stepProperties.filter((property) => {
+            return property !== wrongKey
+                && Math.abs(property.length - wrongKey.length) < this.lengthThreshold;
+        });
     }
 
 

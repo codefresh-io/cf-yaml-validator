@@ -2036,7 +2036,7 @@ describe('Validate Codefresh YAML', () => {
                                 'lines': 15
                             },
                             {
-                                'message': '"platform" is not allowed. Did you mean "platform"?',
+                                'message': '"platform" is not allowed',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
@@ -2047,13 +2047,9 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 29,
-                                'suggestion': {
-                                    'from': 'platform',
-                                    'to': 'platform'
-                                }
                             },
                             {
-                                'message': '"platform" is not allowed. Did you mean "platform"?',
+                                'message': '"platform" is not allowed',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
@@ -2064,10 +2060,6 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 44,
-                                'suggestion': {
-                                    'from': 'platform',
-                                    'to': 'platform'
-                                }
                             },
                             {
                                 'message': '"platform" must be a string. Current value: 123 ',
