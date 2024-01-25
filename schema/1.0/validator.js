@@ -17,6 +17,7 @@ const _ = require('lodash');
 const colors = require('colors');
 const Table = require('cli-table3');
 const { SEMVER_REGEX } = require('./constants/semver-regex');
+const { VARIABLE_REGEX } = require('./constants/variable-regex');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
@@ -513,26 +514,7 @@ class Validator {
         if (!type) {
             type = 'freestyle';
         }
-        if (!KNOWN_STEP_TYPES.includes(type)) {
-            const [stepType, ...restType] = type.split(':');
-            const stepVersion = restType.join(':');
-            const versionSchema = Joi.string().regex(SEMVER_REGEX).required();
-            const validationResult = Joi.validate(stepVersion, versionSchema);
-            if (validationResult.error) {
-                validationResult.error.details.forEach((errDetails) => {
-                    Validator._processStepVersionError(
-                        errDetails,
-                        validationResult,
-                        stepName,
-                        type,
-                        yaml,
-                        stepsSchemas[stepType],
-                        stepType,
-                        stepVersion
-                    );
-                });
-            }
-        }
+        Validator._validateStepType(step, stepsSchemas, stepName, yaml, opts);
         let stepSchema = stepsSchemas[type];
         if (!stepSchema) {
             console.log(`Warning: no schema found for step type '${type}'. Skipping validation`);
@@ -614,6 +596,35 @@ class Validator {
         error.details = [_.pickBy(errorDetails, _.identity)];
 
         Validator._addError(error);
+    }
+
+    static _validateStepType(step, stepsSchemas, stepName, yaml) {
+        const rawType = step.type || 'freestyle';
+        const [type, ...rest] = rawType.split(':');
+        const stepVersion = rest.join(':');
+        if (
+            rawType.match(VARIABLE_REGEX)
+            || KNOWN_STEP_TYPES.includes(rawType)
+            || KNOWN_STEP_TYPES.includes(type)
+        ) {
+            return;
+        }
+        const versionSchema = Joi.string().regex(SEMVER_REGEX).required();
+        const validationResult = Joi.validate(stepVersion, versionSchema);
+        if (validationResult.error) {
+            validationResult.error.details.forEach((errDetails) => {
+                Validator._processStepVersionError(
+                    errDetails,
+                    validationResult,
+                    stepName,
+                    rawType,
+                    yaml,
+                    stepsSchemas[type],
+                    type,
+                    stepVersion
+                );
+            });
+        }
     }
 
     static _processStepVersionError(errDetails, _validationResult, stepName, _type, yaml, _stepSchema, parsedType, parsedVersion) {

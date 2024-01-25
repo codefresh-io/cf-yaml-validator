@@ -1250,6 +1250,18 @@ describe('Validate Codefresh YAML', () => {
                     }, 'message');
                 });
                 it.each([
+                    '${{TYPE}}',
+                    '${{PART}}-of-type',
+                    'type:${{VERSION}}',
+                    'type:part-of-${{VERSION}}',
+                    '${{PART}}-of-type:part-of-${{VERSION}}',
+                ])('should not fail if type contains variables: "%s"', (type) => {
+                    Validator.validate({
+                        version: '1.0',
+                        steps: { mock: { type } },
+                    }, 'message');
+                });
+                it.each([
                     'foo',
                     42,
                     0,
