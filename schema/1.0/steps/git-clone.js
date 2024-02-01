@@ -34,7 +34,7 @@ class GitClone extends BaseSchema {
             'git': Joi.string(),
             'use_proxy': Joi.boolean(),
             'depth': Joi.number(),
-            'clone_blobs': Joi.boolean(),
+            'exclude_blobs': Joi.boolean(),
         };
         return this._createSchema(gitCloneProperties);
     }
