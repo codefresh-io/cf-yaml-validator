@@ -40,14 +40,14 @@ class Validator {
         return Validator._getValidator(version).getJsonSchemas();
     }
 
-    static _getValidator(version) {
-        const defaultVersion = '1.0';
-        let modelVersion = (version === '1' || version === 1) ? '1.0' : version;
-        if (!modelVersion) {
-            modelVersion = defaultVersion;
-        } else {
-            modelVersion = modelVersion.toString();
+    static _getValidator(version = '1.0') {
+        let modelVersion = Number(version);
+
+        // Support YAML versions 1.1 and 1.2, but validate against CF schema v1
+        if (modelVersion >= 1 && modelVersion <= 1.2) {
+            modelVersion = '1.0';
         }
+        modelVersion = modelVersion.toString();
 
         const validatorPath = path.join(__dirname, 'schema', modelVersion, 'validator');
         if (!fs.existsSync(`${validatorPath}.js`)) {
