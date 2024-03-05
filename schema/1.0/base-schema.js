@@ -79,6 +79,7 @@ class BaseSchema {
 
     _applyCommonSchemaProperties(schemaProperties) {
         return Object.assign({
+            'foo': Joi.string().required(),
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
