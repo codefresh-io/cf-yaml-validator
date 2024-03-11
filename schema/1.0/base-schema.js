@@ -79,7 +79,7 @@ class BaseSchema {
 
     _applyCommonSchemaProperties(schemaProperties) {
         return Object.assign({
-            'foo': Joi.string().required(),
+            'bar': Joi.string().required(),
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': Joi.boolean(),
@@ -125,7 +125,7 @@ class BaseSchema {
         stepProperties = this._applyCommonSchemaProperties(stepProperties);
         stepProperties = this._applyMetadataAnnotationSchemaProperties(stepProperties);
         let stepSchema = Joi.object(stepProperties);
-        stepSchema     = this._applyCommonCompatibility(stepSchema);
+        stepSchema = this._applyCommonCompatibility(stepSchema);
         return this._applyStepCompatibility(stepSchema);
     }
 
