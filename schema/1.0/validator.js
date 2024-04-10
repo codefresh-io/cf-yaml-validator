@@ -340,7 +340,7 @@ class Validator {
         // eslint-disable-next-line no-useless-escape
         const stepNameRegex = /^[^.#$\[\]]*$/;
         stepNamesList.forEach((stepName) => {
-            if (stepNameRegex.test(stepName)) {
+            if (!stepNameRegex.test(stepName)) {
                 // eslint-disable-next-line no-useless-escape
                 const message = `step name cannot contain \".\", \"#\", \"$\", \"[\", or \"]\"`;
                 Validator._addError({
