@@ -334,6 +334,38 @@ class Validator {
         }
     }
 
+    static _validateStepsNames(objectModel, yaml) {
+        // get all step names:
+        const stepNamesList = getAllStepNamesFromObjectModel(objectModel.steps);
+        // eslint-disable-next-line no-useless-escape
+        const stepNameRegex = /^[^.#$\[\]]*$/;
+        stepNamesList.forEach((stepName) => {
+            if (!stepNameRegex.test(stepName)) {
+                // eslint-disable-next-line no-useless-escape
+                const message = `step name cannot contain \".\", \"#\", \"$\", \"[\", or \"]\"`;
+                Validator._addError({
+                    message,
+                    name: 'ValidationError',
+                    details: [
+                        {
+                            message,
+                            type: 'Validation',
+                            path: 'steps',
+                            context: {
+                                key: 'steps',
+                            },
+                            level: 'step',
+                            stepName,
+                            docsLink: 'https://codefresh.io/docs/docs/codefresh-yaml/advanced-workflows/#parallel-pipeline-mode',
+                            actionItems: `Please change the name for '${stepName}' step`,
+                            lines: ErrorBuilder.getErrorLineNumber({ yaml, stepName }),
+                        },
+                    ]
+                });
+            }
+        });
+
+    }
 
     static _validateRootSchema(objectModel, yaml) {
         const rootSchema = Joi.object({
@@ -905,7 +937,7 @@ class Validator {
         }
 
         // validating the steps seperately
-        for (const stepName in steps) { // eslint-disable-line     
+        for (const stepName in steps) { // eslint-disable-line
             opts.isInHook = true;
             const step = steps[stepName];
             Validator._validateSingleStepSchema(step, stepsSchemas, stepName, yaml, opts);
@@ -986,6 +1018,7 @@ class Validator {
         totalWarnings = {
             details: [],
         };
+        Validator._validateStepsNames(objectModel, yaml);
         Validator._validateUniqueStepNames(objectModel, yaml);
         Validator._validateStepsLength(objectModel, yaml);
         Validator._validateRootSchema(objectModel, yaml);
@@ -1012,6 +1045,7 @@ class Validator {
         totalWarnings = {
             details: [],
         };
+        Validator._validateStepsNames(objectModel, yaml);
         Validator._validateIndention(yaml, outputFormat);
         Validator._validateNewLineToSpaceConverter(yaml);
         Validator._validateUniqueStepNames(objectModel, yaml);
