@@ -32,10 +32,10 @@ class Build extends BaseSchema {
             working_directory: Joi.string(),
             dockerfile: Joi.alternatives()
                 .try(Joi.string(), Joi.object({ content: Joi.string() })),
-            no_cache: Joi.boolean(),
-            no_cf_cache: Joi.boolean(),
+            no_cache: BaseSchema._getBooleanSchema(),
+            no_cf_cache: BaseSchema._getBooleanSchema(),
             cache_from: Joi.array().items(Joi.string()),
-            squash: Joi.boolean(),
+            squash: BaseSchema._getBooleanSchema(),
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
             tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
@@ -49,11 +49,11 @@ class Build extends BaseSchema {
             ssh: BaseSchema._getSshSchema(),
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
-            buildkit: Joi.boolean(),
+            buildkit: BaseSchema._getBooleanSchema(),
             ...(opts.buildVersion === BUILD_VERSION && { registry: Joi.string() }),
-            ...(opts.buildVersion === BUILD_VERSION && { disable_push: Joi.boolean() }),
+            ...(opts.buildVersion === BUILD_VERSION && { disable_push: BaseSchema._getBooleanSchema() }),
             buildx: Joi.alternatives()
-                .try(Joi.boolean(), Joi.object({
+                .try(BaseSchema._getBooleanSchema(), Joi.object({
                     qemu: {
                         image: Joi.string(),
                         platforms: Joi.string(),

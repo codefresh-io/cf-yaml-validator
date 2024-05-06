@@ -81,8 +81,8 @@ class BaseSchema {
         return Object.assign({
             'description': Joi.string(),
             'title': Joi.string(),
-            'fail_fast': Joi.boolean(),
-            'strict_fail_fast': Joi.boolean().strict().optional(),
+            'fail_fast': BaseSchema._getBooleanSchema(),
+            'strict_fail_fast': BaseSchema._getBooleanStrictSchema().optional(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
@@ -139,7 +139,7 @@ class BaseSchema {
         return Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
             [
                 Joi.string(),
-                Joi.boolean(),
+                BaseSchema._getBooleanSchema(),
                 Joi.number(),
                 Joi.object({ evaluate: Joi.string().required() })
             ]
@@ -188,7 +188,7 @@ class BaseSchema {
                 Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
                     [
                         Joi.string(),
-                        Joi.boolean(),
+                        BaseSchema._getBooleanSchema(),
                         Joi.number(),
                         Joi.object({ evaluate: Joi.string().required() })
                     ]
@@ -264,8 +264,8 @@ class BaseSchema {
     static _getDebugSchema() {
         return Joi.object({
             phases: Joi.object({
-                before: Joi.boolean(),
-                after: Joi.boolean()
+                before: BaseSchema._getBooleanSchema(),
+                after: BaseSchema._getBooleanSchema(),
             })
         });
     }
@@ -286,6 +286,24 @@ class BaseSchema {
                 selectors: Joi.array().items(Joi.string()),
             })),
         });
+    }
+
+    static _getBooleanSchema() {
+        return Joi.alternatives().try(
+            Joi.boolean(),
+            BaseSchema._getCFVariableSchema(),
+        );
+    }
+
+    static _getBooleanStrictSchema() {
+        return Joi.alternatives().try(
+            Joi.boolean().strict(),
+            BaseSchema._getCFVariableSchema(),
+        );
+    }
+
+    static _getCFVariableSchema() {
+        return Joi.string().pattern(/^\$\{\{[A-Za-z_][A-Za-z0-9_]*\}\}$/, { name: 'cf_variable' });
     }
 
     //------------------------------------------------------------------------------
