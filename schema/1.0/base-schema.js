@@ -185,14 +185,13 @@ class BaseSchema {
     static _getMetadataAnnotationSetSchema() {
         return Joi.array().items(
             Joi.alternatives().try(
-                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
-                    [
-                        Joi.string(),
-                        BaseSchema._getBooleanSchema(),
-                        Joi.number(),
-                        Joi.object({ evaluate: Joi.string().required() })
-                    ]
-                )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
+                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try([
+                    Joi.string(),
+                    BaseSchema._getBooleanSchema(),
+                    Joi.number(),
+                    Joi.object({ evaluate: Joi.string().required() })
+                ])),
+                Joi.string().regex(/^[A-Za-z0-9_]+$/)
             )
         );
     }
