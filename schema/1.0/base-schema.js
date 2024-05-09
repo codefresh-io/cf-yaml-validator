@@ -302,7 +302,7 @@ class BaseSchema {
     }
 
     static _getCFVariableSchema() {
-        return Joi.string().pattern(/^\$\{\{[A-Za-z_][A-Za-z0-9_]*\}\}$/, { name: 'cf_variable' });
+        return Joi.string().regex(/^\$\{\{[A-Za-z_][A-Za-z0-9_]*\}\}$/, { name: 'cf_variable' });
     }
 
     //------------------------------------------------------------------------------
