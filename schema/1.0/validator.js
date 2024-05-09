@@ -1072,6 +1072,18 @@ class Validator {
         this.jsonSchemas = jsonSchemas;
         return this.jsonSchemas;
     }
+
+    static getStepsJoiSchemas() {
+        if (this.stepsJoiSchemas) {
+            return this.stepsJoiSchemas;
+        }
+        this.stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
+            build: {
+                buildVersion: 'V2', // use the fullest schema
+            }
+        });
+        return this.stepsJoiSchemas;
+    }
 }
 
 // Exported objects/methods

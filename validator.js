@@ -40,6 +40,10 @@ class Validator {
         return Validator._getValidator(version).getJsonSchemas();
     }
 
+    static getStepsJoiSchemas(version) {
+        return Validator._getValidator(version).getStepsJoiSchemas();
+    }
+
     static _getValidator(version) {
         const defaultVersion = '1.0';
         let modelVersion = (version === '1' || version === 1) ? '1.0' : version;
