@@ -1074,15 +1074,15 @@ class Validator {
     }
 
     static getStepsJoiSchemas() {
-        if (this.stepsJoiSchemas) {
-            return this.stepsJoiSchemas;
+        if (this._stepsJoiSchemas) {
+            return this._stepsJoiSchemas;
         }
-        this.stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
+        this._stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
             build: {
                 buildVersion: 'V2', // use the fullest schema
             }
         });
-        return this.stepsJoiSchemas;
+        return this._stepsJoiSchemas;
     }
 }
 
