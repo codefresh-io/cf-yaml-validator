@@ -81,8 +81,8 @@ class BaseSchema {
         return Object.assign({
             'description': Joi.string(),
             'title': Joi.string(),
-            'fail_fast': BaseSchema._getBooleanSchema(),
-            'strict_fail_fast': BaseSchema._getBooleanStrictSchema().optional(),
+            'fail_fast': BaseSchema.getBooleanSchema(),
+            'strict_fail_fast': BaseSchema.getBooleanStrictSchema().optional(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
@@ -139,7 +139,7 @@ class BaseSchema {
         return Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
             [
                 Joi.string(),
-                BaseSchema._getBooleanSchema(),
+                BaseSchema.getBooleanSchema(),
                 Joi.number(),
                 Joi.object({ evaluate: Joi.string().required() })
             ]
@@ -187,7 +187,7 @@ class BaseSchema {
             Joi.alternatives().try(
                 Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try([
                     Joi.string(),
-                    BaseSchema._getBooleanSchema(),
+                    BaseSchema.getBooleanSchema(),
                     Joi.number(),
                     Joi.object({ evaluate: Joi.string().required() })
                 ])),
@@ -263,8 +263,8 @@ class BaseSchema {
     static _getDebugSchema() {
         return Joi.object({
             phases: Joi.object({
-                before: BaseSchema._getBooleanSchema(),
-                after: BaseSchema._getBooleanSchema(),
+                before: BaseSchema.getBooleanSchema(),
+                after: BaseSchema.getBooleanSchema(),
             })
         });
     }
@@ -287,14 +287,14 @@ class BaseSchema {
         });
     }
 
-    static _getBooleanSchema() {
+    static getBooleanSchema() {
         return Joi.alternatives().try(
             Joi.boolean(),
             BaseSchema._getCFVariableSchema(),
         );
     }
 
-    static _getBooleanStrictSchema() {
+    static getBooleanStrictSchema() {
         return Joi.alternatives().try(
             Joi.boolean().strict(),
             BaseSchema._getCFVariableSchema(),

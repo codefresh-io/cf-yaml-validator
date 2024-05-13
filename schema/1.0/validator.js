@@ -375,7 +375,7 @@ class Validator {
             mode: Joi.string().valid('sequential', 'parallel'),
             hooks: BaseSchema._getBaseHooksSchema(),
             fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
-            strict_fail_fast: BaseSchema._getBooleanStrictSchema().optional(),
+            strict_fail_fast: BaseSchema.getBooleanStrictSchema().optional(),
             success_criteria: BaseSchema.getSuccessCriteriaSchema(),
             indicators: Joi.array(),
             services: Joi.object(),
@@ -947,8 +947,8 @@ class Validator {
 
         const multipleStepsSchema = Joi.object({
             mode: Joi.string().valid('sequential', 'parallel'),
-            fail_fast: BaseSchema._getBooleanSchema(),
-            strict_fail_fast: BaseSchema._getBooleanStrictSchema().optional(),
+            fail_fast: BaseSchema.getBooleanSchema(),
+            strict_fail_fast: BaseSchema.getBooleanStrictSchema().optional(),
             steps: Joi.object().pattern(/^.+$/, Joi.object()),
         });
 
@@ -969,8 +969,8 @@ class Validator {
         } else if (hook.steps) {
             hookSchema = Joi.object({
                 mode: Joi.string().valid('sequential', 'parallel'),
-                fail_fast: BaseSchema._getBooleanSchema(),
-                strict_fail_fast: BaseSchema._getBooleanStrictSchema().optional(),
+                fail_fast: BaseSchema.getBooleanSchema(),
+                strict_fail_fast: BaseSchema.getBooleanStrictSchema().optional(),
                 steps: Joi.object().pattern(/^.+$/, Joi.object()),
             });
         } else {

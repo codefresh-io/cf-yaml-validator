@@ -18,9 +18,9 @@ class Freestyle extends BaseSchema {
     static _getDebugSchema() {
         return Joi.object({
             phases: Joi.object({
-                before: BaseSchema._getBooleanSchema(),
-                override: BaseSchema._getBooleanSchema(),
-                after: BaseSchema._getBooleanSchema()
+                before: BaseSchema.getBooleanSchema(),
+                override: BaseSchema.getBooleanSchema(),
+                after: BaseSchema.getBooleanSchema()
             })
         });
     }
