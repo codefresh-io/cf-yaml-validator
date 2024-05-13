@@ -11,6 +11,7 @@
 const _ = require('lodash');
 const Joi = require('joi');
 const convert = require('joi-to-json-schema');
+const { VARIABLE_EXACT_REGEX } = require('./constants/variable-regex');
 
 class BaseSchema {
 
@@ -300,7 +301,7 @@ class BaseSchema {
     }
 
     static _getCFVariableSchema() {
-        return Joi.string().regex(/^\$\{\{[A-Za-z_][A-Za-z0-9_]*\}\}$/, { name: 'cf_variable' });
+        return Joi.string().regex(VARIABLE_EXACT_REGEX, { name: 'cf_variable' });
     }
 
     //------------------------------------------------------------------------------
