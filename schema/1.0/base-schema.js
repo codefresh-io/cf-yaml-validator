@@ -82,7 +82,7 @@ class BaseSchema {
             'description': Joi.string(),
             'title': Joi.string(),
             'fail_fast': BaseSchema.getBooleanSchema(),
-            'strict_fail_fast': BaseSchema.getBooleanStrictSchema().optional(),
+            'strict_fail_fast': BaseSchema.getBooleanSchema({ strictBoolean: true }).optional(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
@@ -287,16 +287,14 @@ class BaseSchema {
         });
     }
 
-    static getBooleanSchema() {
+    /**
+     * Returns a schema for a boolean value or a Codefresh variable
+     * @param {object} [options]
+     * @param {boolean} [options.strictBoolean] If `true`, the value will not be coerced to a boolean before validation
+     */
+    static getBooleanSchema(options = {}) {
         return Joi.alternatives().try(
-            Joi.boolean(),
-            BaseSchema._getCFVariableSchema(),
-        );
-    }
-
-    static getBooleanStrictSchema() {
-        return Joi.alternatives().try(
-            Joi.boolean().strict(),
+            options.strictBoolean ? Joi.boolean().strict() : Joi.boolean(),
             BaseSchema._getCFVariableSchema(),
         );
     }
