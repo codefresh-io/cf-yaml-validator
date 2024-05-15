@@ -25,6 +25,9 @@ const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks, CustomDocumentationLinks } = require('./documentation-links');
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
+const { JSONPathsGenerator } = require('./jsonpaths/jsonpaths-generator');
+const { Interpolator } = require('./interpolator/interpolator');
+const { InterpolatorFactory } = require('./interpolator/interpolator-factory');
 
 /**
  * ⬇️ Backward compatibility section
@@ -1000,6 +1003,22 @@ class Validator {
         return {};
     }
 
+    static _getStepsJoiSchemas() {
+        if (this._stepsJoiSchemas) {
+            return this._stepsJoiSchemas;
+        }
+        this._stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
+            build: {
+                buildVersion: 'V2', // use the fullest schema
+            }
+        });
+        return this._stepsJoiSchemas;
+    }
+
+    static _getAllJSONPaths() {
+        return JSONPathsGenerator.getJSONPaths(this._getStepsJoiSchemas());
+    }
+
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
@@ -1073,16 +1092,17 @@ class Validator {
         return this.jsonSchemas;
     }
 
-    static getStepsJoiSchemas() {
-        if (this._stepsJoiSchemas) {
-            return this._stepsJoiSchemas;
+    static interpolate(yaml, variables, { yamlType, fieldType, isCamelCase = false } = {}) {
+        const allJSONPaths = this._getAllJSONPaths();
+        const interpolator = InterpolatorFactory.getInstance(fieldType, isCamelCase, allJSONPaths);
+
+        if (yamlType === 'step') {
+            return interpolator.handleSingleStep(yaml, variables);
+        } else if (yamlType === 'pipeline') {
+            return interpolator.handleAllSteps(yaml, variables);
+        } else {
+            throw new Error(`wrong yamlType value '${yamlType}' was provided.`);
         }
-        this._stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
-            build: {
-                buildVersion: 'V2', // use the fullest schema
-            }
-        });
-        return this._stepsJoiSchemas;
     }
 }
 
