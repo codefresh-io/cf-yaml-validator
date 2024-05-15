@@ -13,7 +13,7 @@ class CommonJSONPathsGenerator {
         this._mixedFields = [];
     }
 
-    getJSONPaths = () => {
+    getJSONPaths() {
         this._traverseSchema(this._joiSchemaDescription);
         return {
             exclusiveFields: this._exclusiveFields,
@@ -21,7 +21,7 @@ class CommonJSONPathsGenerator {
         };
     }
 
-    _traverseSchema = (joiSchemaPart, path = '$', opts = {}) => {
+    _traverseSchema(joiSchemaPart, path = '$', opts = {}) {
         if (joiSchemaPart.type === 'object') {
             if (joiSchemaPart.children) {
                 Object.entries(joiSchemaPart.children).forEach(([key, descriptionChild]) => {
@@ -29,7 +29,6 @@ class CommonJSONPathsGenerator {
                 });
             }
             if (joiSchemaPart.patterns) {
-                // eslint-disable-next-line chai-friendly/no-unused-expressions
                 joiSchemaPart.patterns?.forEach((pattern) => {
                     if (pattern.rule?.type === 'array') {
                         this._traverseSchema(pattern.rule, `${path}.*`, { isRuleArray: true });
@@ -41,7 +40,6 @@ class CommonJSONPathsGenerator {
                 });
             }
         } else if (joiSchemaPart.type === 'array') {
-            // eslint-disable-next-line chai-friendly/no-unused-expressions
             joiSchemaPart.items?.forEach((item) => {
                 this._traverseSchema(
                     item,
@@ -76,7 +74,7 @@ class CommonJSONPathsGenerator {
         }
     }
 
-    _isExclusiveField = (alternativesObj) => {
+    _isExclusiveField(alternativesObj) {
         const { alternatives } = alternativesObj;
 
         if (!Array.isArray(alternatives) || alternatives.length !== 2) {
@@ -94,15 +92,15 @@ class CommonJSONPathsGenerator {
             return rule?.name === 'regex' && rule?.arg?.source === VARIABLE_EXACT_REGEX.source;
         };
 
-        return (isTargetType(option1) && isCodefreshVariable(option2)) ||
-            (isCodefreshVariable(option1) && isTargetType(option2));
+        return (isTargetType(option1) && isCodefreshVariable(option2))
+            || (isCodefreshVariable(option1) && isTargetType(option2));
     }
 
-    _adjustCase = (str) => {
+    _adjustCase(str) {
         return this._isCamelCase ? _.camelCase(str) : str;
     }
 }
 
 module.exports = {
     CommonJSONPathsGenerator,
-}
+};
