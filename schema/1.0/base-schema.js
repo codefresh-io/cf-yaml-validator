@@ -140,7 +140,7 @@ class BaseSchema {
         return Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
             [
                 Joi.string(),
-                BaseSchema.getBooleanSchema(),
+                Joi.boolean(),
                 Joi.number(),
                 Joi.object({ evaluate: Joi.string().required() })
             ]
@@ -188,7 +188,7 @@ class BaseSchema {
             Joi.alternatives().try(
                 Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try([
                     Joi.string(),
-                    BaseSchema.getBooleanSchema(),
+                    Joi.boolean(),
                     Joi.number(),
                     Joi.object({ evaluate: Joi.string().required() })
                 ])),
@@ -264,8 +264,8 @@ class BaseSchema {
     static _getDebugSchema() {
         return Joi.object({
             phases: Joi.object({
-                before: BaseSchema.getBooleanSchema(),
-                after: BaseSchema.getBooleanSchema(),
+                before: Joi.boolean(),
+                after: Joi.boolean(),
             })
         });
     }
