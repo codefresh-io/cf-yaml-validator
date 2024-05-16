@@ -26,8 +26,6 @@ const { docBaseUrl, DocumentationLinks, CustomDocumentationLinks } = require('./
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
 const { JSONPathsGenerator } = require('./jsonpaths/jsonpaths-generator');
-const { Interpolator } = require('./interpolator/interpolator');
-const { InterpolatorFactory } = require('./interpolator/interpolator-factory');
 
 /**
  * ⬇️ Backward compatibility section
@@ -1003,22 +1001,6 @@ class Validator {
         return {};
     }
 
-    static _getStepsJoiSchemas() {
-        if (this._stepsJoiSchemas) {
-            return this._stepsJoiSchemas;
-        }
-        this._stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
-            build: {
-                buildVersion: 'V2', // use the fullest schema
-            }
-        });
-        return this._stepsJoiSchemas;
-    }
-
-    static _getAllJSONPaths() {
-        return JSONPathsGenerator.getJSONPaths(this._getStepsJoiSchemas());
-    }
-
     //------------------------------------------------------------------------------
     // Public Interface
     //------------------------------------------------------------------------------
@@ -1092,17 +1074,20 @@ class Validator {
         return this.jsonSchemas;
     }
 
-    static interpolate(yaml, variables, { yamlType, fieldType, isCamelCase = false } = {}) {
-        const allJSONPaths = this._getAllJSONPaths();
-        const interpolator = InterpolatorFactory.getInstance(fieldType, isCamelCase, allJSONPaths);
-
-        if (yamlType === 'step') {
-            return interpolator.handleSingleStep(yaml, variables);
-        } else if (yamlType === 'pipeline') {
-            return interpolator.handleAllSteps(yaml, variables);
-        } else {
-            throw new Error(`wrong yamlType value '${yamlType}' was provided.`);
+    static getStepsJoiSchemas() {
+        if (this._stepsJoiSchemas) {
+            return this._stepsJoiSchemas;
         }
+        this._stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
+            build: {
+                buildVersion: 'V2', // use the fullest schema
+            }
+        });
+        return this._stepsJoiSchemas;
+    }
+
+    static generateJSONPaths({ fieldType, joiSchema, isCamelCase }) {
+        return new JSONPathsGenerator({ fieldType, joiSchema, isCamelCase }).getJSONPaths();
     }
 }
 

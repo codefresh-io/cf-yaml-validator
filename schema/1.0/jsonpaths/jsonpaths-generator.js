@@ -1,52 +1,103 @@
 'use strict';
 
-const { CommonJSONPathsGenerator } = require('./common.jsonpaths-generator');
-const { CONVERTED_FIELD_TYPES } = require('../constants/converted-field-types');
+const _ = require('lodash');
+const { VARIABLE_EXACT_REGEX } = require('../constants/variable-regex');
 
 class JSONPathsGenerator {
-    constructor(fieldTypes, stepsJoiSchemas, isCamelCase) {
-        this._fieldTypes = fieldTypes;
-        this._stepsJoiSchemas = stepsJoiSchemas;
+    constructor({ fieldType, joiSchema, isCamelCase = false } = {}) {
+        this._fieldType = fieldType;
+        this._joiSchemaDescription = joiSchema.describe();
         this._isCamelCase = isCamelCase;
+
+        this._exclusiveFields = [];
+        this._mixedFields = [];
     }
 
-    _getJSONPaths() {
-        return this._fieldTypes.reduce((acc, fieldType) => {
-            acc[fieldType] = this._getJSONPathsForType(fieldType);
-            return acc;
-        }, {});
-    }
-
-    _getJSONPathsForType(fieldType) {
+    getJSONPaths() {
+        this._traverseSchema(this._joiSchemaDescription);
         return {
-            steps: this._getJSONPathsForAllSteps(fieldType),
+            exclusiveFields: this._exclusiveFields,
+            mixedFields: this._mixedFields
         };
     }
 
-    _getJSONPathsForAllSteps(fieldType) {
-        return Object.fromEntries(
-            Object.entries(this._stepsJoiSchemas)
-                .map(([stepName, joiSchema]) => [stepName, joiSchema.describe()])
-                .map(([stepName, joiSchemaDescription]) => [
-                    stepName,
-                    new CommonJSONPathsGenerator({
-                        fieldType,
-                        joiSchemaDescription,
-                        isCamelCase: this._isCamelCase,
-                    }).getJSONPaths()
-                ])
-        );
+    _traverseSchema(joiSchemaPart, path = '$', opts = {}) {
+        if (joiSchemaPart.type === 'object') {
+            if (joiSchemaPart.children) {
+                Object.entries(joiSchemaPart.children).forEach(([key, descriptionChild]) => {
+                    this._traverseSchema(descriptionChild, `${path}.${this._adjustCase(key)}`);
+                });
+            }
+            if (joiSchemaPart.patterns) {
+                joiSchemaPart.patterns?.forEach((pattern) => {
+                    if (pattern.rule?.type === 'array') {
+                        this._traverseSchema(pattern.rule, `${path}.*`, { isRuleArray: true });
+                    } else if (pattern.rule?.type === 'alternatives') {
+                        this._traverseSchema(pattern.rule, `${path}.*`);
+                    } else if (pattern.rule?.type === 'object') {
+                        this._traverseSchema(pattern.rule, `${path}.*`);
+                    }
+                });
+            }
+        } else if (joiSchemaPart.type === 'array') {
+            joiSchemaPart.items?.forEach((item) => {
+                this._traverseSchema(
+                    item,
+                    !opts.isRuleArray ? `${path}[*]` : path
+                );
+            });
+        } else if (joiSchemaPart.type === 'alternatives') {
+            if (this._isExclusiveField(joiSchemaPart)) {
+                this._exclusiveFields.push(path);
+            } else {
+                const { alternatives } = joiSchemaPart;
+                if (Array.isArray(alternatives)) {
+                    const exclusiveFields = [];
+                    const otherFields = [];
+
+                    alternatives.forEach((option) => {
+                        if (this._isExclusiveField(option)) {
+                            exclusiveFields.push(option);
+                        } else {
+                            otherFields.push(option);
+                        }
+                    });
+
+                    if (exclusiveFields.length && !otherFields.length) {
+                        exclusiveFields.some(() => this._exclusiveFields.push(path));
+                    } else {
+                        exclusiveFields.some(() => this._mixedFields.push(path));
+                        otherFields.forEach(option => this._traverseSchema(option, path));
+                    }
+                }
+            }
+        }
     }
 
-    static getJSONPaths(stepsJoiSchemas)  {
-        if (!this._jsonPaths) {
-            this._jsonPaths = {
-                JSONPaths: new JSONPathsGenerator(CONVERTED_FIELD_TYPES, stepsJoiSchemas, false)._getJSONPaths(),
-                JSONPathsCamelCased: new JSONPathsGenerator(CONVERTED_FIELD_TYPES, stepsJoiSchemas, true)._getJSONPaths(),
-            };
+    _isExclusiveField(alternativesObj) {
+        const { alternatives } = alternativesObj;
+
+        if (!Array.isArray(alternatives) || alternatives.length !== 2) {
+            return false;
         }
 
-        return this._jsonPaths;
+        const [option1, option2] = alternatives;
+
+        const isTargetType = option => option.type === this._fieldType;
+        const isCodefreshVariable = (option) => {
+            if (option.type !== 'string') {
+                return false;
+            }
+            const rule = option.rules?.[0];
+            return rule?.name === 'regex' && rule?.arg?.source === VARIABLE_EXACT_REGEX.source;
+        };
+
+        return (isTargetType(option1) && isCodefreshVariable(option2))
+            || (isCodefreshVariable(option1) && isTargetType(option2));
+    }
+
+    _adjustCase(str) {
+        return this._isCamelCase ? _.camelCase(str) : str;
     }
 }
 

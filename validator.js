@@ -40,10 +40,12 @@ class Validator {
         return Validator._getValidator(version).getJsonSchemas();
     }
 
-    static interpolate(yaml, variables, {
-        version, yamlType, fieldType, isCamelCase = false
-    } = {}) {
-        return Validator._getValidator(version).interpolate(yaml, variables, { yamlType, fieldType, isCamelCase });
+    static getStepsJoiSchemas(version) {
+        return Validator._getValidator(version).getStepsJoiSchemas();
+    }
+
+    static generateJSONPaths(version, { fieldType, joiSchema, isCamelCase }) {
+        return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, isCamelCase });
     }
 
     static _getValidator(version) {
