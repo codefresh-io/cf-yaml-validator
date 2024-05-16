@@ -26,6 +26,7 @@ const { docBaseUrl, DocumentationLinks, CustomDocumentationLinks } = require('./
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
 const { JSONPathsGenerator } = require('./jsonpaths/jsonpaths-generator');
+const { VARIABLE_REGEX, VARIABLE_EXACT_REGEX } = require('./constants/variable-regex');
 
 /**
  * ⬇️ Backward compatibility section
@@ -1088,6 +1089,10 @@ class Validator {
 
     static generateJSONPaths({ fieldType, joiSchema, isCamelCase }) {
         return new JSONPathsGenerator({ fieldType, joiSchema, isCamelCase }).getJSONPaths();
+    }
+
+    static getCFVariableRegex(isExact = false) {
+        return isExact ? VARIABLE_EXACT_REGEX : VARIABLE_REGEX;
     }
 }
 

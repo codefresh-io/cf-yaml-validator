@@ -48,6 +48,10 @@ class Validator {
         return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, isCamelCase });
     }
 
+    static getCFVariableRegex(version, isExact = false) {
+        return Validator._getValidator(version).getCFVariableRegex(isExact);
+    }
+
     static _getValidator(version) {
         const defaultVersion = '1.0';
         let modelVersion = (version === '1' || version === 1) ? '1.0' : version;
