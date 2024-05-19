@@ -1091,7 +1091,7 @@ class Validator {
         return new JSONPathsGenerator({ fieldType, joiSchema, isCamelCase }).getJSONPaths();
     }
 
-    static getCFVariableRegex(isExact = false) {
+    static getVariableRegex(isExact = false) {
         return isExact ? VARIABLE_EXACT_REGEX : VARIABLE_REGEX;
     }
 }
