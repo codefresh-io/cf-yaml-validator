@@ -40,6 +40,10 @@ class Validator {
         return Validator._getValidator(version).getJsonSchemas();
     }
 
+    static getRootJoiSchema(version) {
+        return Validator._getValidator(version).getRootJoiSchema();
+    }
+
     static getStepsJoiSchemas(version) {
         return Validator._getValidator(version).getStepsJoiSchemas();
     }

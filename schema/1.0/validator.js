@@ -27,6 +27,7 @@ const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
 const { JSONPathsGenerator } = require('./jsonpaths/jsonpaths-generator');
 const { VARIABLE_REGEX, VARIABLE_EXACT_REGEX } = require('./constants/variable-regex');
+const { RootSchema } = require('./root-schema');
 
 /**
  * ⬇️ Backward compatibility section
@@ -370,20 +371,7 @@ class Validator {
     }
 
     static _validateRootSchema(objectModel, yaml) {
-        const rootSchema = Joi.object({
-            version: Joi.number().positive().required(),
-            steps: Joi.object().pattern(/^.+$/, Joi.object()).required(),
-            stages: Joi.array().items(Joi.string()),
-            mode: Joi.string().valid('sequential', 'parallel'),
-            hooks: BaseSchema._getBaseHooksSchema(),
-            fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
-            strict_fail_fast: BaseSchema.getBooleanSchema({ strictBoolean: true }).optional(),
-            success_criteria: BaseSchema.getSuccessCriteriaSchema(),
-            indicators: Joi.array(),
-            services: Joi.object(),
-            build_version: Joi.string().valid('v1', 'v2'),
-        });
-        const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
+        const validationResult = Joi.validate(objectModel, RootSchema.getSchema(), { abortEarly: false });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
                 Validator._processRootSchemaError(err, validationResult, yaml);
@@ -1073,6 +1061,10 @@ class Validator {
         });
         this.jsonSchemas = jsonSchemas;
         return this.jsonSchemas;
+    }
+
+    static getRootJoiSchema() {
+        return RootSchema.getSchema();
     }
 
     static getStepsJoiSchemas() {
