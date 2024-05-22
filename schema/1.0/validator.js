@@ -957,12 +957,7 @@ class Validator {
                 annotations: BaseSchema._getAnnotationsSchema(),
             });
         } else if (hook.steps) {
-            hookSchema = Joi.object({
-                mode: Joi.string().valid('sequential', 'parallel'),
-                fail_fast: BaseSchema.getBooleanSchema(),
-                strict_fail_fast: BaseSchema.getBooleanSchema({ strictBoolean: true }).optional(),
-                steps: Joi.object().pattern(/^.+$/, Joi.object()),
-            });
+            hookSchema = multipleStepsSchema;
         } else {
             hookSchema = Joi.object();
         }
