@@ -17,7 +17,6 @@ const _ = require('lodash');
 const colors = require('colors');
 const Table = require('cli-table3');
 const { SEMVER_REGEX } = require('./constants/semver-regex');
-const { VARIABLE_REGEX } = require('./constants/variable-regex');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
