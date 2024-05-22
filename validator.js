@@ -40,6 +40,22 @@ class Validator {
         return Validator._getValidator(version).getJsonSchemas();
     }
 
+    static getRootJoiSchema(version) {
+        return Validator._getValidator(version).getRootJoiSchema();
+    }
+
+    static getStepsJoiSchemas(version) {
+        return Validator._getValidator(version).getStepsJoiSchemas();
+    }
+
+    static generateJSONPaths(version, { fieldType, joiSchema, isCamelCase }) {
+        return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, isCamelCase });
+    }
+
+    static getVariableRegex(version, isExact = false) {
+        return Validator._getValidator(version).getVariableRegex(isExact);
+    }
+
     static _getValidator(version) {
         const defaultVersion = '1.0';
         let modelVersion = (version === '1' || version === 1) ? '1.0' : version;
