@@ -1390,6 +1390,19 @@ describe('Validate Codefresh YAML', () => {
                 }, '"0" must be a string', done);
             });
 
+            it('should not allow command key', (done) => {
+
+                validateForError({
+                    version: '1.0',
+                    steps: {
+                        jim: {
+                            image: 'bob',
+                            command: [{}, 'asdasd']
+                        }
+                    }
+                }, 'Use commands instead command', done);
+            });
+
             it('Non-array environment', (done) => {
 
                 validateForError({
