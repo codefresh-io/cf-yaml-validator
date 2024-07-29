@@ -3,21 +3,25 @@
 const _ = require('lodash');
 const { VARIABLE_EXACT_REGEX } = require('../constants/variable-regex');
 
+/**
+ * Traverse JOI schema and detect all the fields of the specific type (e.g. boolean, number, etc)
+ * AND which may contain Codefresh variable.
+ */
 class JSONPathsGenerator {
-    constructor({ fieldType, joiSchema, isCamelCase = false } = {}) {
+    constructor({ fieldType, joiSchema, isConvertResultToCamelCase = false } = {}) {
         this._fieldType = fieldType;
         this._joiSchemaDescription = joiSchema.describe();
-        this._isCamelCase = isCamelCase;
+        this._isConvertResultToCamelCase = isConvertResultToCamelCase;
 
-        this._exclusiveFields = [];
-        this._mixedFields = [];
+        this._singleTypeFields = [];
+        this._multipleTypesFields = [];
     }
 
     getJSONPaths() {
         this._traverseSchema(this._joiSchemaDescription);
         return {
-            exclusiveFields: this._exclusiveFields,
-            mixedFields: this._mixedFields
+            singleTypeFields: this._singleTypeFields,
+            multipleTypesFields: this._multipleTypesFields
         };
     }
 
@@ -48,25 +52,25 @@ class JSONPathsGenerator {
             });
         } else if (joiSchemaPart.type === 'alternatives') {
             if (this._isExclusiveField(joiSchemaPart)) {
-                this._exclusiveFields.push(path);
+                this._singleTypeFields.push(path);
             } else {
                 const { alternatives } = joiSchemaPart;
                 if (Array.isArray(alternatives)) {
-                    const exclusiveFields = [];
+                    const singleTypeFields = [];
                     const otherFields = [];
 
                     alternatives.forEach((option) => {
                         if (this._isExclusiveField(option)) {
-                            exclusiveFields.push(option);
+                            singleTypeFields.push(option);
                         } else {
                             otherFields.push(option);
                         }
                     });
 
-                    if (exclusiveFields.length && !otherFields.length) {
-                        exclusiveFields.some(() => this._exclusiveFields.push(path));
+                    if (singleTypeFields.length && !otherFields.length) {
+                        singleTypeFields.some(() => this._singleTypeFields.push(path));
                     } else {
-                        exclusiveFields.some(() => this._mixedFields.push(path));
+                        singleTypeFields.some(() => this._multipleTypesFields.push(path));
                         otherFields.forEach(option => this._traverseSchema(option, path));
                     }
                 }
@@ -83,21 +87,24 @@ class JSONPathsGenerator {
 
         const [option1, option2] = alternatives;
 
-        const isTargetType = option => option.type === this._fieldType;
-        const isCodefreshVariable = (option) => {
-            if (option.type !== 'string') {
-                return false;
-            }
-            const rule = option.rules?.[0];
-            return rule?.name === 'regex' && rule?.arg?.source === VARIABLE_EXACT_REGEX.source;
-        };
+        return (this._isTargetType(option1) && this._isCodefreshVariable(option2))
+            || (this._isTargetType(option2) && this._isCodefreshVariable(option1));
+    }
 
-        return (isTargetType(option1) && isCodefreshVariable(option2))
-            || (isCodefreshVariable(option1) && isTargetType(option2));
+    _isTargetType(option) {
+        return option.type === this._fieldType;
+    }
+
+    _isCodefreshVariable(option) {
+        if (option.type !== 'string') {
+            return false;
+        }
+        const rule = option.rules?.[0];
+        return rule?.name === 'regex' && rule?.arg?.source === VARIABLE_EXACT_REGEX.source;
     }
 
     _adjustCase(str) {
-        return this._isCamelCase ? _.camelCase(str) : str;
+        return this._isConvertResultToCamelCase ? _.camelCase(str) : str;
     }
 }
 
