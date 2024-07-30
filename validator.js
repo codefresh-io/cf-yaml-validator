@@ -52,8 +52,8 @@ class Validator {
         return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, isCamelCase });
     }
 
-    static getVariableRegex(version, isExact = false) {
-        return Validator._getValidator(version).getVariableRegex(isExact);
+    static getVariableRegex(version) {
+        return Validator._getValidator(version).getVariableRegex();
     }
 
     static _getValidator(version) {
