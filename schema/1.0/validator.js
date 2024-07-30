@@ -25,7 +25,7 @@ const { docBaseUrl, DocumentationLinks, CustomDocumentationLinks } = require('./
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
 const { JSONPathsGenerator } = require('./jsonpaths/jsonpaths-generator');
-const { VARIABLE_REGEX, VARIABLE_EXACT_REGEX } = require('./constants/variable-regex');
+const { VARIABLE_REGEX } = require('./constants/variable-regex');
 const { RootSchema } = require('./root-schema');
 
 /**
