@@ -32,10 +32,10 @@ class Build extends BaseSchema {
             working_directory: Joi.string(),
             dockerfile: Joi.alternatives()
                 .try(Joi.string(), Joi.object({ content: Joi.string() })),
-            no_cache: BaseSchema.getBooleanSchema(),
-            no_cf_cache: BaseSchema.getBooleanSchema(),
+            no_cache: this.constructor.getBooleanSchema(),
+            no_cf_cache: this.constructor.getBooleanSchema(),
             cache_from: Joi.array().items(Joi.string()),
-            squash: BaseSchema.getBooleanSchema(),
+            squash: this.constructor.getBooleanSchema(),
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
             tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
@@ -49,11 +49,11 @@ class Build extends BaseSchema {
             ssh: BaseSchema._getSshSchema(),
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
-            buildkit: BaseSchema.getBooleanSchema(),
+            buildkit: this.constructor.getBooleanSchema(),
             ...(opts.buildVersion === BUILD_VERSION && { registry: Joi.string() }),
-            ...(opts.buildVersion === BUILD_VERSION && { disable_push: BaseSchema.getBooleanSchema() }),
+            ...(opts.buildVersion === BUILD_VERSION && { disable_push: this.constructor.getBooleanSchema() }),
             buildx: Joi.alternatives()
-                .try(BaseSchema.getBooleanSchema(), Joi.object({
+                .try(this.constructor.getBooleanSchema(), Joi.object({
                     qemu: {
                         image: Joi.string(),
                         platforms: Joi.string(),

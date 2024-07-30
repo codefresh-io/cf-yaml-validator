@@ -82,8 +82,8 @@ class BaseSchema {
         return Object.assign({
             'description': Joi.string(),
             'title': Joi.string(),
-            'fail_fast': BaseSchema.getBooleanSchema(),
-            'strict_fail_fast': BaseSchema.getBooleanSchema({ strictBoolean: true }).optional(),
+            'fail_fast': this.constructor.getBooleanSchema(),
+            'strict_fail_fast': this.constructor.getBooleanSchema({ strictBoolean: true }).optional(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
