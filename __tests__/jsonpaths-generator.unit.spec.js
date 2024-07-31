@@ -113,5 +113,50 @@ describe('Validate jsonpaths-generator', () => {
 
             expect(gitCloneBooleanPaths).to.be.deep.equal(expectedGitCloneBooleanPaths);
         });
+
+        test('for the root of the pipeline yaml in camelCase', async () => {
+            const rootJoiSchema = Validator.getRootJoiSchema();
+            const generator = new JSONPathsGenerator({
+                fieldType,
+                joiSchema: rootJoiSchema,
+                isConvertResultToCamelCase: true
+            });
+            const JSONPaths = generator.getJSONPaths();
+
+            const expectedJSONPaths = {
+                'singleTypeFields': ['$.strictFailFast'],
+                'multipleTypesFields': ['$.failFast'],
+            };
+
+            expect(JSONPaths).to.be.deep.equal(expectedJSONPaths);
+        });
+
+        test('build step in camelCase', async () => {
+            const buildJoiSchema = Validator.getStepsJoiSchemas()?.build;
+
+            // eslint-disable-next-line no-unused-expressions
+            expect(buildJoiSchema).to.exist;
+
+            const buildBooleanPaths = new JSONPathsGenerator({
+                fieldType,
+                joiSchema: buildJoiSchema,
+                isConvertResultToCamelCase: true
+            }).getJSONPaths();
+
+            const expectedBuildBooleanPaths = {
+                'singleTypeFields': [
+                    '$.failFast',
+                    '$.strictFailFast',
+                    '$.noCache',
+                    '$.noCfCache',
+                    '$.squash',
+                    '$.buildkit',
+                    '$.disablePush'
+                ],
+                'multipleTypesFields': ['$.buildx']
+            };
+
+            expect(buildBooleanPaths).to.be.deep.equal(expectedBuildBooleanPaths);
+        });
     });
 });

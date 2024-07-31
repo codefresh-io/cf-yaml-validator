@@ -8147,4 +8147,63 @@ describe('Validate Codefresh YAML with context', () => {
 
     });
 
+    describe('Joi Schemas', () => {
+        test('Root pipeline joi schema exists', () => {
+            const rootSchema = Validator.getRootJoiSchema('1.0');
+            expect(rootSchema?.isJoi).to.be.true;
+        });
+
+        test('Steps joi schemas exist', () => {
+            const stepsSchemas = Validator.getStepsJoiSchemas('1.0');
+            expect(Object.keys(stepsSchemas)).to.have.lengthOf(14);
+            Object.values(stepsSchemas).forEach(schema => expect(schema.isJoi).to.be.true);
+        });
+    });
+
+    describe('Generate JSON Paths for Booleans from schema', () => {
+        test('for Root schema', () => {
+            const rootSchema = Validator.getRootJoiSchema('1.0');
+            const JSONPaths = Validator.generateJSONPaths('1.0', { fieldType: 'boolean', joiSchema: rootSchema });
+
+            const expected = {
+                'singleTypeFields': [
+                    '$.strict_fail_fast'
+                ],
+                'multipleTypesFields': [
+                    '$.fail_fast'
+                ]
+            };
+
+            expect(JSONPaths).to.be.deep.equal(expected);
+        });
+
+        test('for git-clone step in camelCase', async () => {
+            const gitCloneJoiSchema = Validator.getStepsJoiSchemas('1.0')?.['git-clone'];
+
+            const gitCloneBooleanPaths = Validator.generateJSONPaths('1.0', {
+                fieldType: 'boolean',
+                joiSchema: gitCloneJoiSchema,
+                isConvertResultToCamelCase: true,
+            });
+
+            const expectedGitCloneBooleanPaths = {
+                'singleTypeFields': [
+                    '$.failFast',
+                    '$.strictFailFast',
+                    '$.useProxy',
+                    '$.excludeBlobs'
+                ],
+                'multipleTypesFields': []
+            };
+
+            expect(gitCloneBooleanPaths).to.be.deep.equal(expectedGitCloneBooleanPaths);
+        });
+    });
+
+    describe('retrieve a regex for CF variables', () => {
+        test('check the exposed regex', () => {
+            const cfRegex = Validator.getVariableRegex('1.0');
+            expect(cfRegex?.source).to.equal('\\$\\{{2}(.+?)\\}{2}');
+        });
+    });
 });
