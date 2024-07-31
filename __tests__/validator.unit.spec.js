@@ -1692,7 +1692,18 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 13,
-                                'message': '"disable_push" must be a boolean. Current value: hello ',
+                                'message': '"disable_push" must be a boolean',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage',
+                                'type': 'Validation'
+                            },
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': { 'key': 'steps' },
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
+                                'level': 'step',
+                                'lines': 13,
+                                'message': '"disable_push" with value "hello" fails to match the [object Object] pattern',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -2033,6 +2044,17 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 15
+                            },
+                            {
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'context': { 'key': 'steps' },
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
+                                'level': 'step',
+                                'lines': 15,
+                                'message': '"buildx" with value "test string" fails to match the [object Object] pattern',
+                                'path': 'steps',
+                                'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
+                                'type': 'Validation'
                             },
                             {
                                 'message': '"buildx" must be an object',
@@ -5644,7 +5666,7 @@ describe('Validate Codefresh YAML', () => {
 
         it('should return json schemas', () => {
             const schemas = Validator.getJsonSchemas();
-            expect(_.size(schemas)).to.equal(13);
+            expect(_.size(schemas)).to.equal(14);
         });
 
     });
