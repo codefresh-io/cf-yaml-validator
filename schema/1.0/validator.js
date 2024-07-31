@@ -561,6 +561,8 @@ class Validator {
     }
 
     static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
+        if (type === 'parallel') return; // TODO: add all errors from parallel step to warnings
+
         const originalPath = Validator._getOriginalPath(err);
         const originalFieldValue = Validator._getOriginalFieldValue(originalPath, validationResult);
         const suggestion = Validator._getArgumentSuggestion(err, originalPath, stepSchema);
