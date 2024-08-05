@@ -2226,7 +2226,7 @@ describe('Validate Codefresh YAML', () => {
                                 cosign: {
                                     sign: true,
                                     options: {
-                                        foo: "bar"
+                                        foo: 'bar'
                                     }
                                 }
                             },
@@ -2292,7 +2292,7 @@ describe('Validate Codefresh YAML', () => {
                                 'lines': 16,
                             },
                             {
-                                'message': '"nestedObject\" must be a string. Current value: [object Object] ',
+                                'message': '"nestedObject" must be a string. Current value: [object Object] ',
                                 'type': 'Validation',
                                 'path': 'steps',
                                 'context': {
