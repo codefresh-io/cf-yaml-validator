@@ -2169,6 +2169,151 @@ describe('Validate Codefresh YAML', () => {
                 });
             });
 
+            describe('cosign_sign', () => {
+                const context = {
+                    git: [
+                        { metadata: { name: 'git' } },
+                        { metadata: { name: 'git2', default: true } }
+                    ],
+                    registries: [
+                        { name: 'reg' }, { name: 'reg2', default: false }
+                    ],
+                    clusters: [
+                        { selector: 'cluster' }, { selector: 'cluster2' }
+                    ],
+                    variables: [],
+                    autoPush: true
+                };
+
+                const opts = {
+                    build: {
+                        buildVersion: 'V2'
+                    }
+                };
+
+                const createBuildStepTemplate = () => ({
+                    title: 'Building Docker Image',
+                    type: 'build',
+                    image_name: 'codefresh/test',
+                    working_directory: './',
+                    dockerfile: {
+                        content: 'From alpine:latest'
+                    },
+                    registry: 'reg',
+                    tags: [
+                        'tag1',
+                        'tag2'
+                    ],
+                });
+
+                it('positive', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-cosign-success.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage_CosignCanBeNull: {
+                                ...createBuildStepTemplate(),
+                                // cosign:  ...,
+                            },
+                            BuildingDockerImage_CosignOptionsAreOptional: {
+                                ...createBuildStepTemplate(),
+                                cosign: {
+                                    sign: true
+                                }
+                            },
+                            BuildingDockerImage_CosignOptionsCanBeAnyString: {
+                                ...createBuildStepTemplate(),
+                                cosign: {
+                                    sign: true,
+                                    options: {
+                                        foo: "bar"
+                                    }
+                                }
+                            },
+                        }
+                    };
+
+                    validateWithContext(model, 'message', yaml, context, opts);
+                    done();
+                });
+
+                it('negative', (done) => {
+                    const yaml = fs.readFileSync(path.join(currentPath, './test-yamls/yaml-build-cosign-failure.yml'), 'utf8');
+                    const model = {
+                        version: '1.0',
+                        steps: {
+                            BuildingDockerImage_CosignMustBeAnObject: {
+                                ...createBuildStepTemplate(),
+                                cosign: 'test',
+                            },
+                            BuildingDockerImage_CosignSignIsMandatory: {
+                                ...createBuildStepTemplate(),
+                                cosign: {},
+                            },
+                            BuildingDockerImage_CosignOptionsMustBeFlat: {
+                                ...createBuildStepTemplate(),
+                                cosign: {
+                                    sign: true,
+                                    options: {
+                                        nestedObject: {
+                                            isNotAllowed: true
+                                        }
+                                    }
+                                }
+                            },
+                        }
+                    };
+                    const expectedMessage = {
+                        details: [
+                            {
+                                'message': '"cosign" must be an object. Current value: test ',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_CosignMustBeAnObject',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 15
+                            },
+                            {
+                                'message': '"sign" is required',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_CosignSignIsMandatory',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 16,
+                            },
+                            {
+                                'message': '"nestedObject\" must be a string. Current value: [object Object] ',
+                                'type': 'Validation',
+                                'path': 'steps',
+                                'context': {
+                                    'key': 'steps'
+                                },
+                                'level': 'step',
+                                'stepName': 'BuildingDockerImage_CosignOptionsMustBeFlat',
+                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
+                                'actionItems': 'Please make sure you have all the required fields and valid values',
+                                'lines': 29
+                            },
+                        ],
+                        warningDetails: [],
+                    };
+
+                    validateForErrorWithContext(model, expectedMessage, done, 'message', yaml, context, opts);
+                    done();
+                });
+            });
+
+
             it('Non-existing image name', (done) => {
 
                 validateForError({

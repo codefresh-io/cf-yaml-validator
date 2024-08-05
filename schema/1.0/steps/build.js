@@ -74,6 +74,10 @@ class Build extends BaseSchema {
             role_arn: Joi.string(),
             aws_session_name: Joi.string(),
             aws_duration_seconds: Joi.number(),
+            cosign: Joi.object({
+                sign: Joi.boolean().required(),
+                options: Joi.object().pattern(/./, Joi.string()),
+            }),
         };
         return this._createSchema(buildProperties);
     }

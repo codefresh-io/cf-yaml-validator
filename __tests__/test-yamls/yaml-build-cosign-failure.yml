@@ -1,0 +1,45 @@
+version: "1.0"
+steps:
+  BuildingDockerImage_CosignMustBeAnObject:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    cosign: 'test'
+  BuildingDockerImage_CosignSignIsMandatory:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    cosign: {}
+  BuildingDockerImage_CosignOptionsMustBeFlat:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    cosign:
+      sign: true
+      options:
+        nestedObject:
+          isNotAllowed: true
