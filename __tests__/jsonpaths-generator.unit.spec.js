@@ -24,8 +24,8 @@ describe('Validate jsonpaths-generator', () => {
             expect(JSONPaths).to.be.deep.equal(expectedJSONPaths);
         });
 
-        test('for steps: deploy, composition, launch-composition, parallel, push, travis, simple_travis, integration-test'
-               + ', push-tag, pending-approval, services, freestyle, freestyle-ssh, github-action', async () => {
+        test('for steps: composition, deploy, freestyle, helm, integration-test, launch-composition, parallel'
+               + ', pending-approval, push, push-tag, simple_travis, travis', async () => {
 
             const stepNames = [
                 'composition',
