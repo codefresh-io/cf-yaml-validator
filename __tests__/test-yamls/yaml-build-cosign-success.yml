@@ -1,0 +1,44 @@
+version: "1.0"
+steps:
+  BuildingDockerImage_CosignCanBeNull:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+  BuildingDockerImage_CosignOptionsAreOptional:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    cosign:
+      sign: true
+  BuildingDockerImage_CosignOptionsCanBeAnyString:
+    title: Building Docker Image
+    type: build
+    image_name: codefresh/test
+    working_directory: ./
+    tags:
+      - tag1
+      - tag2
+    dockerfile:
+      content: |-
+        From alpine:latest
+    registry: reg
+    cosign:
+      sign: true
+      options:
+        foo: "bar"
