@@ -1075,8 +1075,8 @@ class Validator {
         return this._stepsJoiSchemas;
     }
 
-    static generateJSONPaths({ fieldType, joiSchema, isConvertResultToCamelCase }) {
-        return new JSONPathsGenerator({ fieldType, joiSchema, isConvertResultToCamelCase }).getJSONPaths();
+    static generateJSONPaths({ fieldType, joiSchema, convertToCamelCase }) {
+        return new JSONPathsGenerator({ fieldType, joiSchema, convertToCamelCase }).getJSONPaths();
     }
 
     static getVariableRegex({ isExact } = {}) {

@@ -8,10 +8,10 @@ const { VARIABLE_EXACT_REGEX } = require('../constants/variable-regex');
  * AND which may contain Codefresh variable.
  */
 class JSONPathsGenerator {
-    constructor({ fieldType, joiSchema, isConvertResultToCamelCase = false } = {}) {
+    constructor({ fieldType, joiSchema, convertToCamelCase = false } = {}) {
         this._fieldType = fieldType;
         this._joiSchemaDescription = joiSchema.describe();
-        this._isConvertResultToCamelCase = isConvertResultToCamelCase;
+        this._convertToCamelCase = convertToCamelCase;
 
         this._singleTypeFields = [];
         this._multipleTypesFields = [];
@@ -104,7 +104,7 @@ class JSONPathsGenerator {
     }
 
     _adjustCase(str) {
-        return this._isConvertResultToCamelCase ? _.camelCase(str) : str;
+        return this._convertToCamelCase ? _.camelCase(str) : str;
     }
 }
 

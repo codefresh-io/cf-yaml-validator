@@ -48,8 +48,8 @@ class Validator {
         return Validator._getValidator(version).getStepsJoiSchemas();
     }
 
-    static generateJSONPaths(version, { fieldType, joiSchema, isConvertResultToCamelCase }) {
-        return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, isConvertResultToCamelCase });
+    static generateJSONPaths(version, { fieldType, joiSchema, convertToCamelCase }) {
+        return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, convertToCamelCase });
     }
 
 

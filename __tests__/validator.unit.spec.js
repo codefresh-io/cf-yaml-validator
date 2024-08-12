@@ -8328,7 +8328,7 @@ describe('Validate Codefresh YAML with context', () => {
             const gitCloneBooleanPaths = Validator.generateJSONPaths('1.0', {
                 fieldType: 'boolean',
                 joiSchema: gitCloneJoiSchema,
-                isConvertResultToCamelCase: true,
+                convertToCamelCase: true,
             });
 
             const expectedGitCloneBooleanPaths = {

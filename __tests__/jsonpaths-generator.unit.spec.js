@@ -120,7 +120,7 @@ describe('Validate jsonpaths-generator', () => {
             const generator = new JSONPathsGenerator({
                 fieldType,
                 joiSchema: rootJoiSchema,
-                isConvertResultToCamelCase: true
+                convertToCamelCase: true
             });
             const JSONPaths = generator.getJSONPaths();
 
@@ -141,7 +141,7 @@ describe('Validate jsonpaths-generator', () => {
             const buildBooleanPaths = new JSONPathsGenerator({
                 fieldType,
                 joiSchema: buildJoiSchema,
-                isConvertResultToCamelCase: true
+                convertToCamelCase: true,
             }).getJSONPaths();
 
             const expectedBuildBooleanPaths = {
