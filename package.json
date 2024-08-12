@@ -24,9 +24,6 @@
     "test:watch": "jest --watch",
     "eslint": "eslint schema/** __tests__/**/*.js validator.js validator-error.js"
   },
-  "resolutions": {
-    "moment": "^2.29.4"
-  },
   "dependencies": {
     "cli-table3": "^0.6.0",
     "colors": "^1.3.3",
