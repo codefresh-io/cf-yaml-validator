@@ -84,7 +84,8 @@ describe('Validate jsonpaths-generator', () => {
                     '$.no_cf_cache',
                     '$.squash',
                     '$.buildkit',
-                    '$.disable_push'
+                    '$.disable_push',
+                    '$.cosign.sign'
                 ],
                 'multipleTypesFields': ['$.buildx']
             };
@@ -151,7 +152,8 @@ describe('Validate jsonpaths-generator', () => {
                     '$.noCfCache',
                     '$.squash',
                     '$.buildkit',
-                    '$.disablePush'
+                    '$.disablePush',
+                    '$.cosign.sign',
                 ],
                 'multipleTypesFields': ['$.buildx']
             };
