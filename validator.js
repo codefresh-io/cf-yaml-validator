@@ -52,8 +52,16 @@ class Validator {
         return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, isConvertResultToCamelCase });
     }
 
-    static getVariableRegex(version) {
-        return Validator._getValidator(version).getVariableRegex();
+
+    /**
+     * Get a regex for Codefresh variable such as: '${{VARIABLE_NAME}}'
+     *
+     * @param {string} version validator's version
+     * @param {object} opts options
+     * @param {boolean} [opts.isExact] return a regex which matches not only part of the string but mathes the whole string entirely
+     */
+    static getVariableRegex(version, opts) {
+        return Validator._getValidator(version).getVariableRegex(opts);
     }
 
     static _getValidator(version) {
