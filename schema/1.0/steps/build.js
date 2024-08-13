@@ -32,10 +32,10 @@ class Build extends BaseSchema {
             working_directory: Joi.string(),
             dockerfile: Joi.alternatives()
                 .try(Joi.string(), Joi.object({ content: Joi.string() })),
-            no_cache: this.constructor.getBooleanSchema(),
-            no_cf_cache: this.constructor.getBooleanSchema(),
+            no_cache: Joi.boolean(),
+            no_cf_cache: Joi.boolean(),
             cache_from: Joi.array().items(Joi.string()),
-            squash: this.constructor.getBooleanSchema(),
+            squash: Joi.boolean(),
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
             tag: opts.tagIsRequired ? Joi.string().required() : Joi.string(),
@@ -49,11 +49,11 @@ class Build extends BaseSchema {
             ssh: BaseSchema._getSshSchema(),
             secrets: BaseSchema._getSecretsSchema(),
             progress: Joi.string(),
-            buildkit: this.constructor.getBooleanSchema(),
+            buildkit: Joi.boolean(),
             ...(opts.buildVersion === BUILD_VERSION && { registry: Joi.string() }),
-            ...(opts.buildVersion === BUILD_VERSION && { disable_push: this.constructor.getBooleanSchema() }),
+            ...(opts.buildVersion === BUILD_VERSION && { disable_push: Joi.boolean() }),
             buildx: Joi.alternatives()
-                .try(this.constructor.getBooleanSchema(), Joi.object({
+                .try(Joi.boolean(), Joi.object({
                     qemu: {
                         image: Joi.string(),
                         platforms: Joi.string(),
@@ -75,7 +75,7 @@ class Build extends BaseSchema {
             aws_session_name: Joi.string(),
             aws_duration_seconds: Joi.number(),
             cosign: Joi.object({
-                sign: this.constructor.getBooleanSchema().required(),
+                sign: Joi.boolean().required(),
                 options: Joi.object().pattern(/./, Joi.string()),
             }),
         };
