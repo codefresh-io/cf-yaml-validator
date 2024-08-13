@@ -20,7 +20,7 @@ class Freestyle extends BaseSchema {
             phases: Joi.object({
                 before: Joi.boolean(),
                 override: Joi.boolean(),
-                after: Joi.boolean(),
+                after: Joi.boolean()
             })
         });
     }

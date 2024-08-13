@@ -40,30 +40,6 @@ class Validator {
         return Validator._getValidator(version).getJsonSchemas();
     }
 
-    static getRootJoiSchema(version) {
-        return Validator._getValidator(version).getRootJoiSchema();
-    }
-
-    static getStepsJoiSchemas(version) {
-        return Validator._getValidator(version).getStepsJoiSchemas();
-    }
-
-    static generateJSONPaths(version, { fieldType, joiSchema, convertToCamelCase }) {
-        return Validator._getValidator(version).generateJSONPaths({ fieldType, joiSchema, convertToCamelCase });
-    }
-
-
-    /**
-     * Get a regex for Codefresh variable such as: '${{VARIABLE_NAME}}'
-     *
-     * @param {string} version validator's version
-     * @param {object} opts options
-     * @param {boolean} [opts.isExact] return a regex which matches not only part of the string but mathes the whole string entirely
-     */
-    static getVariableRegex(version, opts) {
-        return Validator._getValidator(version).getVariableRegex(opts);
-    }
-
     static _getValidator(version) {
         const defaultVersion = '1.0';
         let modelVersion = (version === '1' || version === 1) ? '1.0' : version;

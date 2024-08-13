@@ -6,7 +6,7 @@
 
   "extends": "airbnb",
   "parserOptions": {
-    "ecmaVersion": 2020,
+    "ecmaVersion": 2018,
     "sourceType": "script",
     "ecmaFeatures": {
       "jsx": true

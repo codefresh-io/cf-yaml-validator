@@ -1692,18 +1692,7 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'level': 'step',
                                 'lines': 13,
-                                'message': '"disable_push" must be a boolean',
-                                'path': 'steps',
-                                'stepName': 'BuildingDockerImage',
-                                'type': 'Validation'
-                            },
-                            {
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'context': { 'key': 'steps' },
-                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
-                                'level': 'step',
-                                'lines': 13,
-                                'message': '"disable_push" with value "hello" fails to match the [object Object] pattern',
+                                'message': '"disable_push" must be a boolean. Current value: hello ',
                                 'path': 'steps',
                                 'stepName': 'BuildingDockerImage',
                                 'type': 'Validation'
@@ -2044,17 +2033,6 @@ describe('Validate Codefresh YAML', () => {
                                 'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
                                 'actionItems': 'Please make sure you have all the required fields and valid values',
                                 'lines': 15
-                            },
-                            {
-                                'actionItems': 'Please make sure you have all the required fields and valid values',
-                                'context': { 'key': 'steps' },
-                                'docsLink': 'https://codefresh.io/docs/docs/pipelines/steps/build/',
-                                'level': 'step',
-                                'lines': 15,
-                                'message': '"buildx" with value "test string" fails to match the [object Object] pattern',
-                                'path': 'steps',
-                                'stepName': 'BuildingDockerImage_BuildxOnlyAllowedToBeBooleanOrObject',
-                                'type': 'Validation'
                             },
                             {
                                 'message': '"buildx" must be an object',
@@ -5811,7 +5789,7 @@ describe('Validate Codefresh YAML', () => {
 
         it('should return json schemas', () => {
             const schemas = Validator.getJsonSchemas();
-            expect(_.size(schemas)).to.equal(14);
+            expect(_.size(schemas)).to.equal(13);
         });
 
     });
@@ -8292,63 +8270,4 @@ describe('Validate Codefresh YAML with context', () => {
 
     });
 
-    describe('Joi Schemas', () => {
-        test('Root pipeline joi schema exists', () => {
-            const rootSchema = Validator.getRootJoiSchema('1.0');
-            expect(rootSchema?.isJoi).to.be.true;
-        });
-
-        test('Steps joi schemas exist', () => {
-            const stepsSchemas = Validator.getStepsJoiSchemas('1.0');
-            expect(Object.keys(stepsSchemas)).to.have.lengthOf(14);
-            Object.values(stepsSchemas).forEach(schema => expect(schema.isJoi).to.be.true);
-        });
-    });
-
-    describe('Generate JSON Paths for Booleans from schema', () => {
-        test('for Root schema', () => {
-            const rootSchema = Validator.getRootJoiSchema('1.0');
-            const JSONPaths = Validator.generateJSONPaths('1.0', { fieldType: 'boolean', joiSchema: rootSchema });
-
-            const expected = {
-                'singleTypeFields': [
-                    '$.strict_fail_fast'
-                ],
-                'multipleTypesFields': [
-                    '$.fail_fast'
-                ]
-            };
-
-            expect(JSONPaths).to.be.deep.equal(expected);
-        });
-
-        test('for git-clone step in camelCase', async () => {
-            const gitCloneJoiSchema = Validator.getStepsJoiSchemas('1.0')?.['git-clone'];
-
-            const gitCloneBooleanPaths = Validator.generateJSONPaths('1.0', {
-                fieldType: 'boolean',
-                joiSchema: gitCloneJoiSchema,
-                convertToCamelCase: true,
-            });
-
-            const expectedGitCloneBooleanPaths = {
-                'singleTypeFields': [
-                    '$.failFast',
-                    '$.strictFailFast',
-                    '$.useProxy',
-                    '$.excludeBlobs'
-                ],
-                'multipleTypesFields': []
-            };
-
-            expect(gitCloneBooleanPaths).to.be.deep.equal(expectedGitCloneBooleanPaths);
-        });
-    });
-
-    describe('retrieve a regex for CF variables', () => {
-        test('check the exposed regex', () => {
-            const cfRegex = Validator.getVariableRegex('1.0');
-            expect(cfRegex?.source).to.equal('\\$\\{{2}(.+?)\\}{2}');
-        });
-    });
 });
