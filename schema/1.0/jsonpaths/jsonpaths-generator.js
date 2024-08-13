@@ -8,6 +8,12 @@ const { VARIABLE_EXACT_REGEX } = require('../constants/variable-regex');
  * AND which may contain Codefresh variable.
  */
 class JSONPathsGenerator {
+
+    /**
+     * @param {string} fieldType - field type name (e.g., "boolean", "number", etc)
+     * @param joiSchema - joi schema object to search
+     * @param {boolean} [convertToCamelCase] - should the JSON Paths be converted to camelCase
+     */
     constructor({ fieldType, joiSchema, convertToCamelCase = false } = {}) {
         this._fieldType = fieldType;
         this._joiSchemaDescription = joiSchema.describe();
@@ -17,6 +23,15 @@ class JSONPathsGenerator {
         this._multipleTypesFields = [];
     }
 
+    /**
+     * @typedef {Object} JSONPathLists
+     * @property {string[]} singleTypeFields - an array of JSON Path strings for single type fields.
+     * @property {string[]} multipleTypesFields - an array of JSON Path strings for multiple types fields.
+     */
+
+    /**
+     * @returns {JSONPathLists} - an object containing arrays of JSON Path strings for single and multiple type fields
+     */
     getJSONPaths() {
         this._traverseSchema(this._joiSchemaDescription);
         return {
