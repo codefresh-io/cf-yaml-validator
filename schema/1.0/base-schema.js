@@ -11,6 +11,7 @@
 const _ = require('lodash');
 const Joi = require('joi');
 const convert = require('joi-to-json-schema');
+const { VARIABLE_EXACT_REGEX } = require('./constants/variable-regex');
 
 class BaseSchema {
 
@@ -81,8 +82,8 @@ class BaseSchema {
         return Object.assign({
             'description': Joi.string(),
             'title': Joi.string(),
-            'fail_fast': Joi.boolean(),
-            'strict_fail_fast': Joi.boolean().strict().optional(),
+            'fail_fast': this.constructor.getBooleanSchema(),
+            'strict_fail_fast': this.constructor.getBooleanSchema({ strictBoolean: true }).optional(),
             'docker_machine': Joi.alternatives().try(
                 [
                     Joi.object({
@@ -185,14 +186,13 @@ class BaseSchema {
     static _getMetadataAnnotationSetSchema() {
         return Joi.array().items(
             Joi.alternatives().try(
-                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try(
-                    [
-                        Joi.string(),
-                        Joi.boolean(),
-                        Joi.number(),
-                        Joi.object({ evaluate: Joi.string().required() })
-                    ]
-                )), Joi.string().regex(/^[A-Za-z0-9_]+$/)
+                Joi.object().pattern(/^[A-Za-z0-9_]+$/, Joi.alternatives().try([
+                    Joi.string(),
+                    Joi.boolean(),
+                    Joi.number(),
+                    Joi.object({ evaluate: Joi.string().required() })
+                ])),
+                Joi.string().regex(/^[A-Za-z0-9_]+$/)
             )
         );
     }
@@ -265,7 +265,7 @@ class BaseSchema {
         return Joi.object({
             phases: Joi.object({
                 before: Joi.boolean(),
-                after: Joi.boolean()
+                after: Joi.boolean(),
             })
         });
     }
@@ -286,6 +286,22 @@ class BaseSchema {
                 selectors: Joi.array().items(Joi.string()),
             })),
         });
+    }
+
+    /**
+     * Returns a schema for a boolean value or a Codefresh variable
+     * @param {object} [options]
+     * @param {boolean} [options.strictBoolean] If `true`, the value will not be coerced to a boolean before validation
+     */
+    static getBooleanSchema(options = {}) {
+        return Joi.alternatives().try(
+            options.strictBoolean ? Joi.boolean().strict() : Joi.boolean(),
+            BaseSchema._getCFVariableSchema(),
+        );
+    }
+
+    static _getCFVariableSchema() {
+        return Joi.string().regex(VARIABLE_EXACT_REGEX, { name: 'cf_variable' });
     }
 
     //------------------------------------------------------------------------------

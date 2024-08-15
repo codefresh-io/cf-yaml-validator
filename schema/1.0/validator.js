@@ -17,7 +17,6 @@ const _ = require('lodash');
 const colors = require('colors');
 const Table = require('cli-table3');
 const { SEMVER_REGEX } = require('./constants/semver-regex');
-const { VARIABLE_REGEX } = require('./constants/variable-regex');
 const ValidatorError = require('../../validator-error');
 const BaseSchema = require('./base-schema');
 const PendingApproval = require('./steps/pending-approval');
@@ -25,6 +24,9 @@ const { ErrorType, ErrorBuilder } = require('./error-builder');
 const { docBaseUrl, DocumentationLinks, CustomDocumentationLinks } = require('./documentation-links');
 const { StepValidator } = require('./constants/step-validator');
 const SuggestArgumentValidation = require('./validations/suggest-argument');
+const { JSONPathsGenerator } = require('./jsonpaths/jsonpaths-generator');
+const { VARIABLE_REGEX, VARIABLE_EXACT_REGEX } = require('./constants/variable-regex');
+const { RootSchema } = require('./root-schema');
 
 /**
  * ⬇️ Backward compatibility section
@@ -368,20 +370,7 @@ class Validator {
     }
 
     static _validateRootSchema(objectModel, yaml) {
-        const rootSchema = Joi.object({
-            version: Joi.number().positive().required(),
-            steps: Joi.object().pattern(/^.+$/, Joi.object()).required(),
-            stages: Joi.array().items(Joi.string()),
-            mode: Joi.string().valid('sequential', 'parallel'),
-            hooks: BaseSchema._getBaseHooksSchema(),
-            fail_fast: [Joi.object(), Joi.string(), Joi.boolean()],
-            strict_fail_fast: Joi.boolean().strict().optional(),
-            success_criteria: BaseSchema.getSuccessCriteriaSchema(),
-            indicators: Joi.array(),
-            services: Joi.object(),
-            build_version: Joi.string().valid('v1', 'v2'),
-        });
-        const validationResult = Joi.validate(objectModel, rootSchema, { abortEarly: false });
+        const validationResult = Joi.validate(objectModel, RootSchema.getSchema(), { abortEarly: false });
         if (validationResult.error) {
             _.forEach(validationResult.error.details, (err) => {
                 Validator._processRootSchemaError(err, validationResult, yaml);
@@ -572,6 +561,8 @@ class Validator {
     }
 
     static _processStepSchemaError(err, validationResult, stepName, type, yaml, stepSchema) {
+        if (type === 'parallel') return; // TODO: add all errors from parallel step to warnings
+
         const originalPath = Validator._getOriginalPath(err);
         const originalFieldValue = Validator._getOriginalFieldValue(originalPath, validationResult);
         const suggestion = Validator._getArgumentSuggestion(err, originalPath, stepSchema);
@@ -947,8 +938,8 @@ class Validator {
 
         const multipleStepsSchema = Joi.object({
             mode: Joi.string().valid('sequential', 'parallel'),
-            fail_fast: Joi.boolean(),
-            strict_fail_fast: Joi.boolean().strict().optional(),
+            fail_fast: BaseSchema.getBooleanSchema(),
+            strict_fail_fast: BaseSchema.getBooleanSchema({ strictBoolean: true }).optional(),
             steps: Joi.object().pattern(/^.+$/, Joi.object()),
         });
 
@@ -967,12 +958,7 @@ class Validator {
                 annotations: BaseSchema._getAnnotationsSchema(),
             });
         } else if (hook.steps) {
-            hookSchema = Joi.object({
-                mode: Joi.string().valid('sequential', 'parallel'),
-                fail_fast: Joi.boolean(),
-                strict_fail_fast: Joi.boolean().strict().optional(),
-                steps: Joi.object().pattern(/^.+$/, Joi.object()),
-            });
+            hookSchema = multipleStepsSchema;
         } else {
             hookSchema = Joi.object();
         }
@@ -1071,6 +1057,30 @@ class Validator {
         });
         this.jsonSchemas = jsonSchemas;
         return this.jsonSchemas;
+    }
+
+    static getRootJoiSchema() {
+        return RootSchema.getSchema();
+    }
+
+    static getStepsJoiSchemas() {
+        if (this._stepsJoiSchemas) {
+            return this._stepsJoiSchemas;
+        }
+        this._stepsJoiSchemas = this._resolveStepsJoiSchemas({}, {
+            build: {
+                buildVersion: 'V2', // use the fullest schema
+            }
+        });
+        return this._stepsJoiSchemas;
+    }
+
+    static generateJSONPaths({ fieldType, joiSchema, convertToCamelCase }) {
+        return new JSONPathsGenerator({ fieldType, joiSchema, convertToCamelCase }).getJSONPaths();
+    }
+
+    static getVariableRegex({ isExact } = {}) {
+        return isExact ? VARIABLE_EXACT_REGEX : VARIABLE_REGEX;
     }
 }
 
