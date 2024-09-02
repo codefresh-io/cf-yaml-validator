@@ -8336,7 +8336,8 @@ describe('Validate Codefresh YAML with context', () => {
                     '$.failFast',
                     '$.strictFailFast',
                     '$.useProxy',
-                    '$.excludeBlobs'
+                    '$.excludeBlobs',
+                    '$.skipTagsOnUpdate'
                 ],
                 'multipleTypesFields': []
             };
