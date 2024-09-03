@@ -107,7 +107,8 @@ describe('Validate jsonpaths-generator', () => {
                     '$.fail_fast',
                     '$.strict_fail_fast',
                     '$.use_proxy',
-                    '$.exclude_blobs'
+                    '$.exclude_blobs',
+                    '$.skip_tags_on_update',
                 ],
                 'multipleTypesFields': []
             };
