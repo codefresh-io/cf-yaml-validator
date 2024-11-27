@@ -35,6 +35,7 @@ class Build extends BaseSchema {
             no_cache: this.constructor.getBooleanSchema(),
             no_cf_cache: this.constructor.getBooleanSchema(),
             cache_from: Joi.array().items(Joi.string()),
+            cache_to: Joi.array().items(Joi.string()),
             squash: this.constructor.getBooleanSchema(),
             image_name: Joi.string().required(),
             build_arguments: Joi.array().items(Joi.string()),
